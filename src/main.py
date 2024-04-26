@@ -38,7 +38,13 @@ if len(connections) > 0:
 
     adjaceny_matrices_2_grams, frequency_2_grams = get_adjacency_matrices_2_grams(connections, object_dict)
 
-    # Step 3: 3-grams: We have to find three-node connected components in the graph, create adjacency matrices for 3-grams and count the frequency of each 3-gram
+    # Step 3: 3-grams: We have to find three-node subgraphs in the graph, create adjacency matrix and their frequencies
+
+    # get 3 node subgraphs
+    three_node_subgraphs = get_3_node_subgraphs(G)
+
+    # get adjacency matrices for 3-grams and the frequency of each 3-gram
+    adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G)
 
 
     # Step 4: Now, that we have a bag of graphs and their probabilities -> how probable is a sequence?

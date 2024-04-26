@@ -58,11 +58,26 @@ def calculate_sha256(data):
     return sha256_hash
 
 
+def create_two_node_adjaency_matrix():
+    
+    '''
+    Create a 2 by 2 matrix for the two nodes assuming the first one is source and the second one is destination.
+    Then, we have a connection from node_0 to node_1 only
+    '''
+    
+    entry00 = 0
+    entry01 = 1
+    entry10 = 0
+    entry11 = 0
+
+    adjacency_matrix = [[entry00, entry01], [entry10, entry11]]
+    return adjacency_matrix
+
 def get_adjacency_matrices_2_grams(connections, object_dict):
     
     '''
     If we want to build adjacency matrices for 2-grams, there are some scenarios we need to consider:
-    1. there could be multiple connections between two nodes. For generating an adjacency matrix, we skipped duplicate connections.
+    1. There could be multiple connections between two nodes. For generating an adjacency matrix, we skipped duplicate connections.
     2. But for counting the frequency of 2-grams, we need to consider all connections. So, for duplicate connections, we increment the frequency of the 2-gram.
     3. If there is a connection from a to b, we create one key for it, and if there is a connection from b to a, we create another key for it. As these are different subgraphs.
     4. If there is a similar subgraph detected later in the graph, we keep the adjacency matrix the same but increment the frequency of the 2-gram.
@@ -76,17 +91,20 @@ def get_adjacency_matrices_2_grams(connections, object_dict):
         source = object_dict[connection["patchline"]["source"][0]]
         destination = object_dict[connection["patchline"]["destination"][0]]
 
-        key =  + source + "_CONNECTS_" + destination
+        # The adjacency matrix is always going to be same for an edge between two nodes, as first is the source and the second is the destination
+        # We could skip the calculation related to adjacency matrix completely, but keeping it for the sake of similarity with the 3-grams
         
-        if not key in adjacency_matrices_2_grams:            
-            entry00 = 0
-            entry01 = 1
-            entry10 = 0
-            entry11 = 0
-            adjacency_matrices_2_grams[key] = [[entry00, entry01], [entry10, entry11]]
+        adjacency_matrix = create_two_node_adjaency_matrix()
+        subgraph_name = "_".join([source, destination])
+
+        key =  calculate_sha256(subgraph_name + "_" + str(adjacency_matrix))
+        
+        if not key in adjacency_matrices_2_grams:                     
+            adjacency_matrices_2_grams[key] = adjacency_matrix
             frequency_2_grams[key] = 1
         else:
             frequency_2_grams[key] += 1
+    
     
     return adjacency_matrices_2_grams, frequency_2_grams
 
@@ -108,24 +126,92 @@ def central_node(node_0, node_1, node_2, G):
 
 def get_3_node_subgraphs(G):
         
-        '''
-        Get all the 3-node subgraphs from the graph G
-        by checking if there is a central node that connects the other two nodes in a list of three nodes.
-        '''
+    '''
+    Get all the 3-node subgraphs from the graph G
+    by checking if there is a central node that connects the other two nodes in a list of three nodes.
+    '''
 
-        # get all combination of 3 nodes
-        three_nodes = list(itertools.combinations(G.nodes, 3))
+    # get all combination of 3 nodes
+    three_nodes = list(itertools.combinations(G.nodes, 3))
 
-        # not all of them are connected, so we need to only select the ones that have an edge between them
-        three_node_subgraphs = []
-        
-        for three_node in three_nodes:
-            is_connected = central_node(three_node[0], three_node[1], three_node[2], G) or central_node(three_node[1], three_node[0], three_node[2], G) or central_node(three_node[2], three_node[0], three_node[1], G)
-            if is_connected:
-                three_node_subgraphs.append(three_node)
+    # not all of them are connected, so we need to only select the ones that have an edge between them
+    three_node_subgraphs = []
+    
+    for three_node in three_nodes:
+        is_connected = central_node(three_node[0], three_node[1], three_node[2], G) or central_node(three_node[1], three_node[0], three_node[2], G) or central_node(three_node[2], three_node[0], three_node[1], G)
+        if is_connected:
+            three_node_subgraphs.append(three_node)
 
-        return three_node_subgraphs
+    return three_node_subgraphs
    
 
+def create_three_node_adjaency_matrix(node_0, node_1, node_2, G):
+
+    '''
+    Create a 3 by 3 matrix for the three nodes
+    '''
+    
+    # 0 if there is no connection between node_0 and node_1, 1 if there is a connection
+    entry00 = 1 if G.has_edge(node_0, node_0) else 0
+    entry01 = 1 if G.has_edge(node_0, node_1) else 0
+    entry02 = 1 if G.has_edge(node_0, node_2) else 0
+    entry10 = 1 if G.has_edge(node_1, node_0) else 0
+    entry11 = 1 if G.has_edge(node_1, node_1) else 0
+    entry12 = 1 if G.has_edge(node_1, node_2) else 0
+    entry20 = 1 if G.has_edge(node_2, node_0) else 0
+    entry21 = 1 if G.has_edge(node_2, node_1) else 0
+    entry22 = 1 if G.has_edge(node_2, node_2) else 0
+
+    node_0_row = [entry00, entry01, entry02]
+    node_1_row = [entry10, entry11, entry12]
+    node_2_row = [entry20, entry21, entry22]
+
+    adjacency_matrix = [node_0_row, node_1_row, node_2_row]
+
+    return adjacency_matrix
 
 
+def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G):
+    
+    '''
+    If we want to build adjacency matrices for 3-grams, there are some scenarios we need to consider:
+    1. When we get three node subgraphs, we get it in no specific order, it could be ("PD-ROOT_obj-0", "PD-ROOT_obj-1", "PD-ROOT_obj-2") or ("PD-ROOT_obj-1", "PD-ROOT_obj-0", "PD-ROOT_obj-2")
+    2. Now, suppose PD-ROOT_obj-0 is a msg, PD-ROOT_obj-1 is a tgl, and PD-ROOT_obj-2 is a floatatom. Then, to uniquely identify this subgraph, we do two things:
+        a. we sort the object types and get a sorted tuple, which could be ("floatatom", "msg", "tgl"). 
+        Note that, it's important to sort the object types not id of an object, because id is of no significance to us when finding subgraphs.
+        b. for this particular order of nodes, we create adjacency matrix
+    4. Finally, we can uniquely identify this subgraph by using the sorted tuple and the adjacency matrix to create a unique key.
+    5. For this particular order of nodes, if we get the same adjacency matrix later, then we have found a duplicate subgraph.
+    6. If we find the same subgraph later in the graph, we keep the adjacency matrix the same but increment the frequency of the 3-gram.
+    7. If for the same serial of nodes, we have a different adjacency matrix (suppose the direction of edges is different), we create a different key for it.
+    '''
+    
+    adjacency_matrices_3_grams = {}
+    frequency_3_grams = {}
+
+
+    for subgraph in three_node_subgraphs:
+
+        # sort the item version of these three nodes and get a sorted tuple
+        subgraph_items = [object_dict[node] for node in subgraph]
+        sorted_tuple = sorted(subgraph_items)
+        sorted_indices = sorted(range(len(subgraph_items)), key=lambda x: subgraph_items[x])
+
+        # assign first second and third node according to the sorted indices
+        node_0 = subgraph[sorted_indices[0]]
+        node_1 = subgraph[sorted_indices[1]]
+        node_2 = subgraph[sorted_indices[2]]
+
+        adjacency_matrix = create_three_node_adjaency_matrix(node_0, node_1, node_2, G)
+        subgraph_name = "_".join(sorted_tuple)
+
+        key =  calculate_sha256(subgraph_name + "_" + str(adjacency_matrix))
+        
+        if not key in adjacency_matrices_3_grams:            
+            
+            adjacency_matrices_3_grams[key] = adjacency_matrix
+            frequency_3_grams[key] = 1
+        else:
+            frequency_3_grams[key] += 1
+    
+    return adjacency_matrices_3_grams, frequency_3_grams

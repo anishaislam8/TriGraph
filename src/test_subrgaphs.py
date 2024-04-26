@@ -39,6 +39,3 @@ if len(connections) > 0:
     three_node_subgraphs = get_3_node_subgraphs(G)
     print(three_node_subgraphs)
 
-
-    
-
