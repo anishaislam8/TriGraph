@@ -1,0 +1,876 @@
+{
+    "edges": 35,
+    "nodes": 36,
+    "node_types": {
+        "msg": 3,
+        "o.compose": 9,
+        "dev/o.slip.encode": 1,
+        "floatatom": 1,
+        "dev/o.slip.decode": 1,
+        "comport": 1,
+        "tgl": 7,
+        "o.expr.codebox": 2,
+        "o.display": 3,
+        "o.pack": 2,
+        "o.prepend": 1,
+        "metro": 5
+    },
+    "all_objects": [
+        {
+            "box": {
+                "id": "PD-ROOT_obj-0",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "devices",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "msg",
+                "maxclass": "message"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-1",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "o.compose 449 33 binhex b#2F2D203A205B222F72222C20222F212F b#737472696E672F746F61646472657373 b#2F6D6F7665222C20222F692F3130222C b#20222F212F70757368225D2C0A2F212F b#736C656570203A2032303030",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-2",
+                "numinlets": 11,
+                "numoutlets": 1,
+                "text": "dev/o.slip.encode",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "dev/o.slip.encode",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-3",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "0",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "floatatom",
+                "maxclass": "floatatom"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-4",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "dev/o.slip.decode",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "dev/o.slip.decode",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-5",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "close",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "msg",
+                "maxclass": "message"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-6",
+                "numinlets": 5,
+                "numoutlets": 1,
+                "text": "comport 3 115200",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "comport",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-7",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-8",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.expr.codebox 203 37 binhex b#2F6C6564203D20696E743332282F6C65 b#6429",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.expr.codebox",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-9",
+                "numinlets": 1,
+                "numoutlets": 0,
+                "text": "o.display 100 28",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.display",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-10",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.pack /led 1",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.pack",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-11",
+                "numinlets": 1,
+                "numoutlets": 2,
+                "text": "o.prepend /!",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.prepend",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-12",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "open 3 115200",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "msg",
+                "maxclass": "message"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-13",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "o.compose 100 23 binhex b#2F212F6C6564",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-14",
+                "numinlets": 1,
+                "numoutlets": 0,
+                "text": "o.display 231 28",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.display",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-15",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.compose 100 23 binhex b#2F642F3232",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-16",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-17",
+                "numinlets": 1,
+                "numoutlets": 2,
+                "text": "o.expr.codebox 203 37 binhex b#2F642F3235203D20696E743332282F64 b#2F323529",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.expr.codebox",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-18",
+                "numinlets": 1,
+                "numoutlets": 0,
+                "text": "o.display 100 28",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.display",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-19",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "o.compose 100 23 binhex b#2F642F3235",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-20",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-21",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "metro 50",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "metro",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-22",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "o.compose 100 23 binhex b#2F642F3232",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-23",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.pack /d/25 1",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.pack",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-24",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.compose 78 33 binhex b#2F242F642F32322C0A2F402F642F3235 b#",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-25",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-26",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "metro 50",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "metro",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-27",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.compose 78 33 binhex b#2F242F642F32322C0A2F402F642F3236 b#",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-28",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-29",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "metro 50",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "metro",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-30",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.compose 100 23 binhex b#2F612F30",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-31",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-32",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "metro 50",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "metro",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-33",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "o.compose 140 33 binhex b#2F402F72203A20222F242F612F30222C b#0A2F2D203A20222F242F7222",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "o.compose",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-34",
+                "numinlets": 0,
+                "numoutlets": 1,
+                "text": "",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "tgl",
+                "maxclass": "newobj"
+            }
+        },
+        {
+            "box": {
+                "id": "PD-ROOT_obj-35",
+                "numinlets": 1,
+                "numoutlets": 1,
+                "text": "metro 50",
+                "fontname": "Arial",
+                "fontsize": 10,
+                "object_type": "metro",
+                "maxclass": "newobj"
+            }
+        }
+    ],
+    "connections": [
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-6",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-0",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-1",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-6",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-2",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-6",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-3",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-14",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-4",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-6",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-5",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-4",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-6",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-10",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-7",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-11",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-8",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-8",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-10",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-9",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-11",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-11",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-6",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-12",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-13",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-15",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-23",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-16",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-17",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-18",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-17",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-19",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-21",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-20",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-15",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-21",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-22",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-17",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-23",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-24",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-26",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-25",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-24",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-26",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-27",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-29",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-28",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-27",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-29",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-30",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-32",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-31",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-30",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-32",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-2",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-33",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-35",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-34",
+                    0
+                ]
+            }
+        },
+        {
+            "patchline": {
+                "destination": [
+                    "PD-ROOT_obj-33",
+                    0
+                ],
+                "source": [
+                    "PD-ROOT_obj-35",
+                    0
+                ]
+            }
+        }
+    ],
+    "commit_date": "2021-02-19 09:25:41 +0100",
+    "commit_sha": "0555d02200d3c1ee361f9ec82bcaa1e72a7294dd"
+}
