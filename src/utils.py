@@ -1,3 +1,5 @@
+import hashlib
+
 def create_a_dictionary_of_object_id_to_type(all_objects):
     
     '''
@@ -35,3 +37,59 @@ def get_unique_tokens_and_counts(nodes, object_dict):
         token_counts_1_gram[object_dict[node]] += 1
 
     return unique_tokens, token_counts_1_gram
+
+
+# calculate_sha256() collected from https://unogeeks.com/python-sha256/
+def calculate_sha256(data):
+
+    '''
+    Get the hash of a string using the SHA-256 algorithm.
+    '''
+
+    # Convert data to bytes if it’s not already
+    if isinstance(data, str):
+        data = data.encode()
+
+    # Calculate SHA-256 hash
+    sha256_hash = hashlib.sha256(data).hexdigest()
+
+    return sha256_hash
+
+
+def get_adjacency_matrices_2_grams(connections, object_dict):
+    
+    '''
+    If we want to build adjacency matrices for 2-grams, there are some scenarios we need to consider:
+    1. there could be multiple connections between two nodes. For generating an adjacency matrix, we skipped duplicate connections.
+    2. But for counting the frequency of 2-grams, we need to consider all connections. So, for duplicate connections, we increment the frequency of the 2-gram.
+    3. If there is a connection from a to b, we create one key for it, and if there is a connection from b to a, we create another key for it. As these are different subgraphs.
+    4. If there is a similar subgraph detected later in the graph, we keep the adjacency matrix the same but increment the frequency of the 2-gram.
+    '''
+    
+    
+    adjacency_matrices_2_grams = {}
+    frequency_2_grams = {}
+
+
+    for connection in connections:
+        source = object_dict[connection["patchline"]["source"][0]]
+        destination = object_dict[connection["patchline"]["destination"][0]]
+
+        key =  + source + "_CONNECTS_" + destination
+        
+        if not key in adjacency_matrices_2_grams:            
+            entry00 = 0
+            entry01 = 1
+            entry10 = 0
+            entry11 = 0
+            adjacency_matrices_2_grams[key] = [[entry00, entry01], [entry10, entry11]]
+            frequency_2_grams[key] = 1
+        else:
+            frequency_2_grams[key] += 1
+    
+    return adjacency_matrices_2_grams, frequency_2_grams
+
+        
+
+
+
