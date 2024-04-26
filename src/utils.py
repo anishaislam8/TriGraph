@@ -1,4 +1,6 @@
 import hashlib
+import networkx as nx
+import itertools
 
 def create_a_dictionary_of_object_id_to_type(all_objects):
     
@@ -66,7 +68,6 @@ def get_adjacency_matrices_2_grams(connections, object_dict):
     4. If there is a similar subgraph detected later in the graph, we keep the adjacency matrix the same but increment the frequency of the 2-gram.
     '''
     
-    
     adjacency_matrices_2_grams = {}
     frequency_2_grams = {}
 
@@ -90,6 +91,41 @@ def get_adjacency_matrices_2_grams(connections, object_dict):
     return adjacency_matrices_2_grams, frequency_2_grams
 
         
+def central_node(node_0, node_1, node_2, G):
+    '''
+    For three nodes, we are checking if there is a connectivity between them.
+    We are checking if node_0 is a central node, that means if this connects the other two nodes by any undirected edge.
+    If the edge list is like this: [(node_1, node_0), (node_2, node_0)], then node_0 is a central node which connects node_1 and node_2.
+
+    So, what we are trying to answer is : Is node_0 connected to the node_1 and node_2 by edges regardless of direction?
+    '''
+
+    is_connected_to_node_1 = G.has_edge(node_0, node_1) or G.has_edge(node_1, node_0)
+    is_connected_to_node_2 = G.has_edge(node_0, node_2) or G.has_edge(node_2, node_0)
+
+    return is_connected_to_node_1 and is_connected_to_node_2
+
+
+def get_3_node_subgraphs(G):
+        
+        '''
+        Get all the 3-node subgraphs from the graph G
+        by checking if there is a central node that connects the other two nodes in a list of three nodes.
+        '''
+
+        # get all combination of 3 nodes
+        three_nodes = list(itertools.combinations(G.nodes, 3))
+
+        # not all of them are connected, so we need to only select the ones that have an edge between them
+        three_node_subgraphs = []
+        
+        for three_node in three_nodes:
+            is_connected = central_node(three_node[0], three_node[1], three_node[2], G) or central_node(three_node[1], three_node[0], three_node[2], G) or central_node(three_node[2], three_node[0], three_node[1], G)
+            if is_connected:
+                three_node_subgraphs.append(three_node)
+
+        return three_node_subgraphs
+   
 
 
 
