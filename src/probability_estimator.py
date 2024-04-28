@@ -23,14 +23,14 @@ def get_score(node_0, node_1, node_2, frequency_1_gram, frequency_2_grams, frequ
     The algorithm is as follows:
     1. If the key is in the frequency_3_grams dictionary, then the score is the probability of the 3-gram.
     The probability of the 3-gram is the frequency of the 3-gram divided by the sum of the frequencies of all the 3-grams.
-    2. If the key is not in the frequency_3_grams dictionary, then we need to find the 2-gram keys.
+    2. If the key is not in the frequency_3_grams dictionary, we need to find the 2-gram keys.
     We are finding the 2-gram keys by taking the edges and calculating the sha256 hash of the adjacency matrix of the two nodes.
-    3. If the 2-gram key is in the frequency_2_grams dictionary, then multiply the score with the probability of the 2-gram.
+    3. If the 2-gram key is in the frequency_2_grams dictionary, multiply the score by the probability of the 2-gram.
     The probability of the 2-gram is the frequency of the 2-gram divided by the sum of the frequencies of all the 2-grams.
-    4. If the 2-gram key is not in the frequency_2_grams dictionary, then multiply the score with the probability of the 1-gram.
+    4. If the 2-gram key is not in the frequency_2_grams dictionary, multiply the score by the probability of the 1-gram.
     The probability of the 1-gram is the frequency of the 1-gram divided by the sum of the frequencies of all the 1-grams.
     5. Multiply the score with some discount factor raised to the power (number of unique missed two grams + number of missed unique one grams + number of found one grams).
-    6. Additionally, for each missed one gram, multiply the score with 0.5 * (1 / sum of the frequencies of all the 1-grams).
+    6. Additionally, for each missed unique one gram, multiply the score with 0.5 * (1 / sum of the frequencies of all the 1-grams).
     7. Return the score.
     '''
     
