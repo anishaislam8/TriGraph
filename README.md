@@ -35,6 +35,6 @@ The probability of the 1-gram is the frequency of the 1-gram divided by the sum 
 To predict the next token, we follow the same methodology mentioned above. However, we find the next token by iterating through our entire vocabulary and finding the token that maximizes the score of the subgraph.
 
 
-## Limitation:
+## Limitations:
 1. The current code only works on three-node subgraphs.
 2. Our vocabulary is limited to the subgraphs of the parsed source code of one file only.
