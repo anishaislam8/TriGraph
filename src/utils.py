@@ -1,6 +1,7 @@
 import hashlib
 import networkx as nx
 import itertools
+import copy
 
 def create_a_dictionary_of_object_id_to_type(all_objects):
     
@@ -215,3 +216,11 @@ def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G):
             frequency_3_grams[key] += 1
     
     return adjacency_matrices_3_grams, frequency_3_grams
+
+
+def create_a_copy_of_sample_subgraph(sample_subgraph):
+    '''
+    Create a copy of the sample subgraph
+    '''
+
+    return copy.deepcopy(sample_subgraph)

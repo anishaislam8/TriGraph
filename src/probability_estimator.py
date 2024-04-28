@@ -24,13 +24,16 @@ def get_score(node_0, node_1, node_2, frequency_1_gram, frequency_2_grams, frequ
     1. If the key is in the frequency_3_grams dictionary, then the score is the probability of the 3-gram.
     The probability of the 3-gram is the frequency of the 3-gram divided by the sum of the frequencies of all the 3-grams.
     2. If the key is not in the frequency_3_grams dictionary, then we need to find the 2-gram keys.
-    We are finding the 2-gram keys by taking the first two nodes of the three nodes and calculating the sha256 hash of the adjacency matrix of the two nodes.
-    3. If the 2-gram key is in the frequency_2_grams dictionary, then the score is the probability of the 2-gram.
+    We are finding the 2-gram keys by taking the edges and calculating the sha256 hash of the adjacency matrix of the two nodes.
+    3. If the 2-gram key is in the frequency_2_grams dictionary, then multiply the score with the probability of the 2-gram.
     The probability of the 2-gram is the frequency of the 2-gram divided by the sum of the frequencies of all the 2-grams.
-    4. If the 2-gram key is not in the frequency_2_grams dictionary, then the score is the probability of the 1-gram.
+    4. If the 2-gram key is not in the frequency_2_grams dictionary, then multiply the score with the probability of the 1-gram.
     The probability of the 1-gram is the frequency of the 1-gram divided by the sum of the frequencies of all the 1-grams.
-    5. Finally, the score is returned.
+    5. Multiply the score with some discount factor raised to the power (number of unique missed two grams + number of missed unique one grams + number of found one grams).
+    6. Additionally, for each missed one gram, multiply the score with 0.5 * (1 / sum of the frequencies of all the 1-grams).
+    7. Return the score.
     '''
+    
     discount_factor = 0.05
 
     # 3-grams: calculate the sha256 hash of the adjacency matrix of the three nodes
@@ -83,8 +86,41 @@ def get_score(node_0, node_1, node_2, frequency_1_gram, frequency_2_grams, frequ
         
 
 
-def predict_token():
-    pass
+def predict_token(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams):
+    '''
+    @param sample_subgraph: list of lists, each list contains two strings representing the nodes of the subgraph, each list represents an edge
+    @param frequency_1_gram: dictionary, key is the object_type and value is the frequency of the object_type
+    @param frequency_2_grams: dictionary, key is the sha256 hash of the adjacency matrix of the two nodes and value is the frequency of the 2-gram
+    @param frequency_3_grams: dictionary, key is the sha256 hash of the adjacency matrix of the three nodes and value is the frequency of the 3-gram
+    
+    @return: string (object_type), the next token in the blank of the given subgraph
+
+    This function predicts the next token in the blank position of our subgraph.
+    We find the next token by iterating through our entire vocabulary and finding the token that maximizes the score of the subgraph.
+
+    '''
+
+    vocabulary = frequency_1_gram.keys()
+    max_score = 0
+    next_token = None
+
+    for item in vocabulary:
+        # where is the blank?
+        copy_of_sample_subgraph = create_a_copy_of_sample_subgraph(sample_subgraph)
+
+        if "BLANK" in copy_of_sample_subgraph[0]:
+            copy_of_sample_subgraph[0][copy_of_sample_subgraph[0].index("BLANK")] = item
+        else:
+            copy_of_sample_subgraph[1][copy_of_sample_subgraph[1].index("BLANK")] = item
+        
+        score = count_probability(copy_of_sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+        print("Item: ", item, "Score: ", score)
+        if score > max_score:
+            max_score = score
+            next_token = item
+
+    return next_token
+    
 
 
 def count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams):
@@ -100,7 +136,7 @@ def count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, freq
 
     This method calls all the necessary functions to calculate and return the probability of a given subgraph. 
     At first we are creating a graph from the given subgraph. Then we are finding the three node subgraphs in the graph. 
-    We are hard coding this for now as in we are only assuming one subgraph as for three nodes we get one three node subgraph.
+    NOTE: We are hard coding this for now as in we are only assuming one subgraph as for three nodes we get one three node subgraph.
 
     Then we are sorting the nodes by their object_type.
     
@@ -117,17 +153,21 @@ def count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, freq
     G_test.add_nodes_from(nodes)
     G_test.add_edges_from([(sample_edge[0], sample_edge[1]) for sample_edge in sample_subgraph])
 
-    test_three_node_subgraphs = get_3_node_subgraphs(G_test)[0] # hard coding this for testing purposes
+    try:
 
-    # in this case, we are not passing ids, we are directly passing the object types
-    sorted_tuple = sorted(test_three_node_subgraphs)
-    sorted_indices = sorted(range(len(test_three_node_subgraphs)), key=lambda x: test_three_node_subgraphs[x])
+        test_three_node_subgraphs = get_3_node_subgraphs(G_test)[0] # hard coding this for testing purposes
 
-    # the followings are strings representing the object_types (e.g. "msg")
-    node_0 = test_three_node_subgraphs[sorted_indices[0]] 
-    node_1 = test_three_node_subgraphs[sorted_indices[1]]
-    node_2 = test_three_node_subgraphs[sorted_indices[2]]
+        # in this case, we are not passing ids, we are directly passing the object types
+        sorted_tuple = sorted(test_three_node_subgraphs)
+        sorted_indices = sorted(range(len(test_three_node_subgraphs)), key=lambda x: test_three_node_subgraphs[x])
 
-    score = get_score(node_0, node_1, node_2, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
-    return score
+        # the followings are strings representing the object_types (e.g. "msg")
+        node_0 = test_three_node_subgraphs[sorted_indices[0]] 
+        node_1 = test_three_node_subgraphs[sorted_indices[1]]
+        node_2 = test_three_node_subgraphs[sorted_indices[2]]
+
+        score = get_score(node_0, node_1, node_2, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
+        return score
+    except:
+        return 0.0
         

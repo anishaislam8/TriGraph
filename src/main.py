@@ -63,10 +63,27 @@ if len(connections) > 0:
         [["msg", "tgl"], ["tgl", "floatatom"]]
     ]
     
+    print("******Calculating the probability of a subgraph********\n")
     for sample_subgraph in sample_subgraphs:
         print("Sample subgraph: ", sample_subgraph)
         probability_of_this_subgraph = count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
         print("Probability of this subgraph given our corpus: ", probability_of_this_subgraph)
+        print("\n")
+
+
+    # Step 5: Given a subgraph, with a blank token, predict the token in the blank
+    print("******Predicting the next token given a sample subgraph with a blank token********\n")
+
+    sample_subgraphs = [
+        [["list_append", "BLANK"], ["inlet", "list_append"]], # output should be "list_trim"
+        [["list_prepend", "list_trim"],["list_trim", "BLANK"]], # output should be print
+        [["list_prepend", "msg"],["BLANK", "msg"]], # output should be print
+    ]
+
+    for sample_subgraph in sample_subgraphs:
+        next_token = predict_token(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+        print("Sample subgraph: ", sample_subgraph)
+        print("Predicted token: ", next_token)
         print("\n")
 
     
