@@ -2,6 +2,7 @@ import networkx as nx
 import json
 
 from utils import *
+from probability_estimator import *
 
 
 # Step 0: Get the connections, for now just using an example graph, build the graph
@@ -32,7 +33,11 @@ if len(connections) > 0:
 
     # Step 1: 1-grams: Get the unique tokens and count the frequency of each token
 
-    unique_tokens, token_counts_1_gram = get_unique_tokens_and_counts(nodes, object_dict)
+    unique_tokens, frequency_1_gram = get_unique_tokens_and_counts(nodes, object_dict)
+
+    print("Unique tokens: ", unique_tokens)
+    print("Frequency of each token: ", frequency_1_gram)
+    print("\n")
 
     # Step 2: 2-grams: Then we create adjacency matrices for 2-grams
 
@@ -47,7 +52,28 @@ if len(connections) > 0:
     adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G)
 
 
+
     # Step 4: Now, that we have a bag of graphs and their probabilities -> how probable is a sequence?
+
+    # for now we are using a hard_coded sequence of three nodes, need to make it more flexible
+    sample_subgraphs = [
+        [["list_append", "list_trim"], ["inlet", "list_append"]],
+        [["list_append", "msg"], ["inlet", "list_append"]],
+        [["list_append", "msg"], ["msg", "list_trim"]],
+        [["msg", "tgl"], ["tgl", "floatatom"]]
+    ]
+    
+    for sample_subgraph in sample_subgraphs:
+        print("Sample subgraph: ", sample_subgraph)
+        probability_of_this_subgraph = count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+        print("Probability of this subgraph given our corpus: ", probability_of_this_subgraph)
+        print("\n")
+
+    
+    
+
+
+
 
 else:
     print("No connections found in the parsed JSON file")
