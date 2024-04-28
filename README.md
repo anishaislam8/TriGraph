@@ -8,8 +8,8 @@ The methodology is as follows:
 3. For each unique connection, we create adjacency matrices, calculate the frequencies of the unique connections, and save it in a dictionary called `frequency_2_grams`.
 4. Then, we find the three-node subgraphs from the input graph, create adjacency matrices, calculate the frequencies of the 3-node subgraphs, and store them in a dictionary called `frequency_3_grams`.
 5. Finally, we answer the following questions.
-  - Given a bag of subgraphs and their probabilities, how probable is a sequence?
-  - Given a subgraph with a blank token, what is the most likely node that should be in the BLANK position?
+    - Given a bag of subgraphs and their probabilities, how probable is a sequence?
+    - Given a subgraph with a blank token, what is the most likely node that should be in the BLANK position?
 
 
 ## Score functionality
