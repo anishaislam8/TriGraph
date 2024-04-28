@@ -1,0 +1,57 @@
+Unique tokens:  {'inlet', 't', 'print', 'list_prepend', 'route', 'list_trim', 'list_append'}
+Frequency of each token:  {'inlet': 2, 't': 3, 'print': 3, 'list_prepend': 4, 'route': 2, 'list_trim': 5, 'list_append': 2}
+
+
+******Calculating the probability of a subgraph********
+
+Sample subgraph:  [['list_append', 'list_trim'], ['inlet', 'list_append']]
+Probability of this subgraph given our corpus:  0.024390243902439025
+
+
+Sample subgraph:  [['list_append', 'msg'], ['inlet', 'list_append']]
+Probability of this subgraph given our corpus:  9.774024552349677e-09
+
+
+Sample subgraph:  [['list_append', 'msg'], ['msg', 'list_trim']]
+Probability of this subgraph given our corpus:  1.6871828096317893e-10
+
+
+Sample subgraph:  [['msg', 'tgl'], ['tgl', 'floatatom']]
+Probability of this subgraph given our corpus:  4.2179570240794734e-12
+
+
+******Predicting the next token given a sample subgraph with a blank token********
+
+Item:  inlet Score:  0.0
+Item:  t Score:  0.0011890606420927466
+Item:  print Score:  5.8644147314098064e-08
+Item:  list_prepend Score:  7.819219641879741e-08
+Item:  route Score:  3.909609820939871e-08
+Item:  list_trim Score:  0.024390243902439025
+Item:  list_append Score:  0.0
+Sample subgraph:  [['list_append', 'BLANK'], ['inlet', 'list_append']]
+Predicted token:  list_trim
+
+
+Item:  inlet Score:  2.932207365704903e-07
+Item:  t Score:  4.3983110485573544e-07
+Item:  print Score:  0.07317073170731707
+Item:  list_prepend Score:  0.0
+Item:  route Score:  0.007134363852556481
+Item:  list_trim Score:  0.0
+Item:  list_append Score:  2.932207365704903e-07
+Sample subgraph:  [['list_prepend', 'list_trim'], ['list_trim', 'BLANK']]
+Predicted token:  print
+
+
+Item:  inlet Score:  1.3497462477054315e-10
+Item:  t Score:  2.0246193715581474e-10
+Item:  print Score:  2.0246193715581474e-10
+Item:  list_prepend Score:  0.0
+Item:  route Score:  1.3497462477054315e-10
+Item:  list_trim Score:  3.3743656192635786e-10
+Item:  list_append Score:  1.3497462477054315e-10
+Sample subgraph:  [['list_prepend', 'msg'], ['BLANK', 'msg']]
+Predicted token:  list_trim
+
+
