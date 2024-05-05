@@ -60,14 +60,10 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
     if key in frequency_3_grams:
         return frequency_3_grams[key] / sum(frequency_3_grams.values())
     else:
-        # I have to get the edges of the graph and then calculate the adjacency matrix because the key needs the source and destination of the edges
-        edges = list(G_test.edges)
-        score = 1.0
         
-        # for each edge, calculate the sha256 hash of the adjacency matrix of the two nodes
-        one_gram_keys = set()
-        number_of_missed_two_grams = set()
-        number_of_missed_one_grams = set()
+        edges = list(G_test.edges)
+        score = 1.0 * discount_factor # for the missed three grams
+        
         
         for edge in edges:
             subgraph = [edge[0], edge[1]]
@@ -85,27 +81,23 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
             key = str(vocab_index_2_grams + adjacency_matrix_2_gram)
 
             if key in frequency_2_grams:
-                score *= (frequency_2_grams[key] / sum(frequency_2_grams.values()))
+                score *= (frequency_2_grams[key] / sum(frequency_2_grams.values())) # do not multiply by discount factor
             else:
-                number_of_missed_two_grams.add(key)
+                score *= discount_factor # for missed two grams
                 
                 if edge[0] in frequency_1_gram:
-                    one_gram_keys.add(edge[0])
+                    score *= (frequency_1_gram[edge[0]] / sum(frequency_1_gram.values()))
                 else:
-                    number_of_missed_one_grams.add(edge[0])
+                    score *= 0.5 * (1 / sum(frequency_1_gram.values())) # assigning a very small value, half of the lowest probability
                 
                 if edge[1] in frequency_1_gram:
-                    one_gram_keys.add(edge[1])
+                    score *= (frequency_1_gram[edge[1]] / sum(frequency_1_gram.values()))
                 else:
-                    number_of_missed_one_grams.add(edge[1])
+                    score *= 0.5 * (1 / sum(frequency_1_gram.values())) # assigning a very small value, half of the lowest probability
+                
         
-        for key in one_gram_keys:
-            score *= (frequency_1_gram[key] / sum(frequency_1_gram.values()))
         
-        for key in number_of_missed_one_grams:
-            score *= 0.5 * (1 / sum(frequency_1_gram.values())) # assigning a very small value, half of the lowest probability
-        
-        return score * math.pow(discount_factor, (len(number_of_missed_one_grams) + len(number_of_missed_two_grams) + len(one_gram_keys)))
+        return score
 
 
        
