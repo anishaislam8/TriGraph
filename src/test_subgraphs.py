@@ -1,7 +1,7 @@
 import networkx as nx
 import itertools
 
-from utils import  get_3_node_subgraphs
+from utils import get_3_node_subgraphs
 
 
 

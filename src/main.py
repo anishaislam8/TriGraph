@@ -34,14 +34,17 @@ if len(connections) > 0:
     # Step 1: 1-grams: Get the unique tokens and count the frequency of each token
 
     unique_tokens, frequency_1_gram = get_unique_tokens_and_counts(nodes, object_dict)
-
+    unique_tokens = list(unique_tokens)
+    unique_tokens.sort()
     print("Unique tokens: ", unique_tokens)
     print("Frequency of each token: ", frequency_1_gram)
     print("\n")
 
+    
+
     # Step 2: 2-grams: Then we create adjacency matrices for 2-grams
 
-    adjaceny_matrices_2_grams, frequency_2_grams = get_adjacency_matrices_2_grams(connections, object_dict)
+    adjaceny_matrices_2_grams, frequency_2_grams = get_adjacency_matrices_2_grams(connections, object_dict, unique_tokens, G)
 
     # Step 3: 3-grams: We have to find three-node subgraphs in the graph, create adjacency matrix and their frequencies
 
@@ -49,7 +52,7 @@ if len(connections) > 0:
     three_node_subgraphs = get_3_node_subgraphs(G)
 
     # get adjacency matrices for 3-grams and the frequency of each 3-gram
-    adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G)
+    adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_tokens, G)
 
 
 
@@ -66,7 +69,7 @@ if len(connections) > 0:
     print("******Calculating the probability of a subgraph********\n")
     for sample_subgraph in sample_subgraphs:
         print("Sample subgraph: ", sample_subgraph)
-        probability_of_this_subgraph = count_probability(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+        probability_of_this_subgraph = count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams)
         print("Probability of this subgraph given our corpus: ", probability_of_this_subgraph)
         print("\n")
 
@@ -81,7 +84,7 @@ if len(connections) > 0:
     ]
 
     for sample_subgraph in sample_subgraphs:
-        next_token = predict_token(sample_subgraph, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+        next_token = predict_token(sample_subgraph, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams)
         print("Sample subgraph: ", sample_subgraph)
         print("Predicted token: ", next_token)
         print("\n")

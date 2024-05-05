@@ -59,22 +59,21 @@ def calculate_sha256(data):
     return sha256_hash
 
 
-def create_two_node_adjaency_matrix():
+def create_two_node_adjacency_matrix(first_node, second_node, G):
     
     '''
-    Create a 2 by 2 matrix for the two nodes assuming the first one is source and the second one is destination.
-    Then, we have a connection from node_0 to node_1 only
+    Create a 2 by 2 matrix for the two nodes
     '''
     
-    entry00 = 0
-    entry01 = 1
-    entry10 = 0
-    entry11 = 0
+    entry00 = 1 if G.has_edge(first_node, first_node) else 0
+    entry01 = 1 if G.has_edge(first_node, second_node) else 0
+    entry10 = 1 if G.has_edge(second_node, first_node) else 0
+    entry11 = 1 if G.has_edge(second_node, second_node) else 0
 
-    adjacency_matrix = [[entry00, entry01], [entry10, entry11]]
+    adjacency_matrix = [entry00, entry01, entry10, entry11]
     return adjacency_matrix
 
-def get_adjacency_matrices_2_grams(connections, object_dict):
+def get_adjacency_matrices_2_grams(connections, object_dict, unique_nodes, G):
     
     '''
     If we want to build adjacency matrices for 2-grams, there are some scenarios we need to consider:
@@ -92,13 +91,28 @@ def get_adjacency_matrices_2_grams(connections, object_dict):
         source = object_dict[connection["patchline"]["source"][0]]
         destination = object_dict[connection["patchline"]["destination"][0]]
 
-        # The adjacency matrix is always going to be same for an edge between two nodes, as first is the source and the second is the destination
-        # We could skip the calculation related to adjacency matrix completely, but keeping it for the sake of similarity with the 3-grams
-        
-        adjacency_matrix = create_two_node_adjaency_matrix()
-        subgraph_name = "_".join([source, destination])
+        nodes = [source, destination]
+        nodes.sort()
 
-        key =  calculate_sha256(subgraph_name + "_" + str(adjacency_matrix))
+        if nodes[0] == source:
+            node_0 = connection["patchline"]["source"][0]
+            node_1 = connection["patchline"]["destination"][0]
+        else:
+            node_0 = connection["patchline"]["destination"][0]
+            node_1 = connection["patchline"]["source"][0]
+
+        # create adjacency matrix for the two sorted nodes
+        # vocab_index for connections msg -> tgl and tgl -> msg will be same, for example [0, 1, 0, 1] depending on the length of the vocabulary and the position of the sorted tokens
+        # if the connection is msg -> tgl, then the adjacency matrix will be [0, 1, 0, 0]
+        # if the connection is tgl -> msg, then the adjacency matrix will be [0, 0, 1, 0]
+        
+        adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G)
+        vocab_index = [0]* len(unique_nodes)
+        vocab_index[unique_nodes.index(nodes[0])] = 1
+        vocab_index[unique_nodes.index(nodes[1])] = 1
+        key = str(vocab_index + adjacency_matrix)
+
+        
         
         if not key in adjacency_matrices_2_grams:                     
             adjacency_matrices_2_grams[key] = adjacency_matrix
@@ -146,7 +160,7 @@ def get_3_node_subgraphs(G):
     return three_node_subgraphs
    
 
-def create_three_node_adjaency_matrix(node_0, node_1, node_2, G):
+def create_three_node_adjacency_matrix(node_0, node_1, node_2, G):
 
     '''
     Create a 3 by 3 matrix for the three nodes
@@ -163,16 +177,12 @@ def create_three_node_adjaency_matrix(node_0, node_1, node_2, G):
     entry21 = 1 if G.has_edge(node_2, node_1) else 0
     entry22 = 1 if G.has_edge(node_2, node_2) else 0
 
-    node_0_row = [entry00, entry01, entry02]
-    node_1_row = [entry10, entry11, entry12]
-    node_2_row = [entry20, entry21, entry22]
-
-    adjacency_matrix = [node_0_row, node_1_row, node_2_row]
+    adjacency_matrix = [entry00, entry01, entry02, entry10, entry11, entry12, entry20, entry21, entry22]
 
     return adjacency_matrix
 
 
-def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G):
+def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_nodes, G):
     
     '''
     If we want to build adjacency matrices for 3-grams, there are some scenarios we need to consider:
@@ -193,7 +203,7 @@ def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G):
 
     for subgraph in three_node_subgraphs:
 
-        # sort the item version of these three nodes and get a sorted tuple
+        # sort the object_type version of these three nodes and get a sorted tuple
         subgraph_items = [object_dict[node] for node in subgraph]
         sorted_tuple = sorted(subgraph_items)
         sorted_indices = sorted(range(len(subgraph_items)), key=lambda x: subgraph_items[x])
@@ -203,10 +213,13 @@ def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, G):
         node_1 = subgraph[sorted_indices[1]]
         node_2 = subgraph[sorted_indices[2]]
 
-        adjacency_matrix = create_three_node_adjaency_matrix(node_0, node_1, node_2, G)
-        subgraph_name = "_".join(sorted_tuple)
+        adjacency_matrix = create_three_node_adjacency_matrix(node_0, node_1, node_2, G)
+        vocab_index = [0]* len(unique_nodes)
+        vocab_index[unique_nodes.index(sorted_tuple[0])] = 1
+        vocab_index[unique_nodes.index(sorted_tuple[1])] = 1
+        vocab_index[unique_nodes.index(sorted_tuple[2])] = 1
+        key = str(vocab_index + adjacency_matrix)
 
-        key =  calculate_sha256(subgraph_name + "_" + str(adjacency_matrix))
         
         if not key in adjacency_matrices_3_grams:            
             
