@@ -133,7 +133,7 @@ def predict_token(sample_subgraph, unique_tokens, frequency_1_gram, frequency_2_
             copy_of_sample_subgraph[1][copy_of_sample_subgraph[1].index("BLANK")] = item
         
         score = count_probability(copy_of_sample_subgraph, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams)
-        print("Item: ", item, "Score: ", score)
+        # print("Item: ", item, "Score: ", score)
         if score > max_score:
             max_score = score
             next_token = item
@@ -188,7 +188,6 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
 
         score = get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
         return score
-    except Exception as e:
-        print(e)
+    except:
         return 0.0
         
