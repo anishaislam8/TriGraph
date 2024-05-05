@@ -9,6 +9,7 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
     @param node_0: string (object_type), the first node of the subgraph
     @param node_1: string (object_type), the second node of the subgraph
     @param node_2: string (object_type), the third node of the subgraph
+    @param unique_tokens: list of strings, the unique tokens in the graph
     @param frequency_1_gram: dictionary, key is the object_type and value is the frequency of the object_type
     @param frequency_2_grams: dictionary, key is the sha256 hash of the adjacency matrix of the two nodes and value is the frequency of the 2-gram
     @param frequency_3_grams: dictionary, key is the sha256 hash of the adjacency matrix of the three nodes and value is the frequency of the 3-gram
@@ -39,19 +40,19 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
     # 3-grams: calculate the sha256 hash of the adjacency matrix of the three nodes
 
     adjacency_matrix_3_gram = create_three_node_adjacency_matrix(node_0, node_1, node_2, G_test)
-    vocab_index = [0]* len(unique_tokens)
+    vocab_index = [0]* (len(unique_tokens) + 1) # the last one is for unknowns
     try:
         vocab_index[unique_tokens.index(node_0)] = 1
     except:
-        pass
+        vocab_index[-1] = 1
     try:
         vocab_index[unique_tokens.index(node_1)] = 1
     except:
-        pass
+        vocab_index[-1] = 1
     try:
         vocab_index[unique_tokens.index(node_2)] = 1
     except:
-        pass
+        vocab_index[-1] = 1
     key = str(vocab_index + adjacency_matrix_3_gram)
 
 
@@ -72,15 +73,15 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
             subgraph = [edge[0], edge[1]]
             subgraph.sort()
             adjacency_matrix_2_gram = create_two_node_adjacency_matrix(subgraph[0], subgraph[1], G_test)
-            vocab_index = [0]* len(unique_tokens)
+            vocab_index = [0]* (len(unique_tokens) + 1)
             try:
                 vocab_index[unique_tokens.index(subgraph[0])] = 1
             except:
-                pass
+                vocab_index[-1] = 1
             try:
                 vocab_index[unique_tokens.index(subgraph[1])] = 1
             except:
-                pass
+                vocab_index[-1] = 1
             key = str(vocab_index + adjacency_matrix_2_gram)
 
             if key in frequency_2_grams:
@@ -114,6 +115,7 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
 def predict_token(sample_subgraph, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams):
     '''
     @param sample_subgraph: list of lists, each list contains two strings representing the nodes of the subgraph, each list represents an edge
+    @param unique_tokens: list of strings, the unique tokens in the graph
     @param frequency_1_gram: dictionary, key is the object_type and value is the frequency of the object_type
     @param frequency_2_grams: dictionary, key is the sha256 hash of the adjacency matrix of the two nodes and value is the frequency of the 2-gram
     @param frequency_3_grams: dictionary, key is the sha256 hash of the adjacency matrix of the three nodes and value is the frequency of the 3-gram
@@ -153,6 +155,7 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
     '''
 
     @param sample_subgraph: list of lists, each list contains two strings representing the nodes of the subgraph, each list represents an edge
+    @param unique_tokens: list of strings, the unique tokens in the graph
     @param frequency_1_gram: dictionary, key is the object_type and value is the frequency of the object_type
     @param frequency_2_grams: dictionary, key is the sha256 hash of the adjacency matrix of the two nodes and value is the frequency of the 2-gram
     @param frequency_3_grams: dictionary, key is the sha256 hash of the adjacency matrix of the three nodes and value is the frequency of the 3-gram
@@ -193,6 +196,7 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
 
         score = get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
         return score
-    except:
+    except Exception as e:
+        print(e)
         return 0.0
         

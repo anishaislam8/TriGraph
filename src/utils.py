@@ -107,7 +107,7 @@ def get_adjacency_matrices_2_grams(connections, object_dict, unique_nodes, G):
         # if the connection is tgl -> msg, then the adjacency matrix will be [0, 0, 1, 0]
         
         adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G)
-        vocab_index = [0]* len(unique_nodes)
+        vocab_index = [0]* (len(unique_nodes) + 1)
         vocab_index[unique_nodes.index(nodes[0])] = 1
         vocab_index[unique_nodes.index(nodes[1])] = 1
         key = str(vocab_index + adjacency_matrix)
@@ -214,7 +214,7 @@ def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_nod
         node_2 = subgraph[sorted_indices[2]]
 
         adjacency_matrix = create_three_node_adjacency_matrix(node_0, node_1, node_2, G)
-        vocab_index = [0]* len(unique_nodes)
+        vocab_index = [0]* (len(unique_nodes) + 1)
         vocab_index[unique_nodes.index(sorted_tuple[0])] = 1
         vocab_index[unique_nodes.index(sorted_tuple[1])] = 1
         vocab_index[unique_nodes.index(sorted_tuple[2])] = 1
