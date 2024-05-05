@@ -20,7 +20,10 @@ processed = 0
 
 
 with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/unique_tokens_train.pkl", "rb") as f:
-    unique_tokens_train = pickle.load(f)
+    unique_tokens_train_set = pickle.load(f)
+
+unique_tokens_train = list(unique_tokens_train_set)
+unique_tokens_train.sort()
 
 
 frequency_2_grams_train = {}
