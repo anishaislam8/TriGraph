@@ -73,16 +73,16 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
             subgraph = [edge[0], edge[1]]
             subgraph.sort()
             adjacency_matrix_2_gram = create_two_node_adjacency_matrix(subgraph[0], subgraph[1], G_test)
-            vocab_index = [0]* (len(unique_tokens) + 1)
+            vocab_index_2_grams = [0]* (len(unique_tokens) + 1)
             try:
-                vocab_index[unique_tokens.index(subgraph[0])] = 1
+                vocab_index_2_grams[unique_tokens.index(subgraph[0])] = 1
             except:
-                vocab_index[-1] = 1
+                vocab_index_2_grams[-1] = 1
             try:
-                vocab_index[unique_tokens.index(subgraph[1])] = 1
+                vocab_index_2_grams[unique_tokens.index(subgraph[1])] = 1
             except:
-                vocab_index[-1] = 1
-            key = str(vocab_index + adjacency_matrix_2_gram)
+                vocab_index_2_grams[-1] = 1
+            key = str(vocab_index_2_grams + adjacency_matrix_2_gram)
 
             if key in frequency_2_grams:
                 score *= (frequency_2_grams[key] / sum(frequency_2_grams.values()))
