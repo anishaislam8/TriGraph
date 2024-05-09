@@ -42,6 +42,7 @@ def get_unique_tokens_and_counts(nodes, object_dict):
     return unique_tokens, token_counts_1_gram
 
 
+# not needed for the new implementation
 # calculate_sha256() collected from https://unogeeks.com/python-sha256/
 def calculate_sha256(data):
 
@@ -124,6 +125,7 @@ def get_adjacency_matrices_2_grams(connections, object_dict, unique_nodes, G):
     return adjacency_matrices_2_grams, frequency_2_grams
 
         
+# not needed for the new implementation
 def central_node(node_0, node_1, node_2, G):
     '''
     For three nodes, we are checking if there is a connectivity between them.
@@ -143,22 +145,29 @@ def get_3_node_subgraphs(G):
         
     '''
     Get all the 3-node subgraphs from the graph G
-    by checking if there is a central node that connects the other two nodes in a list of three nodes.
+    by checking if there is a path between the nodes less than equal to length 2 using networkx all_simple_paths
     '''
 
-    # get all combination of 3 nodes
-    three_nodes = list(itertools.combinations(G.nodes, 3))
-
-    # not all of them are connected, so we need to only select the ones that have an edge between them
-    three_node_subgraphs = []
+    all_paths = []
     
-    for three_node in three_nodes:
-        is_connected = central_node(three_node[0], three_node[1], three_node[2], G) or central_node(three_node[1], three_node[0], three_node[2], G) or central_node(three_node[2], three_node[0], three_node[1], G)
-        if is_connected:
-            three_node_subgraphs.append(three_node)
+    # for all nodes, find paths less than equal length 3
+    for node  in G.nodes:
+        # targets are all nodes in the list except this one
+        targets = [x for x in G.nodes if x != node]
+        paths = nx.all_simple_paths(G, source=node, target=targets, cutoff=2)
+        all_paths.extend(paths)
 
-    return three_node_subgraphs
-   
+    test_three_node_subgraphs = set()
+    
+    for path in all_paths:
+        path = list(set(path))
+        # sort the path
+        path.sort()
+        if len(path) == 3:
+            test_three_node_subgraphs.add(tuple(path))
+
+    return test_three_node_subgraphs
+
 
 def create_three_node_adjacency_matrix(node_0, node_1, node_2, G):
 

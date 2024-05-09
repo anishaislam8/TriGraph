@@ -181,24 +181,7 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
         G_test_undirected.add_nodes_from(nodes)
         G_test_undirected.add_edges_from([(sample_edge[0], sample_edge[1]) for sample_edge in sample_subgraph])
 
-        all_paths = []
-        # for all nodes, find paths less than equal length 3
-        for node  in nodes:
-            # targets are all nodes in the list except this one
-            targets = [x for x in nodes if x != node]
-            paths = nx.all_simple_paths(G_test_undirected, source=node, target=targets, cutoff=2)
-            all_paths.extend(paths)
-
-        test_three_node_subgraphs = set()
-        for path in all_paths:
-            path = list(set(path))
-            # sort the path
-            path.sort()
-            if len(path) == 3:
-                test_three_node_subgraphs.add(tuple(path))
-
-        # print(test_three_node_subgraphs)
-        test_three_node_subgraphs = list(test_three_node_subgraphs)[0]
+        test_three_node_subgraphs = list(get_3_node_subgraphs(G_test_undirected))[0]
         
 
         # in this case, we are not passing ids, we are directly passing the object types

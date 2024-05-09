@@ -53,22 +53,7 @@ if len(connections) > 0:
     G_undirected.add_nodes_from(nodes)
     G_undirected.add_edges_from([(connection["patchline"]["source"][0], connection["patchline"]["destination"][0]) for connection in connections])
 
-    all_paths = []
-    # for all nodes, find paths less than equal length 3
-    for node  in nodes:
-        # targets are all nodes in the list except this one
-        targets = [x for x in nodes if x != node]
-        paths = nx.all_simple_paths(G_undirected, source=node, target=targets, cutoff=2)
-        all_paths.extend(paths)
-
-    three_node_subgraphs = set()
-    for path in all_paths:
-        path = list(set(path))
-        # sort the path
-        path.sort()
-        if len(path) == 3:
-            three_node_subgraphs.add(tuple(path))
-
+    three_node_subgraphs = get_3_node_subgraphs(G_undirected)
 
     # get adjacency matrices for 3-grams and the frequency of each 3-gram
     adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_tokens, G)
