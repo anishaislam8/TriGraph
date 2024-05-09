@@ -1,5 +1,4 @@
 import networkx as nx
-import math
 
 from utils import *
 
@@ -42,17 +41,17 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
     adjacency_matrix_3_gram = create_three_node_adjacency_matrix(node_0, node_1, node_2, G_test)
     vocab_index = [0]* (len(unique_tokens) + 1) # the last one is for unknowns
     try:
-        vocab_index[unique_tokens.index(node_0)] = 1
+        vocab_index[unique_tokens.index(node_0)] += 1
     except:
-        vocab_index[-1] = 1
+        vocab_index[-1] += 1
     try:
-        vocab_index[unique_tokens.index(node_1)] = 1
+        vocab_index[unique_tokens.index(node_1)] += 1
     except:
-        vocab_index[-1] = 1
+        vocab_index[-1] += 1
     try:
-        vocab_index[unique_tokens.index(node_2)] = 1
+        vocab_index[unique_tokens.index(node_2)] += 1
     except:
-        vocab_index[-1] = 1
+        vocab_index[-1] += 1
     key = str(vocab_index + adjacency_matrix_3_gram)
 
 
@@ -71,13 +70,13 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
             adjacency_matrix_2_gram = create_two_node_adjacency_matrix(subgraph[0], subgraph[1], G_test)
             vocab_index_2_grams = [0]* (len(unique_tokens) + 1)
             try:
-                vocab_index_2_grams[unique_tokens.index(subgraph[0])] = 1
+                vocab_index_2_grams[unique_tokens.index(subgraph[0])] += 1
             except:
-                vocab_index_2_grams[-1] = 1
+                vocab_index_2_grams[-1] += 1
             try:
-                vocab_index_2_grams[unique_tokens.index(subgraph[1])] = 1
+                vocab_index_2_grams[unique_tokens.index(subgraph[1])] += 1
             except:
-                vocab_index_2_grams[-1] = 1
+                vocab_index_2_grams[-1] += 1
             key = str(vocab_index_2_grams + adjacency_matrix_2_gram)
 
             if key in frequency_2_grams:
@@ -163,6 +162,8 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
     Then we are calculating the score of the subgraph by calling the get_score() function. Finally, we are returning the score.
     
     '''
+
+    
     
     nodes = set()
     for sample_edge in sample_subgraph:
@@ -175,19 +176,47 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
 
     try:
 
-        test_three_node_subgraphs = get_3_node_subgraphs(G_test)[0] # hard coding this for testing purposes
+        # get 3 node subgraphs
+        G_test_undirected = nx.Graph()
+        G_test_undirected.add_nodes_from(nodes)
+        G_test_undirected.add_edges_from([(sample_edge[0], sample_edge[1]) for sample_edge in sample_subgraph])
+
+        all_paths = []
+        # for all nodes, find paths less than equal length 3
+        for node  in nodes:
+            # targets are all nodes in the list except this one
+            targets = [x for x in nodes if x != node]
+            paths = nx.all_simple_paths(G_test_undirected, source=node, target=targets, cutoff=2)
+            all_paths.extend(paths)
+
+        test_three_node_subgraphs = set()
+        for path in all_paths:
+            path = list(set(path))
+            # sort the path
+            path.sort()
+            if len(path) == 3:
+                test_three_node_subgraphs.add(tuple(path))
+
+        # print(test_three_node_subgraphs)
+        test_three_node_subgraphs = list(test_three_node_subgraphs)[0]
+        
 
         # in this case, we are not passing ids, we are directly passing the object types
         sorted_tuple = sorted(test_three_node_subgraphs)
         sorted_indices = sorted(range(len(test_three_node_subgraphs)), key=lambda x: test_three_node_subgraphs[x])
+        
+
+        
 
         # the followings are strings representing the object_types (e.g. "msg")
         node_0 = test_three_node_subgraphs[sorted_indices[0]] 
         node_1 = test_three_node_subgraphs[sorted_indices[1]]
         node_2 = test_three_node_subgraphs[sorted_indices[2]]
 
+        
+
         score = get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
         return score
-    except:
+    except Exception as e:
         return 0.0
         
