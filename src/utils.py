@@ -246,3 +246,40 @@ def create_a_copy_of_sample_subgraph(sample_subgraph):
     '''
 
     return copy.deepcopy(sample_subgraph)
+
+
+def create_a_test_graph(node_0, node_1, node_2, G):
+
+    '''
+    Create a test graph with three nodes and the edges between them.
+    '''
+    
+    G_test = nx.DiGraph()
+    G_test.add_nodes_from([node_0, node_1, node_2])
+
+    edge_01 = []
+    edge_12 = []
+    edge_02 = []
+
+    # 01
+    if G.has_edge(node_0, node_1):
+        edge_01.append([node_0, node_1])
+    if G.has_edge(node_1, node_0):
+        edge_01.append([node_1, node_0])
+    # 12 
+    if G.has_edge(node_1, node_2):
+        edge_12.append([node_1, node_2])
+    if G.has_edge(node_2, node_1):
+        edge_12.append([node_2, node_1])
+    # 02
+    if G.has_edge(node_0, node_2):
+        edge_02.append([node_0, node_2])
+    if G.has_edge(node_2, node_0):
+        edge_02.append([node_2, node_0])
+
+    G_test.add_edges_from(edge_01)
+    G_test.add_edges_from(edge_12)
+    G_test.add_edges_from(edge_02)
+
+    return G_test
+

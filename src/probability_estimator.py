@@ -181,7 +181,7 @@ def count_probability(sample_subgraph, unique_tokens, frequency_1_gram, frequenc
         G_test_undirected.add_nodes_from(nodes)
         G_test_undirected.add_edges_from([(sample_edge[0], sample_edge[1]) for sample_edge in sample_subgraph])
 
-        test_three_node_subgraphs = list(get_3_node_subgraphs(G_test_undirected))[0]
+        test_three_node_subgraphs = list(get_3_node_subgraphs(G_test_undirected))[0] # hard coding this for testing purposes
         
 
         # in this case, we are not passing ids, we are directly passing the object types
