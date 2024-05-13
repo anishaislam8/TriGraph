@@ -253,7 +253,7 @@ def create_a_test_graph(node_0, node_1, node_2, G):
     '''
     Create a test graph with three nodes and the edges between them.
     '''
-    
+
     G_test = nx.DiGraph()
     G_test.add_nodes_from([node_0, node_1, node_2])
 
@@ -282,4 +282,6 @@ def create_a_test_graph(node_0, node_1, node_2, G):
     G_test.add_edges_from(edge_02)
 
     return G_test
+
+
 

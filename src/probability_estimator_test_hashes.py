@@ -139,26 +139,29 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
 
     for word in vocabulary:
         node_to_add = word
-        G_test.add_node(node_to_add)
+        
+        # need new G_test every time
+        G_test_new = copy.deepcopy(G_test)
+        G_test_new.add_node(node_to_add)
         
         # what are the edges that are connected to the node that was removed
         edges_to_add = []
-        for edge in G_test.edges:
+        for edge in G_test_new.edges:
             if node_to_remove in edge:
                 edges_to_add.append(edge)
         
         for edge in edges_to_add:
             if edge[0] == node_to_remove:
-                G_test.add_edge(node_to_add, edge[1])
+                G_test_new.add_edge(node_to_add, edge[1])
             else:
-                G_test.add_edge(edge[0], node_to_add)
+                G_test_new.add_edge(edge[0], node_to_add)
 
-        G_test.remove_node(node_to_remove)
+        G_test_new.remove_node(node_to_remove)
         # remove the edges that are connected to the node that was removed
-        G_test.remove_edges_from(edges_to_add)
+        G_test_new.remove_edges_from(edges_to_add)
 
         # now G_test is my new graph
-        G_test_nodes_new = list(G_test.nodes)
+        G_test_nodes_new = list(G_test_new.nodes)
         subgraph_items = [object_dict[node] for node in G_test_nodes_new]
         sorted_tuple = sorted(subgraph_items)
         sorted_indices = sorted(range(len(subgraph_items)), key=lambda x: subgraph_items[x])
@@ -169,7 +172,7 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
         node_2 = G_test_nodes_new[sorted_indices[2]]
         
         try:
-            score = get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test)
+            score = get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new)
         except Exception as e:
             score =  0.0
 
