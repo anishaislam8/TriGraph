@@ -160,7 +160,7 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
         # remove the edges that are connected to the node that was removed
         G_test_new.remove_edges_from(edges_to_add)
 
-        # now G_test is my new graph
+        # now G_test_new is my new graph
         G_test_nodes_new = list(G_test_new.nodes)
         subgraph_items = [object_dict[node] for node in G_test_nodes_new]
         sorted_tuple = sorted(subgraph_items)
