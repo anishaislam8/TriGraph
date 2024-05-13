@@ -82,7 +82,7 @@ with open("/media/baguette/aislam4/paths/train_test_split/test_hashesh_filtered.
             total_predictions += len(three_node_subgraphs)
 
             for subgraph in three_node_subgraphs:
-                next_token_correctly_predicted = process_and_get_score(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, frequency_2_grams, frequency_3_grams)
+                next_token_correctly_predicted = predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, frequency_2_grams, frequency_3_grams)
                 correct_predictions += next_token_correctly_predicted
         else:
             print("No connections found in the parsed file")

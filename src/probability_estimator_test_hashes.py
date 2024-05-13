@@ -111,7 +111,7 @@ def get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequenc
 
     
 
-def process_and_get_score(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, frequency_2_grams, frequency_3_grams):
+def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, frequency_2_grams, frequency_3_grams):
     
     
 
