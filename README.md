@@ -14,21 +14,19 @@ The methodology is as follows:
 
 ## Score functionality
 
-To get the score of a given test subgraph, at first, for the three node subgraphs of the given test subgraph, we calculate the sha256 hash of the adjacency matrix and the concatenation of the names of the three sorted nodes.
-This is the key we will use to find the frequency of the 3-gram in the frequency_3_grams dictionary.
+This function calculates the score of a given subgraph considering the frequency of the 1-gram, 2-gram, and 3-gram. At first we create an adjacency matrix for the three nodes.
+After that, we are calculating the sha256 hash of the adjacency matrix and the word vector for these three nodes.
+This is the key that we are going to use to find the frequency of the 3-gram in the frequency_3_grams dictionary.
 
 The algorithm is as follows:
-1. If the key is in the frequency_3_grams dictionary, then the score is the probability of the 3-gram.
-The probability of the 3-gram is the frequency of the 3-gram divided by the sum of the frequencies of all the 3-grams.
-2. If the key is not in the frequency_3_grams dictionary, we need to find the 2-gram keys.
-We are finding the 2-gram keys by taking the edges and calculating the sha256 hash of the adjacency matrix of the two nodes.
-3. If the 2-gram key is in the frequency_2_grams dictionary, multiply the score by the probability of the 2-gram.
-The probability of the 2-gram is the frequency of the 2-gram divided by the sum of the frequencies of all the 2-grams.
-4. If the 2-gram key is not in the frequency_2_grams dictionary, multiply the score by the probability of the 1-gram.
-The probability of the 1-gram is the frequency of the 1-gram divided by the sum of the frequencies of all the 1-grams.
-5. Multiply the score with some discount factor raised to the power (number of unique missed two grams + number of missed unique one grams + number of found one grams).
-6. Additionally, for each missed unique one gram, multiply the score with 0.5 * (1 / sum of the frequencies of all the 1-grams).
-7. Return the score.
+1. If the key is present in our corpus, the score is assigned as the probability of the 3-node subgraph. This probability is calculated as the frequency of the 3-node
+subgraph divided by the sum of the frequencies of all 3-node subgraphs.
+2. In cases where the key is absent from our corpus, we generate keys for the 2-node subgraphs using the same procedure. For each 2-node subgraph in our input graph, if its key exists in the corpus, we multiply the final
+probability score by the probability of the 2-node subgraph. The probability of a 2-node subgraph is calculated as the frequency of the current 2-node subgraph divided by the sum of the frequencies of all 2-node subgraphs in our corpus.
+3. If the 2-node subgraphs are not present in our corpus, we adjust the score by the probability of the nodes within the subgraph. The probability of a 1-node subgraph is determined by the frequency of that node divided by the
+sum of the frequencies of all unique nodes. Additionally, if the node is not present in our corpus, the score is multiplied by a very small value, such as 0.5 × (1/sum of the frequencies of all unique nodes).
+4. For each missed 3-node and 2-node subgraph, the score is multiplied by a small discount factor to indicate that these subgraphs are unseen in our corpus, thus their probabilities should be lower compared to those observed in our corpus. We have used a discount factor of 0.05.
+5. The final score is returned as the probability of the given subgraph.
 
 
 ## Predict functionality
@@ -37,4 +35,3 @@ To predict the next token, we follow the same methodology mentioned above. Howev
 
 ## Limitations:
 1. The current code only works on three-node subgraphs.
-2. Our vocabulary is limited to the subgraphs of the parsed source code of one file only.
