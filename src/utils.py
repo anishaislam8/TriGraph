@@ -42,7 +42,6 @@ def get_unique_tokens_and_counts(nodes, object_dict):
     return unique_tokens, token_counts_1_gram
 
 
-# not needed for the new implementation
 # calculate_sha256() collected from https://unogeeks.com/python-sha256/
 def calculate_sha256(data):
 
@@ -111,10 +110,9 @@ def get_adjacency_matrices_2_grams(connections, object_dict, unique_nodes, G):
         vocab_index = [0]* (len(unique_nodes) + 1)
         vocab_index[unique_nodes.index(nodes[0])] += 1
         vocab_index[unique_nodes.index(nodes[1])] += 1
-        key = str(vocab_index + adjacency_matrix)
+        initial_key = str(vocab_index + adjacency_matrix)
+        key = calculate_sha256(initial_key)
 
-        
-        
         if not key in adjacency_matrices_2_grams:                     
             adjacency_matrices_2_grams[key] = adjacency_matrix
             frequency_2_grams[key] = 1
@@ -227,7 +225,8 @@ def get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_nod
         vocab_index[unique_nodes.index(sorted_tuple[0])] += 1
         vocab_index[unique_nodes.index(sorted_tuple[1])] += 1
         vocab_index[unique_nodes.index(sorted_tuple[2])] += 1
-        key = str(vocab_index + adjacency_matrix)
+        initial_key = str(vocab_index + adjacency_matrix)
+        key = calculate_sha256(initial_key)
 
         
         if not key in adjacency_matrices_3_grams:            

@@ -82,7 +82,11 @@ with open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_
             # get adjacency matrices for 3-grams and the frequency of each 3-gram
             
             adjacency_matrices_3_grams, frequency_3_grams = get_adjacency_matrices_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G)
-            frequency_3_grams_all.append(frequency_3_grams)
+            
+            # write the frequency_3_grams to a file
+            with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/frequency_3_grams_train_1.txt", "a") as f:
+                for key, value in frequency_3_grams.items():
+                    f.write(str(key) + " " + str(value) + "\n")
             # later
             # # update the main frequency_2_grams_train dictionary
             # for key, value in frequency_3_grams.items():
@@ -99,5 +103,3 @@ with open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_
 
 
 
-with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/frequency_3_grams_train_1.pkl", "wb") as f:
-    pickle.dump(frequency_3_grams_all, f)

@@ -52,7 +52,8 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
         vocab_index[unique_tokens.index(node_2)] += 1
     except:
         vocab_index[-1] += 1
-    key = str(vocab_index + adjacency_matrix_3_gram)
+    initial_key = str(vocab_index + adjacency_matrix_3_gram)
+    key = calculate_sha256(initial_key)
 
 
     
@@ -77,10 +78,11 @@ def get_score(node_0, node_1, node_2, unique_tokens, frequency_1_gram, frequency
                 vocab_index_2_grams[unique_tokens.index(subgraph[1])] += 1
             except:
                 vocab_index_2_grams[-1] += 1
-            key = str(vocab_index_2_grams + adjacency_matrix_2_gram)
+            initial_key_2_grams = str(vocab_index_2_grams + adjacency_matrix_2_gram)
+            key_2_grams = calculate_sha256(initial_key_2_grams)
 
-            if key in frequency_2_grams:
-                score *= (frequency_2_grams[key] / sum(frequency_2_grams.values())) # do not multiply by discount factor
+            if key_2_grams in frequency_2_grams:
+                score *= (frequency_2_grams[key_2_grams] / sum(frequency_2_grams.values())) # do not multiply by discount factor
             else:
                 score *= discount_factor # for missed two grams
                 
