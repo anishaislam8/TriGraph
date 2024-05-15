@@ -38,7 +38,7 @@ with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual
 
 correct_predictions = 0
 total_predictions = 0
-with open("/media/baguette/aislam4/paths/train_test_split/test_hashesh_filtered.txt", "r") as f:
+with open("/media/baguette/aislam4/paths/train_test_split/test_hashes_filtered.txt", "r") as f:
     lines = f.readlines()
     for line in lines:
         

@@ -180,7 +180,7 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
             max_score = score
             predicted_token = word
 
-    
+    print("True token :", true_token, "Predicted token :", predicted_token, "probability :", max_score)
     if predicted_token == true_token:
         return 1
     else:
