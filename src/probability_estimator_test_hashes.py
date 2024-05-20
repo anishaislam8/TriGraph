@@ -38,8 +38,8 @@ def get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequenc
 
     # 3-grams: calculate the sha256 hash of the adjacency matrix of the three nodes
 
-    # ekhane je node_0,1,2 ashbe and G_test ashbe, era real name like
-    adjacency_matrix_3_gram = create_three_node_adjacency_matrix(node_0, node_1, node_2, G_test)
+    # ekhane je node_0,1,2 ashbe and G_test ashbe, era real name
+    adjacency_matrix_3_gram = create_three_node_adjacency_matrix_v2(node_0, node_1, node_2, G_test)
     vocab_index = [0]* (len(unique_tokens_train) + 1) # the last one is for unknowns
     try:
         vocab_index[unique_tokens_train.index(object_dict[node_0])] += 1
@@ -62,7 +62,7 @@ def get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequenc
         return frequency_3_grams[key] / sum(frequency_3_grams.values())
     else:
         
-        edges = list(G_test.edges)
+        edges = get_edges(G_test)
         score = 1.0 * discount_factor # for the missed three grams
         
         
@@ -76,7 +76,7 @@ def get_score(node_0, node_1, node_2, object_dict, unique_tokens_train, frequenc
             node_0 = edge[sorted_indices[0]]
             node_1 = edge[sorted_indices[1]]
 
-            adjacency_matrix_2_gram = create_two_node_adjacency_matrix(node_0, node_1, G_test)
+            adjacency_matrix_2_gram = create_two_node_adjacency_matrix_v2(node_0, node_1, G_test)
             vocab_index_2_grams = [0]* (len(unique_tokens_train) + 1)
             try:
                 vocab_index_2_grams[unique_tokens_train.index(object_dict[node_0])] += 1
@@ -116,7 +116,7 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
     
 
     # this is my initial subgraph
-    G_test = create_a_test_graph(subgraph[0], subgraph[1], subgraph[2], G)
+    G_test = create_a_test_graph_v2(subgraph[0], subgraph[1], subgraph[2], G)
    
     random_object_to_remove = random.randint(0, 2)
     node_to_remove = None
@@ -142,26 +142,27 @@ def predict(subgraph, object_dict, unique_tokens_train, G, frequency_1_gram, fre
         
         # need new G_test every time
         G_test_new = copy.deepcopy(G_test)
-        G_test_new.add_node(node_to_add)
+        # add the new key in the dictionary
+        G_test_new[node_to_add] = []
         
         # what are the edges that are connected to the node that was removed
-        edges_to_add = []
-        for edge in G_test_new.edges:
-            if node_to_remove in edge:
-                edges_to_add.append(edge)
-        
-        for edge in edges_to_add:
-            if edge[0] == node_to_remove:
-                G_test_new.add_edge(node_to_add, edge[1])
-            else:
-                G_test_new.add_edge(edge[0], node_to_add)
+        edges_to_add = G_test_new[node_to_remove] # if i want to remove c, I have to replicate c's edges
+        G_test_new[node_to_add] = edges_to_add
+        # remove the node to remove first
+        del G_test_new[node_to_remove]
 
-        G_test_new.remove_node(node_to_remove)
-        # remove the edges that are connected to the node that was removed
-        G_test_new.remove_edges_from(edges_to_add)
+        # remove all references of the node that was removed from the new dictionary
+        for key in G_test_new.keys():
+            for i in range(len(G_test_new[key])):
+                if G_test_new[key][i] == node_to_remove:
+                    G_test_new[key][i] = node_to_add
+            
+        
+        
+        
 
         # now G_test_new is my new graph
-        G_test_nodes_new = list(G_test_new.nodes)
+        G_test_nodes_new = list(G_test_new.keys())
         subgraph_items = [object_dict[node] for node in G_test_nodes_new]
         sorted_tuple = sorted(subgraph_items)
         sorted_indices = sorted(range(len(subgraph_items)), key=lambda x: subgraph_items[x])

@@ -73,6 +73,21 @@ def create_two_node_adjacency_matrix(first_node, second_node, G):
     adjacency_matrix = [entry00, entry01, entry10, entry11]
     return adjacency_matrix
 
+
+def create_two_node_adjacency_matrix_v2(first_node, second_node, G):
+    
+    '''
+    Create a 2 by 2 matrix for the two nodes
+    '''
+    
+    entry00 = 1 if first_node in G[first_node] else 0
+    entry01 = 1 if second_node in G[first_node] else 0
+    entry10 = 1 if first_node in G[second_node] else 0
+    entry11 = 1 if second_node in G[second_node] else 0
+
+    adjacency_matrix = [entry00, entry01, entry10, entry11]
+    return adjacency_matrix
+
 def get_adjacency_matrices_2_grams(connections, object_dict, unique_nodes, G):
     
     '''
@@ -167,6 +182,29 @@ def get_3_node_subgraphs(G):
     return test_three_node_subgraphs
 
 
+
+def get_3_node_subgraphs_v2(nodes, G_undirected):
+    
+    all_three_node_subgraphs = []
+    for node in nodes:
+        # for each node, restart the algorithm from scratch
+        visited = {node: False for node in nodes}
+        current_path_for_this_node = []
+        two_length_dfs(node, G_undirected, visited, current_path_for_this_node, all_three_node_subgraphs)
+
+
+    # get the three_node_subgraphs
+    three_node_subgraphs = set()
+    
+    for subgraph in all_three_node_subgraphs:
+        path = list(set(subgraph))
+        # sort the path
+        path.sort()
+        if len(path) == 3:
+            three_node_subgraphs.add(tuple(path))
+
+    return three_node_subgraphs
+
 def create_three_node_adjacency_matrix(node_0, node_1, node_2, G):
 
     '''
@@ -183,6 +221,28 @@ def create_three_node_adjacency_matrix(node_0, node_1, node_2, G):
     entry20 = 1 if G.has_edge(node_2, node_0) else 0
     entry21 = 1 if G.has_edge(node_2, node_1) else 0
     entry22 = 1 if G.has_edge(node_2, node_2) else 0
+
+    adjacency_matrix = [entry00, entry01, entry02, entry10, entry11, entry12, entry20, entry21, entry22]
+
+    return adjacency_matrix
+
+
+def create_three_node_adjacency_matrix_v2(node_0, node_1, node_2, G):
+
+    '''
+    Create a 3 by 3 matrix for the three nodes
+    '''
+    
+    # 0 if there is no connection between node_0 and node_1, 1 if there is a connection
+    entry00 = 1 if node_0 in G[node_0] else 0
+    entry01 = 1 if node_1 in G[node_0] else 0
+    entry02 = 1 if node_2 in G[node_0] else 0
+    entry10 = 1 if node_0 in G[node_1] else 0
+    entry11 = 1 if node_1 in G[node_1] else 0
+    entry12 = 1 if node_2 in G[node_1] else 0
+    entry20 = 1 if node_0 in G[node_2] else 0
+    entry21 = 1 if node_1 in G[node_2] else 0
+    entry22 = 1 if node_2 in G[node_2] else 0
 
     adjacency_matrix = [entry00, entry01, entry02, entry10, entry11, entry12, entry20, entry21, entry22]
 
@@ -283,4 +343,88 @@ def create_a_test_graph(node_0, node_1, node_2, G):
     return G_test
 
 
+def create_a_test_graph_v2(node_0, node_1, node_2, G):
+    nodes = [node_0, node_1, node_2]
 
+    G_test = {node:[] for node in nodes}
+
+    # node_0: check if it has a connection with node_1 and node_2
+    if node_2 in G[node_0]:
+        G_test[node_0].append(node_2)
+    if node_1 in G[node_0]:
+        G_test[node_0].append(node_1)
+
+
+    # node_1: check if it has a connection with node_0 and node_2
+    if node_0 in G[node_1]:
+        G_test[node_1].append(node_0)
+    if node_2 in G[node_1]:
+        G_test[node_1].append(node_2)
+
+    # node_2: check if it has a connection with node_0 and node_1
+    if node_0 in G[node_2]:
+        G_test[node_2].append(node_0)
+    if node_1 in G[node_2]:
+        G_test[node_2].append(node_1)
+
+    return G_test
+
+def two_length_dfs(node, G, visited, path, paths):
+
+    '''
+    Ref: code collected from internet
+    Get all the paths of length 2 from the node
+    '''
+
+    visited[node] = True
+    path.append(node)
+
+    if len(path) == 3:
+        paths.append(path.copy())
+    else:
+        for neighbor in G[node]:
+            if not visited[neighbor]:
+                two_length_dfs(neighbor, G, visited, path, paths)
+
+    path.pop()
+    visited[node] = False
+
+
+def create_undirected_graph(connections, all_objects):
+    
+    graph = {obj["box"]["id"]: [] for obj in all_objects}
+    
+    for connection in connections:
+
+        source = connection["patchline"]["source"][0]
+        destination = connection["patchline"]["destination"][0]
+
+        # make it bidirectional
+        graph[source].append(destination)
+        graph[destination].append(source)
+
+    return graph
+
+
+def create_directed_graph(connections, all_objects):
+    
+    graph = {obj["box"]["id"]: [] for obj in all_objects}
+    
+    for connection in connections:
+
+        source = connection["patchline"]["source"][0]
+        destination = connection["patchline"]["destination"][0]
+
+        graph[source].append(destination)
+
+    return graph
+
+
+def get_edges(G_test):
+
+    edges = []
+    for node in G_test.keys():
+        for edge in G_test[node]:
+            edges.append((node, edge))
+
+    return edges

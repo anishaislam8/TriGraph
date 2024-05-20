@@ -40,6 +40,7 @@ correct_predictions = 0
 total_predictions = 0
 with open("/media/baguette/aislam4/paths/train_test_split/test_hashes_filtered.txt", "r") as f:
     lines = f.readlines()
+    
     for line in lines:
         
         print("Processed :", processed)
@@ -66,18 +67,14 @@ with open("/media/baguette/aislam4/paths/train_test_split/test_hashes_filtered.t
             sources = [connection["patchline"]["source"][0] for connection in connections]
             destinations = [connection["patchline"]["destination"][0] for connection in connections]
             nodes = set(sources + destinations)
-
-            G = nx.DiGraph()
-            G.add_nodes_from(nodes)
-            G.add_edges_from([(connection["patchline"]["source"][0], connection["patchline"]["destination"][0]) for connection in connections])
-
+        
+            G = create_directed_graph(connections, all_objects)
+            
             # Step 3: 3-grams: We have to find three-node subgraphs in the graph, create adjacency matrix and their frequencies
 
-            G_undirected = nx.Graph()
-            G_undirected.add_nodes_from(nodes)
-            G_undirected.add_edges_from([(connection["patchline"]["source"][0], connection["patchline"]["destination"][0]) for connection in connections])
-
-            three_node_subgraphs = get_3_node_subgraphs(G_undirected)
+            G_undirected = create_undirected_graph(connections, all_objects)
+            
+            three_node_subgraphs = get_3_node_subgraphs_v2(nodes, G_undirected)
 
             total_predictions += len(three_node_subgraphs)
 
