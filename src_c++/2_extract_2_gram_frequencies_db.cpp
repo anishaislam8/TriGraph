@@ -2,6 +2,7 @@
 # include <sqlite3.h>
 # include <openssl/sha.h>
 # include "json.hpp"
+# include "graph.h"
 using json = nlohmann::json;
 using namespace std;
 
@@ -267,6 +268,7 @@ int main(){
     }
 
     map<string, int> frequency_2_grams_train;
+    vector<string> unique_tokens_train = load_unique_tokens();
 
 
     while(!myfile.eof()){
@@ -324,7 +326,6 @@ int main(){
             // create a map of string to string
             map<string, string> object_dict = create_object_dict(data);
 
-            vector<string> unique_tokens_train = load_unique_tokens();
 
             // step 2: Extract 2-gram frequencies
             // create a Graph
