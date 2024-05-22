@@ -69,7 +69,7 @@ string get_content_from_db(string line, sqlite3* db){
     if (rc != SQLITE_OK) {
         cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << endl;
         sqlite3_close(db);
-        return rc;
+        return "";
     }
 
     // Bind the hash_id to the parameter in the SQL statement
@@ -78,7 +78,7 @@ string get_content_from_db(string line, sqlite3* db){
         cerr << "Failed to bind parameter: " << sqlite3_errmsg(db) << endl;
         sqlite3_finalize(stmt);
         sqlite3_close(db);
-        return rc;
+        return "";
     }
 
     // Execute the SQL statement
@@ -91,6 +91,7 @@ string get_content_from_db(string line, sqlite3* db){
         }
     } else {
         cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << endl;
+        return "";
     }
 
     // Finalize the statement to release resources
@@ -100,6 +101,7 @@ string get_content_from_db(string line, sqlite3* db){
     // Output the retrieved content
     if (content.empty()) {
         cout << "No content found for hash id: " << hash_id << endl;
+        return "";
     }
 
     return content;
@@ -131,6 +133,9 @@ int main(){
         }
         
         string content = get_content_from_db(line, db);
+        if(content.empty()) {
+            continue;
+        }
         json data = json::parse(content);
 
         try{
@@ -165,6 +170,8 @@ int main(){
             }
 
             vector<string> nodes(nodes_set.begin(), nodes_set.end());
+
+            cout << "getting segmentation fault here" << endl;
 
             // create a map of string to string
             map<string, string> object_dict = create_object_dict(data);
