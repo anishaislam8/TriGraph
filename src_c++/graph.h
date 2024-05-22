@@ -27,5 +27,9 @@ class Graph
         // getter edges
         vector<vector<string> > get_edges();
 
+        // get neighbors of a node
+        vector<string> get_neighbors_of_a_node(string);
+
 
 };
+

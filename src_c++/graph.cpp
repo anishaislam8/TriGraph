@@ -33,6 +33,19 @@ vector<vector<string> > Graph::get_edges(){
     return this->edges;
 }
 
+// get neighbors of a node
+vector<string> Graph::get_neighbors_of_a_node(string node){
+    vector<string> neighbors;
+    
+    for (vector<string> edge: this->edges){
+        // unidirectional edge: if source node is node, then destination node is neighbor
+        if (edge[0] == node){
+            neighbors.push_back(edge[1]);
+        }
+    }
+    return neighbors;
+}
+
 
 
 
