@@ -9,3 +9,4 @@ path_data
 sample_jsons
 sample_output
 src_c++/*.exe
+src_c++/test.txt
