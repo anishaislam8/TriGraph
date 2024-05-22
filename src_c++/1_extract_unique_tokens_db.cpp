@@ -18,7 +18,13 @@ map<string, string> create_object_dict(json data){
             while (getline(tokenStream, token, ' ')){
                 tokens.push_back(token);
             }
-            string object_text_string =  tokens[0] + "_" + tokens[1];
+            string object_text_string;
+            if (tokens.size() > 1){
+                object_text_string =  tokens[0] + "_" + tokens[1];
+            }
+            else{
+                object_text_string = tokens[0];
+            }
             object_dict[object["box"]["id"]] = object_text_string;
 
 
