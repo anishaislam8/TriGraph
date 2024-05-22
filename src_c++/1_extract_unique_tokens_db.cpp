@@ -1,11 +1,110 @@
 # include <bits/stdc++.h>
 # include <sqlite3.h>
-# include "utils.h"
+# include "graph.h"
 # include "json.hpp"
 using json = nlohmann::json;
 using namespace std;
 
 
+map<string, string> create_object_dict(json data){
+    map<string, string> object_dict;
+    auto all_objects = data["all_objects"];
+
+    for (auto object: all_objects){
+        if(object["box"]["object_type"] == "list"){
+            string object_text = object["box"]["text"];
+            vector<string> tokens;
+            string token;
+            istringstream tokenStream(object_text);
+            while (getline(tokenStream, token, ' ')){
+                tokens.push_back(token);
+            }
+            string object_text_string =  tokens[0] + "_" + tokens[1];
+            object_dict[object["box"]["id"]] = object_text_string;
+
+
+        }
+        else{
+            object_dict[object["box"]["id"]] = object["box"]["object_type"];
+        }
+    }
+
+    return object_dict;
+}
+
+
+set<string> get_unique_tokens(vector<string> nodes, map<string, string> object_dict){
+    set<string> unique_tokens;
+    for (string node: nodes){
+        unique_tokens.insert(object_dict.at(node));
+    }
+
+    return unique_tokens;
+}
+
+map<string, int> get_frequency_1_gram(set<string> unique_tokens, map<string, string> object_dict, vector<string> nodes){
+    map<string, int> frequency_1_gram;
+    for (string token: unique_tokens){
+        frequency_1_gram[token] = 0;
+    }
+    for (string node: nodes){
+        frequency_1_gram[object_dict.at(node)] += 1;
+    }
+    
+
+    return frequency_1_gram;
+}
+
+
+string get_content_from_db(string line, sqlite3* db){
+    
+    sqlite3_stmt* stmt;
+    string hash_id = line;
+    const char* sql = "SELECT Content FROM Contents WHERE Hash = ?;";
+    string content;
+
+    
+
+    // Prepare the SQL statement
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << endl;
+        sqlite3_close(db);
+        return rc;
+    }
+
+    // Bind the hash_id to the parameter in the SQL statement
+    rc = sqlite3_bind_text(stmt, 1, hash_id.c_str(), -1, SQLITE_TRANSIENT);
+    if (rc != SQLITE_OK) {
+        cerr << "Failed to bind parameter: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return rc;
+    }
+
+    // Execute the SQL statement
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        // Retrieve the first column (content)
+        const unsigned char* text = sqlite3_column_text(stmt, 0);
+        if (text) {
+            content = reinterpret_cast<const char*>(text);
+        }
+    } else {
+        cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << endl;
+    }
+
+    // Finalize the statement to release resources
+    sqlite3_finalize(stmt);
+
+
+    // Output the retrieved content
+    if (content.empty()) {
+        cout << "No content found for hash id: " << hash_id << endl;
+    }
+
+    return content;
+}
 
 int main(){
     ifstream myfile;
@@ -19,6 +118,8 @@ int main(){
         return rc;
     }
 
+    map<string, int> frequency_1_gram_train;
+
     while(!myfile.eof()){
         string line;
         getline(myfile, line);
@@ -28,54 +129,71 @@ int main(){
             continue;
         }
         
-        sqlite3_stmt* stmt;
-        string hash_id = line;
-        const char* sql = "SELECT Content FROM Contents WHERE Hash = ?;";
-        string content;
+        string content = get_content_from_db(line, db);
+        json data = json::parse(content);
+
+        try{
+            auto connections = data["connections"];
+            
+            
+            vector<string> sources;
+            vector<string> destinations;
+            vector<vector<string> > edges;
+            for (auto connection: connections){
+                string source = connection["patchline"]["source"][0];
+                string destination = connection["patchline"]["destination"][0];
+                vector<string> edge = {source, destination};
+                edges.push_back(edge);
+                
+                sources.push_back(source);
+                destinations.push_back(destination);
+                
+            }
+
+            // if I have no sources or destinations, then I have no connections, so no need to process this hash
+
+            if (sources.size() == 0 || destinations.size() == 0){
+                continue;
+            }
+
+            set<string> nodes_set;
+            for (auto source: sources){
+                nodes_set.insert(source);
+            }
+            for (auto destination: destinations){
+                nodes_set.insert(destination);
+            }
+
+            vector<string> nodes(nodes_set.begin(), nodes_set.end());
+
+            // create a map of string to string
+            map<string, string> object_dict = create_object_dict(data);
+
+
+            // create a Graph
+            Graph G_directed(nodes, edges);
+
+            set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
+            map<string, int> frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
+
+
+
+            for (auto token: frequency_1_gram){
+                if (frequency_1_gram_train.find(token.first) == frequency_1_gram_train.end()){
+                    frequency_1_gram_train[token.first] = token.second;
+                }
+                else{
+                    frequency_1_gram_train[token.first] += token.second;
+                }
+            }
 
         
-
-        // Prepare the SQL statement
-        rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-        if (rc != SQLITE_OK) {
-            cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << endl;
-            sqlite3_close(db);
-            return rc;
+        }
+        catch(...){
+            cout << "Exception occured" << endl;
         }
 
-        // Bind the hash_id to the parameter in the SQL statement
-        rc = sqlite3_bind_text(stmt, 1, hash_id.c_str(), -1, SQLITE_TRANSIENT);
-        if (rc != SQLITE_OK) {
-            cerr << "Failed to bind parameter: " << sqlite3_errmsg(db) << endl;
-            sqlite3_finalize(stmt);
-            sqlite3_close(db);
-            return rc;
-        }
-
-        // Execute the SQL statement
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-            // Retrieve the first column (content)
-            const unsigned char* text = sqlite3_column_text(stmt, 0);
-            if (text) {
-                content = reinterpret_cast<const char*>(text);
-            }
-        } else {
-            cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << endl;
-        }
-
-        // Finalize the statement to release resources
-        sqlite3_finalize(stmt);
-
-
-        // Output the retrieved content
-        if (!content.empty()) {
-            cout << "Retrieved content: " << content << endl;
-        } else {
-            cout << "No content found for hash id: " << hash_id << endl;
-        }
-        json data = json::parse(content);
-        cout << data["nodes"] << endl;
+        
 
 
     }

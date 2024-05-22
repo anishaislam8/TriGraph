@@ -1,4 +1,6 @@
 __pycache__
+.idea
+.vscode
 src/__pycache__
 src/test_local.py
 src/probability_estimator.py
@@ -6,3 +8,4 @@ src/merge_2_and_3_grams.py
 path_data
 sample_jsons
 sample_output
+src_c++/*.exe
