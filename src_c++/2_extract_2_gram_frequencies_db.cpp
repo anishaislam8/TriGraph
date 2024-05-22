@@ -1,9 +1,26 @@
 # include <bits/stdc++.h>
 # include <sqlite3.h>
+# include <openssl/sha.h>
 # include "json.hpp"
 using json = nlohmann::json;
 using namespace std;
 
+
+// sha256 function collected from https://stackoverflow.com/a/10632725
+string sha256(const string &str)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        ss << hex << setw(2) << setfill('0') << (int)hash[i];
+    }
+    return ss.str();
+}
 
 map<string, string> create_object_dict(json data){
     map<string, string> object_dict;
@@ -36,30 +53,6 @@ map<string, string> create_object_dict(json data){
 
     return object_dict;
 }
-
-
-set<string> get_unique_tokens(vector<string> nodes, map<string, string> object_dict){
-    set<string> unique_tokens;
-    for (string node: nodes){
-        unique_tokens.insert(object_dict.at(node));
-    }
-
-    return unique_tokens;
-}
-
-map<string, int> get_frequency_1_gram(set<string> unique_tokens, map<string, string> object_dict, vector<string> nodes){
-    map<string, int> frequency_1_gram;
-    for (string token: unique_tokens){
-        frequency_1_gram[token] = 0;
-    }
-    for (string node: nodes){
-        frequency_1_gram[object_dict.at(node)] += 1;
-    }
-    
-
-    return frequency_1_gram;
-}
-
 
 string get_content_from_db(string line, sqlite3* db){
     
@@ -113,6 +106,154 @@ string get_content_from_db(string line, sqlite3* db){
     return content;
 }
 
+
+int* create_two_node_adjacency_matrix(string node_0, string node_1, Graph G){
+
+    // we are considering only 1 edge, so entries of adjacency matrix will be 0 or 1
+
+    int* adjacency_matrix_2_gram = new int[4];
+    
+    vector<string> neighbors_of_node_0 = G.get_neighbors_of_a_node(node_0); // where node_0 is source
+    vector<string> neighbors_of_node_1 = G.get_neighbors_of_a_node(node_1); // where node_1 is source
+    
+    int entry_00 = 0;
+    int entry_01 = 0;
+    int entry_10 = 0;
+    int entry_11 = 0;
+
+    // entry_00: if node_0 is in neighbirs_of_node_0, then entry_00 is 1 else 0
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_0) != neighbors_of_node_0.end()){ // found
+        entry_00 = 1;
+    }
+    // entry_01
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_1) != neighbors_of_node_0.end()){ // found
+        entry_01 = 1;
+    }
+    // entry_10
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_0) != neighbors_of_node_1.end()){ // found
+        entry_10 = 1;
+    }
+    // entry_11
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_1) != neighbors_of_node_1.end()){ // found
+        entry_11 = 1;
+    }
+
+    adjacency_matrix_2_gram[0] = entry_00;
+    adjacency_matrix_2_gram[1] = entry_01;
+    adjacency_matrix_2_gram[2] = entry_10;
+    adjacency_matrix_2_gram[3] = entry_11;
+
+    return adjacency_matrix_2_gram;
+   
+
+}
+
+map<string, int> get_frequency_2_grams(vector<vector<string> > connections, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
+
+    map<string, int> frequncy_2_grams;
+
+    for (auto connection: connections){
+        string source = object_dict.at(connection[0]); // this is msg, tgl etc
+        string destination = object_dict.at(connection[1]);
+
+        if (source == "" || destination == ""){
+            continue;
+        }
+        
+        vector<string> nodes;
+        nodes.push_back(source);
+        nodes.push_back(destination);
+        sort(nodes.begin(), nodes.end());
+
+        string node_0;
+        string node_1;
+
+        if (nodes[0] == source){
+            node_0 = connection[0]; // has to be original node name like PD-ROOT_obj-0
+            node_1 = connection[1];
+        }
+        else{
+            node_0 = connection[1];
+            node_1 = connection[0];
+        }
+
+        int* adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G);
+        int vocab_index[unique_tokens_train.size() + 1];
+
+        int vocab_index_size  = unique_tokens_train.size() + 1;
+        int adjacency_matrix_size = 4; // 2 by 2 matrix
+
+        // initialize with 0
+        for (int i = 0; i < vocab_index_size; i++){
+            vocab_index[i] = 0;
+        }
+        
+
+        int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
+        int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[1]) - unique_tokens_train.begin();
+
+
+        cout << node_0_index << " " << node_1_index << endl;
+        vocab_index[node_0_index] += 1;
+        vocab_index[node_1_index] += 1;
+
+
+        // concatenate adjacency matrix and vocab_index
+        int initial_key[vocab_index_size + adjacency_matrix_size];
+        
+
+        for (int i = 0; i < vocab_index_size; i++){
+            initial_key[i] = vocab_index[i];
+        }
+        
+        for (int i = 0; i < adjacency_matrix_size; i++){
+            initial_key[vocab_index_size + i] = adjacency_matrix[i];
+        }
+
+        // convert this array to string
+        string key = "";
+        int initial_key_size = vocab_index_size + adjacency_matrix_size;
+        for (int i = 0; i < initial_key_size; i++){
+            key += to_string(initial_key[i]);
+        }
+
+        // now calculate sha256 of this key
+        string key_sha256 = sha256(key);
+
+        // update the frequency_2_grams
+        if (frequncy_2_grams.find(key_sha256) == frequncy_2_grams.end()){ // could not find it in our map
+            frequncy_2_grams[key_sha256] = 1;
+        }
+        else{
+            frequncy_2_grams[key_sha256] += 1;
+        }
+
+        // freeing the allocated memory
+        delete[] adjacency_matrix;
+        
+    }
+    return frequncy_2_grams;
+   
+}
+
+vector<string> load_unique_tokens(){
+    ifstream myfile_unique_tokens_train;
+    myfile_unique_tokens_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/unique_tokens_train.txt");
+    string token;
+    vector<string> unique_tokens_train;
+    while (myfile_unique_tokens_train >> token){
+        unique_tokens_train.push_back(token);
+    }
+
+
+    myfile_unique_tokens_train.close();
+    sort(unique_tokens_train.begin(), unique_tokens_train.end());
+    return unique_tokens_train;
+
+
+}
+
+
 int main(){
     ifstream myfile;
     myfile.open("/media/baguette/aislam4/paths/train_test_split/train_hashes.txt");
@@ -125,9 +266,8 @@ int main(){
         return rc;
     }
 
-    map<string, int> frequency_1_gram_train;
-    set<string> unique_tokens_train_set;
-    vector<string> unique_tokens_train;
+    map<string, int> frequency_2_grams_train;
+
 
     while(!myfile.eof()){
         string line;
@@ -150,11 +290,15 @@ int main(){
             
             vector<string> sources;
             vector<string> destinations;
+            vector<vector<string> > edges;
 
             for (auto connection: connections){
                 string source = connection["patchline"]["source"][0];
                 string destination = connection["patchline"]["destination"][0];
-
+                
+                // unidirectional edge
+                vector<string> edge = {source, destination};
+                edges.push_back(edge);
                 
                 sources.push_back(source);
                 destinations.push_back(destination);
@@ -180,19 +324,21 @@ int main(){
             // create a map of string to string
             map<string, string> object_dict = create_object_dict(data);
 
-            set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
-            // update unique tokens after each hash content
-            unique_tokens_train_set.insert(unique_tokens.begin(), unique_tokens.end());
+            vector<string> unique_tokens_train = load_unique_tokens();
 
-            map<string, int> frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
-            
-            // update the final freuqency 1 gram after each hash content
-            for (auto token: frequency_1_gram){
-                if (frequency_1_gram_train.find(token.first) == frequency_1_gram_train.end()){
-                    frequency_1_gram_train[token.first] = token.second;
+            // step 2: Extract 2-gram frequencies
+            // create a Graph
+            Graph G_directed(nodes, edges);
+
+            map<string, int> frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
+
+            // update the final freuqency 2 grams after each hash content
+            for (auto token: frequency_2_grams){
+                if (frequency_2_grams_train.find(token.first) == frequency_2_grams_train.end()){
+                    frequency_2_grams_train[token.first] = token.second;
                 }
                 else{
-                    frequency_1_gram_train[token.first] += token.second;
+                    frequency_2_grams_train[token.first] += token.second;
                 }
             }
 
@@ -206,25 +352,16 @@ int main(){
 
 
     }
-    unique_tokens_train = vector<string>(unique_tokens_train_set.begin(), unique_tokens_train_set.end());
 
-    // save unique_tokens_train to a file
-    ofstream myfile_unique_tokens_train;
-    myfile_unique_tokens_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/unique_tokens_train.txt");
-    for (auto token: unique_tokens_train){
-        myfile_unique_tokens_train << token << endl;
+
+    // save frequency_2_grams_train to a file
+    ofstream myfile_frequency_2_grams_train;
+    myfile_frequency_2_grams_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_2_grams_train.txt");
+    for (auto token: frequency_2_grams_train){
+        myfile_frequency_2_grams_train << token.first << " " << token.second << endl;
     }
 
-    myfile_unique_tokens_train.close();
-
-    // save frequency_1_gram_train to a file
-    ofstream myfile_frequency_1_gram_train;
-    myfile_frequency_1_gram_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_1_gram_train.txt");
-    for (auto token: frequency_1_gram_train){
-        myfile_frequency_1_gram_train << token.first << " " << token.second << endl;
-    }
-
-    myfile_frequency_1_gram_train.close();
+    myfile_frequency_2_grams_train.close();
     myfile.close();
     sqlite3_close(db);
 
