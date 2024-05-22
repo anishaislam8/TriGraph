@@ -116,6 +116,14 @@ int main(){
         //     cout << token.first << " " << token.second << endl;
         // }
 
+        // print unique tokens
+        cout << "unique_tokens: \n";
+        for (auto token: unique_tokens){
+            cout << token << endl;
+        }
+
+
+
 
 
 

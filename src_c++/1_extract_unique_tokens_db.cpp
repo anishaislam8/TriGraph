@@ -177,8 +177,6 @@ int main(){
 
             vector<string> nodes(nodes_set.begin(), nodes_set.end());
 
-            cout << "getting segmentation fault here" << endl;
-
             // create a map of string to string
             map<string, string> object_dict = create_object_dict(data);
 
