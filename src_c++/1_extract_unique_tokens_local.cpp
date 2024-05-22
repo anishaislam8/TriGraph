@@ -110,10 +110,11 @@ int main(){
         set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
         map<string, int> frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
 
-        cout << "frequency_1_gram: \n";
-        for (auto token: frequency_1_gram){
-            cout << token.first << " " << token.second << endl;
-        }
+        // access
+        // cout << "frequency_1_gram: \n";
+        // for (auto token: frequency_1_gram){
+        //     cout << token.first << " " << token.second << endl;
+        // }
 
 
 
