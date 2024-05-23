@@ -108,21 +108,54 @@ string get_content_from_db(string line, sqlite3* db){
 }
 
 
-int* create_three_node_adjacency_matrix(string node_0, string node_1, Graph G){
+vector<vector<string> > get_three_node_subgraphs(vector<string> nodes, Graph G){
+    
+    set<vector<string> > three_node_subgraphs_set;
+    
+    for (string node: nodes){
+        // clear visited and current_path for each node
+        G.visited.clear();
+        G.current_path.clear();
+        G.dfs(node);
+    }
 
-    // we are considering only 1 edge, so entries of adjacency matrix will be 0 or 1
+    // G.all_paths has all the paths, but there might be duplicates
+    for (auto subgraph: G.all_paths){
 
-    int* adjacency_matrix_2_gram = new int[4];
+        set<string> path_set(subgraph.begin(), subgraph.end());
+        vector<string> path(path_set.begin(), path_set.end());
+        sort(path.begin(), path.end());
+
+        if (path.size() == 3){
+            three_node_subgraphs_set.insert(path);
+        }
+
+    }
+
+    vector<vector<string> > three_node_subgraphs(three_node_subgraphs_set.begin(), three_node_subgraphs_set.end());
+    return three_node_subgraphs;
+}
+
+int* create_three_node_adjacency_matrix(string node_0, string node_1, string node_2, Graph G){
+
+
+    int* adjacency_matrix_3_gram = new int[9];
     
     vector<string> neighbors_of_node_0 = G.get_neighbors_of_a_node(node_0); // where node_0 is source
     vector<string> neighbors_of_node_1 = G.get_neighbors_of_a_node(node_1); // where node_1 is source
+    vector<string> neighbors_of_node_2 = G.get_neighbors_of_a_node(node_2); // where node_2 is source
     
     int entry_00 = 0;
     int entry_01 = 0;
+    int entry_02 = 0;
     int entry_10 = 0;
     int entry_11 = 0;
+    int entry_12 = 0;
+    int entry_20 = 0;
+    int entry_21 = 0;
+    int entry_22 = 0;
 
-    // entry_00: if node_0 is in neighbirs_of_node_0, then entry_00 is 1 else 0
+    // entry_00: if node_0 is in neighbors_of_node_0, then entry_00 is 1 else 0
     if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_0) != neighbors_of_node_0.end()){ // found
         entry_00 = 1;
     }
@@ -130,6 +163,12 @@ int* create_three_node_adjacency_matrix(string node_0, string node_1, Graph G){
     if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_1) != neighbors_of_node_0.end()){ // found
         entry_01 = 1;
     }
+
+    // entry_02
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_2) != neighbors_of_node_0.end()){ // found
+        entry_02 = 1;
+    }
+
     // entry_10
     if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_0) != neighbors_of_node_1.end()){ // found
         entry_10 = 1;
@@ -139,50 +178,80 @@ int* create_three_node_adjacency_matrix(string node_0, string node_1, Graph G){
         entry_11 = 1;
     }
 
-    adjacency_matrix_2_gram[0] = entry_00;
-    adjacency_matrix_2_gram[1] = entry_01;
-    adjacency_matrix_2_gram[2] = entry_10;
-    adjacency_matrix_2_gram[3] = entry_11;
+    // entry_12
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_2) != neighbors_of_node_1.end()){ // found
+        entry_12 = 1;
+    }
 
-    return adjacency_matrix_2_gram;
+    // entry_20
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_0) != neighbors_of_node_2.end()){ // found
+        entry_20 = 1;
+    }
+
+    // entry_21
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_1) != neighbors_of_node_2.end()){ // found
+        entry_21 = 1;
+    }
+
+    // entry_22
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_2) != neighbors_of_node_2.end()){ // found
+        entry_22 = 1;
+    }
+
+
+    adjacency_matrix_3_gram[0] = entry_00;
+    adjacency_matrix_3_gram[1] = entry_01;
+    adjacency_matrix_3_gram[2] = entry_02;
+    adjacency_matrix_3_gram[3] = entry_10;
+    adjacency_matrix_3_gram[4] = entry_11;
+    adjacency_matrix_3_gram[5] = entry_12;
+    adjacency_matrix_3_gram[6] = entry_20;
+    adjacency_matrix_3_gram[7] = entry_21;
+    adjacency_matrix_3_gram[8] = entry_22;
+
+
+
+    return adjacency_matrix_3_gram;
    
 
 }
 
-map<string, int> get_frequency_3_grams(vector<vector<string> > connections, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
 
-    map<string, int> frequncy_2_grams;
+// comparator code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+bool comparator(const string& a, const string& b, const map<string, string>& y) {
+    return y.at(a) < y.at(b);
+}
 
-    for (auto connection: connections){
-        string source = object_dict.at(connection[0]); // this is msg, tgl etc
-        string destination = object_dict.at(connection[1]);
+map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgraphs, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
 
-        if (source == "" || destination == ""){
+    map<string, int> frequncy_3_grams;
+
+    for (auto subgraph: three_node_subgraphs){
+
+        vector<string> subgraph_nodes = subgraph;
+
+        // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+        sort(subgraph_nodes.begin(), subgraph_nodes.end(), [&object_dict](const string& a, const string& b) {
+            return comparator(a, b, object_dict);
+        });
+
+        // object dict equivalent
+        vector<string> subgraph_nodes_object_dict;
+        for (string node: subgraph_nodes){
+            subgraph_nodes_object_dict.push_back(object_dict.at(node));
+        }
+
+        if (subgraph_nodes_object_dict[0] == "" || subgraph_nodes_object_dict[1] == "" || subgraph_nodes_object_dict[2] == ""){
             continue;
         }
         
-        vector<string> nodes;
-        nodes.push_back(source);
-        nodes.push_back(destination);
-        sort(nodes.begin(), nodes.end());
 
-        string node_0;
-        string node_1;
-
-        if (nodes[0] == source){
-            node_0 = connection[0]; // has to be original node name like PD-ROOT_obj-0
-            node_1 = connection[1];
-        }
-        else{
-            node_0 = connection[1];
-            node_1 = connection[0];
-        }
-
-        int* adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G);
+        int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
         int vocab_index[unique_tokens_train.size() + 1];
 
         int vocab_index_size  = unique_tokens_train.size() + 1;
-        int adjacency_matrix_size = 4; // 2 by 2 matrix
+        int adjacency_matrix_size = 9; // 3 by 3 matrix
+
 
         // initialize with 0
         for (int i = 0; i < vocab_index_size; i++){
@@ -190,14 +259,13 @@ map<string, int> get_frequency_3_grams(vector<vector<string> > connections, map<
         }
         
 
-        int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
-        int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[1]) - unique_tokens_train.begin();
+        int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
+        int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[1]) - unique_tokens_train.begin();
+        int node_2_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[2]) - unique_tokens_train.begin();
 
-
-        cout << node_0_index << " " << node_1_index << endl;
         vocab_index[node_0_index] += 1;
         vocab_index[node_1_index] += 1;
-
+        vocab_index[node_2_index] += 1;
 
         // concatenate adjacency matrix and vocab_index
         int initial_key[vocab_index_size + adjacency_matrix_size];
@@ -222,20 +290,23 @@ map<string, int> get_frequency_3_grams(vector<vector<string> > connections, map<
         string key_sha256 = sha256(key);
 
         // update the frequency_3_grams
-        if (frequncy_2_grams.find(key_sha256) == frequncy_2_grams.end()){ // could not find it in our map
-            frequncy_2_grams[key_sha256] = 1;
+        if (frequncy_3_grams.find(key_sha256) == frequncy_3_grams.end()){ // could not find it in our map
+            frequncy_3_grams[key_sha256] = 1;
         }
         else{
-            frequncy_2_grams[key_sha256] += 1;
+            frequncy_3_grams[key_sha256] += 1;
         }
 
         // freeing the allocated memory
         delete[] adjacency_matrix;
-        
+
+
+
     }
-    return frequncy_2_grams;
-   
+
+    return frequncy_3_grams;
 }
+
 
 vector<string> load_unique_tokens(){
     ifstream myfile_unique_tokens_train;
@@ -257,7 +328,7 @@ vector<string> load_unique_tokens(){
 
 int main(){
     ifstream myfile;
-    myfile.open("/media/baguette/aislam4/paths/train_test_split/train_hashes.txt");
+    myfile.open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_1.txt");
     sqlite3* db;
     const char* dbPath = "/media/crouton/aislam4/database.db";
     // Open the database
@@ -267,11 +338,19 @@ int main(){
         return rc;
     }
 
-    map<string, int> frequency_3_grams_train;
+    ofstream myfile_frequency_3_grams_train;
+    myfile_frequency_3_grams_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_3_grams_train_1.txt", ios::app);
+
     vector<string> unique_tokens_train = load_unique_tokens();
 
-
+    int processing = 0;
     while(!myfile.eof()){
+
+        
+        cout << "Processing: " << processing << endl;
+        processing += 1;
+        
+
         string line;
         getline(myfile, line);
 
@@ -299,19 +378,16 @@ int main(){
             for (auto connection: connections){
                 string source = connection["patchline"]["source"][0];
                 string destination = connection["patchline"]["destination"][0];
-                
                 // unidirectional edge
                 vector<string> edge = {source, destination};
                 edges.push_back(edge);
-
-                // bidirectional edge
-                vector<string> edge2 = {destination, source};
-                undirected_edges.push_back(edge);
-                undirected_edges.push_back(edge2);
-
                 
                 sources.push_back(source);
                 destinations.push_back(destination);
+
+                vector<string> edge_2 = {destination, source};
+                undirected_edges.push_back(edge);
+                undirected_edges.push_back(edge_2);
                 
             }
 
@@ -334,21 +410,19 @@ int main(){
             // create a map of string to string
             map<string, string> object_dict = create_object_dict(data);
 
-            // create a directed and undirected graph
             Graph G_directed(nodes, edges);
             Graph G_undirected(nodes, undirected_edges);
 
-            map<string, int> frequency_3_grams = get_frequency_3_grams(edges, object_dict, unique_tokens_train, G_directed);
+            vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);            
+            map<string, int> frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
 
-            // update the final freuqency 2 grams after each hash content
+            
+            
             for (auto token: frequency_3_grams){
-                if (frequency_3_grams_train.find(token.first) == frequency_3_grams_train.end()){
-                    frequency_3_grams_train[token.first] = token.second;
-                }
-                else{
-                    frequency_3_grams_train[token.first] += token.second;
-                }
+                myfile_frequency_3_grams_train << token.first << " " << token.second << endl;
             }
+
+            
 
         
         }
@@ -361,16 +435,9 @@ int main(){
 
     }
 
-
-    // save frequency_3_grams_train to a file
-    ofstream myfile_frequency_3_grams_train;
-    myfile_frequency_3_grams_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_3_grams_train.txt");
-    for (auto token: frequency_3_grams_train){
-        myfile_frequency_3_grams_train << token.first << " " << token.second << endl;
-    }
-
-    myfile_frequency_3_grams_train.close();
+   
     myfile.close();
+    myfile_frequency_3_grams_train.close();
     sqlite3_close(db);
 
 
