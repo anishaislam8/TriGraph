@@ -410,14 +410,300 @@ map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgra
     return frequncy_3_grams;
 }
 
+float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+    float score;
+    float discount_factor = 0.05;
+
+    
+    // sum of all values of frequency_1_gram
+    int sum_frequency_1_gram = 0;
+    for (auto token: frequency_1_gram){
+        sum_frequency_1_gram += token.second;
+    }
+
+    // sum of all values of frequency_2_grams
+    int sum_frequency_2_grams = 0;
+    for (auto token: frequency_2_grams){
+        sum_frequency_2_grams += token.second;
+    }
+
+    // sum of all values of frequency_3_grams
+    int sum_frequency_3_grams = 0;
+    for (auto token: frequency_3_grams){
+        sum_frequency_3_grams += token.second;
+    }
+
+
+    int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
+    int vocab_index[unique_tokens_train.size() + 1];
+    int vocab_index_size  = unique_tokens_train.size() + 1;
+    int adjacency_matrix_size = 9; // 3 by 3 matrix
+    
+    // initialize with 0
+    for (int i = 0; i < vocab_index_size; i++){
+        vocab_index[i] = 0;
+    }
+
+
+    auto it_0 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[0]));
+    auto it_1 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[1]));
+    auto it_2 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[2]));
+
+    if (it_0 != unique_tokens_train.end()){ // found
+        vocab_index[it_0 - unique_tokens_train.begin()] += 1;
+    }
+    else{
+        vocab_index[vocab_index_size - 1] += 1;
+    }
+
+    if (it_1 != unique_tokens_train.end()){ // found
+        vocab_index[it_1 - unique_tokens_train.begin()] += 1;
+    }
+    else{
+        vocab_index[vocab_index_size - 1] += 1;
+    }
+
+    if (it_2 != unique_tokens_train.end()){ // found
+        vocab_index[it_2 - unique_tokens_train.begin()] += 1;
+    }
+    else{
+        vocab_index[vocab_index_size - 1] += 1;
+    }
+
+    // concatenate adjacency matrix and vocab_index
+    int initial_key[vocab_index_size + adjacency_matrix_size];
+    
+
+    for (int i = 0; i < vocab_index_size; i++){
+        initial_key[i] = vocab_index[i];
+    }
+    
+    for (int i = 0; i < adjacency_matrix_size; i++){
+        initial_key[vocab_index_size + i] = adjacency_matrix[i];
+    }
+
+    // convert this array to string
+    string key = "";
+    int initial_key_size = vocab_index_size + adjacency_matrix_size;
+    for (int i = 0; i < initial_key_size; i++){
+        key += to_string(initial_key[i]);
+    }
+
+    // now calculate sha256 of this key
+    string key_sha256 = sha256(key);
+
+
+    // if key_sha256 is in frequency_3_grams,then return it's probability
+    if (frequency_3_grams.find(key_sha256) != frequency_3_grams.end()){ // found
+        return ((frequency_3_grams.at(key_sha256) * 1.0)/(sum_frequency_3_grams * 1.0));
+    }
+    else{
+        score = 1.0 * discount_factor;
+        vector<vector<string> > edges_of_G = G.get_edges();
+
+        for(auto edge: edges_of_G){
+            vector<string> edge_vector = edge;
+            sort(edge_vector.begin(), edge_vector.end(), [&object_dict](const string& a, const string& b) {
+                return comparator(a, b, object_dict);
+            });
+
+            int* adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
+
+            int vocab_index_2_gram[unique_tokens_train.size() + 1];
+            int vocab_index_2_gram_size  = unique_tokens_train.size() + 1;
+            int adjacency_matrix_2_gram_size = 4; // 2 by 2 matrix
+            
+            // initialize with 0
+            for (int i = 0; i < vocab_index_2_gram_size; i++){
+                vocab_index_2_gram[i] = 0;
+            }
+
+
+            auto it_0_2_gram = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(edge_vector[0]));
+            auto it_1_2_gram = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(edge_vector[1]));
+            
+
+            if (it_0_2_gram != unique_tokens_train.end()){ // found
+                vocab_index_2_gram[it_0_2_gram - unique_tokens_train.begin()] += 1;
+            }
+            else{
+                vocab_index_2_gram[vocab_index_size_2_gram - 1] += 1;
+            }
+
+            if (it_1_2_gram != unique_tokens_train.end()){ // found
+                vocab_index_2_gram[it_1_2_gram - unique_tokens_train.begin()] += 1;
+            }
+            else{
+                vocab_index_2_gram[vocab_index_size_2_gram - 1] += 1;
+            }
+
+           
+            // concatenate adjacency matrix and vocab_index
+            int initial_key_2_gram[vocab_index_2_gram_size + adjacency_matrix_2_gram_size];
+            
+
+            for (int i = 0; i < vocab_index_2_gram_size; i++){
+                initial_key_2_gram[i] = vocab_index_2_gram[i];
+            }
+            
+            for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
+                initial_key_2_gram[vocab_index_2_gram_size + i] = adjacency_matrix_2_gram[i];
+            }
+
+            // convert this array to string
+            string key_2_gram = "";
+            int initial_key_2_gram_size = vocab_index_2_gram_size + adjacency_matrix_2_gram_size;
+            for (int i = 0; i < initial_key_2_gram_size; i++){
+                key_2_gram += to_string(initial_key_2_gram[i]);
+            }
+
+            // now calculate sha256 of this key
+            string key_sha256_2_gram = sha256(key_2_gram);
+
+            // if key_sha256 is in frequency_2_grams,then return it's probability
+            if (frequency_2_grams.find(key_sha256_2_gram) != frequency_2_grams.end()){ // found
+                score *= ((frequency_2_grams.at(key_sha256_2_gram) * 1.0)/(sum_frequency_2_grams * 1.0));
+            }
+            else{
+                score *= discount_factor; // missed two grams
+
+                
+                if (frequency_1_gram.find(object_dict.at(edge_vector[0])) != frequency_1_gram.end()){ // found
+                    score *= ((frequency_1_gram.at(object_dict.at(edge_vector[0])) * 1.0)/(sum_frequency_1_gram * 1.0));
+                }
+                else{
+                    score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
+                }
+
+                
+                if (frequency_1_gram.find(object_dict.at(edge_vector[1])) != frequency_1_gram.end()){ // found
+                    score *= ((frequency_1_gram.at(object_dict.at(edge_vector[1])) * 1.0)/(sum_frequency_1_gram * 1.0));
+                }
+                else{
+                    score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
+                }
+            }
+            
+        }
+    }
+
+    return score
+}
+
+int predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+    int next_token_correctly_predicted = 0;
+    int random_number = rand() % 3;
+    string node_to_remove;
+    string true_token;
+    string predicted_token;
+    float max_score = 0.0;
+
+    if (random_number == 0){
+        node_to_remove = subgraph_nodes[0];
+        true_token = object_dict.at(subgraph_nodes[0]);
+    }
+    else if (random_number == 1){
+        node_to_remove = subgraph_nodes[1];
+        true_token = object_dict.at(subgraph_nodes[1]);
+    }
+    else{
+        node_to_remove = subgraph_nodes[2];
+        true_token = object_dict.at(subgraph_nodes[2]);
+    }
+
+
+    vector<string> subgraph_nodes = subgraph;
+    vector<vector<string> > subgraph_edges;
+    vector<vector<string> > edges_of_original_graph = G.get_edges();
+
+
+    for (auto edge: edges_of_original_graph){
+        if (edge[0] == subgraph_nodes[0] && ( edge[1] == subgraph_nodes[1] || edge[1] == subgraph_nodes[2])){
+            subgraph_edges.push_back(edge);
+        }
+        else if (edge[0] == subgraph_nodes[1] && ( edge[1] == subgraph_nodes[0] || edge[1] == subgraph_nodes[2])){
+            subgraph_edges.push_back(edge);
+        }
+        else if (edge[0] == subgraph_nodes[2] && ( edge[1] == subgraph_nodes[0] || edge[1] == subgraph_nodes[1])){
+            subgraph_edges.push_back(edge);
+        }
+    }
+
+    Graph G_test(subgraph_nodes, subgraph_edges); // this is my initial subgraph
+
+    // iterate through the vocabulary to find the token that generates the highest score
+    for (auto vocab: unique_tokens_train){
+        
+        string node_to_add = vocab;
+
+        vector<string> subgraph_nodes_test;
+        for (string node: subgraph_nodes){
+            if (node != node_to_remove){
+                subgraph_nodes_test.push_back(node);
+            }
+        }
+        subgraph_nodes_test.push_back(node_to_add);
+
+        // for all the edges in subgraph_edges, if the edge is connected to node_to_remove, 
+        // then add an edge to node_to_add, and add the remaining edges as it is
+        vector<vector<string> > subgraph_edges_test;
+        for (auto edge: subgraph_edges){
+            if (edge[0] == node_to_remove && edge[1] == node_to_remove){
+                subgraph_edges_test.push_back({node_to_add, node_to_add});
+            }
+            else if (edge[0] == node_to_remove){
+                subgraph_edges_test.push_back({node_to_add, edge[1]});
+            }
+            else if (edge[1] == node_to_remove){
+                subgraph_edges_test.push_back({edge[0], node_to_add});
+            }
+            else{
+                subgraph_edges_test.push_back(edge);
+            }
+        }
+
+        Graph G_test_new(subgraph_nodes_test, subgraph_edges_test);
+
+        // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+        sort(subgraph_nodes_test.begin(), subgraph_nodes_test.end(), [&object_dict](const string& a, const string& b) {
+            return comparator(a, b, object_dict);
+        });
+
+        float score = 0.0;
+        try{
+            score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new);
+        }
+        catch(...){
+            cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
+            score = 0.0;
+        }
+
+        if score > max_score{
+            max_score = score;
+            predicted_token = vocab;
+        }
+    
+
+    }
+
+    cout << "True token: " << true_token << "Predicted token: " << predicted_token << "Probability: " << max_score << endl;
+    return true_token == predicted_token ? 1 : 0;
+}
+
 
 int main(){
     ifstream myfile;
     myfile.open("../sample_jsons/sample2.json");
     string content( (istreambuf_iterator<char>(myfile) ),
-                       (std::istreambuf_iterator<char>()    ) );
+                       (istreambuf_iterator<char>()    ) );
    
     json data = json::parse(content);
+
+    map<string, string> object_dict;
+    map<string, int> frequency_1_gram;
+    map<string, int> frequency_2_grams;
+    map<string, int> frequency_3_grams;
+    vector<string> unique_tokens_train;
 
     try{
         auto connections = data["connections"];
@@ -461,12 +747,12 @@ int main(){
         vector<string> nodes(nodes_set.begin(), nodes_set.end());
 
         // create a map of string to string
-        map<string, string> object_dict = create_object_dict(data);
+        object_dict = create_object_dict(data);
         // how to access
         // cout << object_dict.at("PD-ROOT_obj-1") << endl;
 
         set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
-        map<string, int> frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
+        frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
 
         // print unique tokens
         cout << "unique_tokens: \n";
@@ -475,8 +761,12 @@ int main(){
         }
 
         //sort it before passing below
-        vector<string> unique_tokens_train(unique_tokens.begin(), unique_tokens.end());
-        sort(unique_tokens_train.begin(), unique_tokens_train.end());
+        vector<string> unique_tokens_train_vector(unique_tokens.begin(), unique_tokens.end());
+        sort(unique_tokens_train_vector.begin(), unique_tokens_train_vector.end());
+
+        for(auto token: unique_tokens_train_vector){
+            unique_tokens_train.push_back(token);
+        }
 
 
         // step 1 done
@@ -486,7 +776,7 @@ int main(){
         // create a Graph
         Graph G_directed(nodes, edges);
 
-        map<string, int> frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
+        frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
 
         cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
 
@@ -508,7 +798,7 @@ int main(){
         // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
 
         
-        map<string, int> frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
+        frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
 
 
         
@@ -522,7 +812,6 @@ int main(){
 
         // step 3 done
 
-
     }
     catch(...){
         cout << "Exception occured" << endl;
@@ -530,6 +819,87 @@ int main(){
 
     
     myfile.close();
+
+
+    // now test
+    int correct_predictions = 0;
+    int total_predictions = 0;
+
+    ifstream myfile;
+    myfile.open("../sample_jsons/sample.json");
+    string content( (istreambuf_iterator<char>(myfile) ),
+                       (istreambuf_iterator<char>()    ) );
+   
+    json data = json::parse(content);
+    try{
+        auto connections = data["connections"];
+        vector<string> sources;
+        vector<string> destinations;
+        vector<vector<string> > edges;
+        vector<vector<string> > undirected_edges;
+
+        for (auto connection: connections){
+            string source = connection["patchline"]["source"][0];
+            string destination = connection["patchline"]["destination"][0];
+            // unidirectional edge
+            vector<string> edge = {source, destination};
+            edges.push_back(edge);
+            
+            sources.push_back(source);
+            destinations.push_back(destination);
+
+            vector<string> edge_2 = {destination, source};
+            undirected_edges.push_back(edge);
+            undirected_edges.push_back(edge_2);
+            
+        }
+
+        // if I have no sources or destinations, then I have no connections
+
+        if (sources.size() == 0 || destinations.size() == 0){
+            exit(0); // switch to continue when in db
+        }
+
+        set<string> nodes_set;
+        for (auto source: sources){
+            nodes_set.insert(source);
+        }
+        for (auto destination: destinations){
+            nodes_set.insert(destination);
+        }
+
+        vector<string> nodes(nodes_set.begin(), nodes_set.end());
+
+        Graph G_directed(nodes, edges);
+        Graph G_undirected(nodes, undirected_edges);
+
+        // update object_dict with more keys, for each key in unique_tokens_train, add it to object_dict
+        for (auto token: unique_tokens_train){
+            object_dict[token] = token.first;
+        }
+
+        vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
+        total_predictions += three_node_subgraphs.size();
+
+        for (auto subgraph: three_node_subgraphs){
+            int next_token_correctly_predicted = predict(subgraph, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed);
+            correct_predictions += next_token_correctly_predicted;
+        }
+
+
+    }
+    catch(...){
+        cout << "Exception occured while testing" << endl;
+    }
+
+    cout << "correct_predictions: " << correct_predictions << endl;
+    cout << "total_predictions: " << total_predictions << endl;
+    cout << "Accuracy: " << (correct_predictions / total_predictions) * 100 << "%" << endl;
+
+    myfile.close();
+
+
+
 
     return 0;
 
