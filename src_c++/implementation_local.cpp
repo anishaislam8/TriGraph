@@ -211,6 +211,206 @@ map<string, int> get_frequency_2_grams(vector<vector<string> > connections, map<
 }
 
 
+vector<vector<string> > get_three_node_subgraphs(vector<string> nodes, Graph G){
+    
+    set<vector<string> > three_node_subgraphs_set;
+    
+    for (string node: nodes){
+        // clear visited and current_path for each node
+        G.visited.clear();
+        G.current_path.clear();
+        G.dfs(node);
+    }
+
+    // G.all_paths has all the paths, but there might be duplicates
+    for (auto subgraph: G.all_paths){
+
+        set<string> path_set(subgraph.begin(), subgraph.end());
+        vector<string> path(path_set.begin(), path_set.end());
+        sort(path.begin(), path.end());
+
+        if (path.size() == 3){
+            three_node_subgraphs_set.insert(path);
+        }
+
+    }
+
+    vector<vector<string> > three_node_subgraphs(three_node_subgraphs_set.begin(), three_node_subgraphs_set.end());
+    return three_node_subgraphs;
+}
+
+int* create_three_node_adjacency_matrix(string node_0, string node_1, string node_2, Graph G){
+
+
+    int* adjacency_matrix_3_gram = new int[9];
+    
+    vector<string> neighbors_of_node_0 = G.get_neighbors_of_a_node(node_0); // where node_0 is source
+    vector<string> neighbors_of_node_1 = G.get_neighbors_of_a_node(node_1); // where node_1 is source
+    vector<string> neighbors_of_node_2 = G.get_neighbors_of_a_node(node_2); // where node_2 is source
+    
+    int entry_00 = 0;
+    int entry_01 = 0;
+    int entry_02 = 0;
+    int entry_10 = 0;
+    int entry_11 = 0;
+    int entry_12 = 0;
+    int entry_20 = 0;
+    int entry_21 = 0;
+    int entry_22 = 0;
+
+    // entry_00: if node_0 is in neighbors_of_node_0, then entry_00 is 1 else 0
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_0) != neighbors_of_node_0.end()){ // found
+        entry_00 = 1;
+    }
+    // entry_01
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_1) != neighbors_of_node_0.end()){ // found
+        entry_01 = 1;
+    }
+
+    // entry_02
+    if (find(neighbors_of_node_0.begin(), neighbors_of_node_0.end(), node_2) != neighbors_of_node_0.end()){ // found
+        entry_02 = 1;
+    }
+
+    // entry_10
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_0) != neighbors_of_node_1.end()){ // found
+        entry_10 = 1;
+    }
+    // entry_11
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_1) != neighbors_of_node_1.end()){ // found
+        entry_11 = 1;
+    }
+
+    // entry_12
+    if (find(neighbors_of_node_1.begin(), neighbors_of_node_1.end(), node_2) != neighbors_of_node_1.end()){ // found
+        entry_12 = 1;
+    }
+
+    // entry_20
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_0) != neighbors_of_node_2.end()){ // found
+        entry_20 = 1;
+    }
+
+    // entry_21
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_1) != neighbors_of_node_2.end()){ // found
+        entry_21 = 1;
+    }
+
+    // entry_22
+    if (find(neighbors_of_node_2.begin(), neighbors_of_node_2.end(), node_2) != neighbors_of_node_2.end()){ // found
+        entry_22 = 1;
+    }
+
+
+    adjacency_matrix_3_gram[0] = entry_00;
+    adjacency_matrix_3_gram[1] = entry_01;
+    adjacency_matrix_3_gram[2] = entry_02;
+    adjacency_matrix_3_gram[3] = entry_10;
+    adjacency_matrix_3_gram[4] = entry_11;
+    adjacency_matrix_3_gram[5] = entry_12;
+    adjacency_matrix_3_gram[6] = entry_20;
+    adjacency_matrix_3_gram[7] = entry_21;
+    adjacency_matrix_3_gram[8] = entry_22;
+
+
+
+    return adjacency_matrix_3_gram;
+   
+
+}
+
+
+// comparator code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+bool comparator(const string& a, const string& b, const map<string, string>& y) {
+    return y.at(a) < y.at(b);
+}
+
+map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgraphs, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
+
+    map<string, int> frequncy_3_grams;
+
+    for (auto subgraph: three_node_subgraphs){
+
+        vector<string> subgraph_nodes = subgraph;
+
+        // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+        sort(subgraph_nodes.begin(), subgraph_nodes.end(), [&object_dict](const string& a, const string& b) {
+            return comparator(a, b, object_dict);
+        });
+
+        // object dict equivalent
+        vector<string> subgraph_nodes_object_dict;
+        for (string node: subgraph_nodes){
+            subgraph_nodes_object_dict.push_back(object_dict.at(node));
+        }
+
+        if (subgraph_nodes_object_dict[0] == "" || subgraph_nodes_object_dict[1] == "" || subgraph_nodes_object_dict[2] == ""){
+            continue;
+        }
+        
+
+        int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
+        int vocab_index[unique_tokens_train.size() + 1];
+
+        int vocab_index_size  = unique_tokens_train.size() + 1;
+        int adjacency_matrix_size = 9; // 3 by 3 matrix
+
+
+        // initialize with 0
+        for (int i = 0; i < vocab_index_size; i++){
+            vocab_index[i] = 0;
+        }
+        
+
+        int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
+        int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[1]) - unique_tokens_train.begin();
+        int node_2_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[2]) - unique_tokens_train.begin();
+
+        vocab_index[node_0_index] += 1;
+        vocab_index[node_1_index] += 1;
+        vocab_index[node_2_index] += 1;
+
+        // concatenate adjacency matrix and vocab_index
+        int initial_key[vocab_index_size + adjacency_matrix_size];
+        
+
+        for (int i = 0; i < vocab_index_size; i++){
+            initial_key[i] = vocab_index[i];
+        }
+        
+        for (int i = 0; i < adjacency_matrix_size; i++){
+            initial_key[vocab_index_size + i] = adjacency_matrix[i];
+        }
+
+        // convert this array to string
+        string key = "";
+        int initial_key_size = vocab_index_size + adjacency_matrix_size;
+        for (int i = 0; i < initial_key_size; i++){
+            key += to_string(initial_key[i]);
+        }
+
+        // now calculate sha256 of this key
+        string key_sha256 = sha256(key);
+
+        // update the frequency_3_grams
+        if (frequncy_3_grams.find(key_sha256) == frequncy_3_grams.end()){ // could not find it in our map
+            frequncy_3_grams[key_sha256] = 1;
+        }
+        else{
+            frequncy_3_grams[key_sha256] += 1;
+        }
+
+        // freeing the allocated memory
+        delete[] adjacency_matrix;
+
+
+
+    }
+
+    return frequncy_3_grams;
+}
+
+
 int main(){
     ifstream myfile;
     myfile.open("../sample_jsons/sample2.json");
@@ -226,6 +426,8 @@ int main(){
         vector<string> sources;
         vector<string> destinations;
         vector<vector<string> > edges;
+        vector<vector<string> > undirected_edges;
+
         for (auto connection: connections){
             string source = connection["patchline"]["source"][0];
             string destination = connection["patchline"]["destination"][0];
@@ -235,6 +437,10 @@ int main(){
             
             sources.push_back(source);
             destinations.push_back(destination);
+
+            vector<string> edge_2 = {destination, source};
+            undirected_edges.push_back(edge);
+            undirected_edges.push_back(edge_2);
             
         }
 
@@ -289,7 +495,34 @@ int main(){
         for (auto token: frequency_2_grams){
             cout << token.first << " " << token.second << endl;
         }
+
+
+        // step 2 done
+
+        // step 3: extract 3-gram frequencies
+
+        Graph G_undirected(nodes, undirected_edges);
+
+        vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
+
+        // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
+
         
+        map<string, int> frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
+
+
+        
+        cout << "frequency 3 gram size: " << frequency_3_grams.size() << endl;
+
+        // print frequency_3_grams
+        cout << "frequency_3_grams: \n";
+        for (auto token: frequency_3_grams){
+            cout << token.first << " " << token.second << endl;
+        }
+
+        // step 3 done
+
+
     }
     catch(...){
         cout << "Exception occured" << endl;

@@ -9,6 +9,10 @@ class Graph
 
     public:
 
+        map<string , bool> visited;
+        vector<string> current_path;
+        vector<vector<string> > all_paths;
+
         // constructor
         Graph(vector<string>, vector<vector<string> >);
 
@@ -29,6 +33,9 @@ class Graph
 
         // get neighbors of a node
         vector<string> get_neighbors_of_a_node(string);
+
+        // Depth First Search
+        void dfs(string);
 
 
 };

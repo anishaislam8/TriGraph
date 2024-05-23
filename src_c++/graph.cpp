@@ -47,5 +47,27 @@ vector<string> Graph::get_neighbors_of_a_node(string node){
 }
 
 
+// two length dfs from a node
+void Graph::dfs(string node){
+    // mark node as visited
+    visited[node] = true;
+    current_path.push_back(node);
+
+    if (current_path.size() == 3){
+        all_paths.push_back(current_path);
+    } else {
+        vector<string> neighbors = this->get_neighbors_of_a_node(node);
+        for (string neighbor: neighbors){
+            if (!visited[neighbor]){
+                dfs(neighbor);
+            }
+        }
+    }
+
+    visited[node] = false;
+    current_path.pop_back();
+   
+}
+
 
 
