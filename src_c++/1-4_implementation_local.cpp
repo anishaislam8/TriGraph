@@ -492,6 +492,8 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
     // now calculate sha256 of this key
     string key_sha256 = sha256(key);
 
+    delete[] adjacency_matrix;
+
 
     // if key_sha256 is in frequency_3_grams,then return it's probability
     if (frequency_3_grams.find(key_sha256) != frequency_3_grams.end()){ // found
@@ -527,14 +529,14 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
                 vocab_index_2_gram[it_0_2_gram - unique_tokens_train.begin()] += 1;
             }
             else{
-                vocab_index_2_gram[vocab_index_size_2_gram - 1] += 1;
+                vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
             }
 
             if (it_1_2_gram != unique_tokens_train.end()){ // found
                 vocab_index_2_gram[it_1_2_gram - unique_tokens_train.begin()] += 1;
             }
             else{
-                vocab_index_2_gram[vocab_index_size_2_gram - 1] += 1;
+                vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
             }
 
            
@@ -583,15 +585,18 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
                     score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
                 }
             }
+
+            delete[] adjacency_matrix_2_gram;
             
         }
     }
 
-    return score
+    return score;
 }
 
 int predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
     int next_token_correctly_predicted = 0;
+    
     int random_number = rand() % 3;
     string node_to_remove;
     string true_token;
@@ -599,16 +604,16 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
     float max_score = 0.0;
 
     if (random_number == 0){
-        node_to_remove = subgraph_nodes[0];
-        true_token = object_dict.at(subgraph_nodes[0]);
+        node_to_remove = subgraph[0];
+        true_token = object_dict.at(subgraph[0]);
     }
     else if (random_number == 1){
-        node_to_remove = subgraph_nodes[1];
-        true_token = object_dict.at(subgraph_nodes[1]);
+        node_to_remove = subgraph[1];
+        true_token = object_dict.at(subgraph[1]);
     }
     else{
-        node_to_remove = subgraph_nodes[2];
-        true_token = object_dict.at(subgraph_nodes[2]);
+        node_to_remove = subgraph[2];
+        true_token = object_dict.at(subgraph[2]);
     }
 
 
@@ -678,7 +683,7 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
             score = 0.0;
         }
 
-        if score > max_score{
+        if (score > max_score){
             max_score = score;
             predicted_token = vocab;
         }
@@ -686,7 +691,7 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
 
     }
 
-    cout << "True token: " << true_token << "Predicted token: " << predicted_token << "Probability: " << max_score << endl;
+    cout << "True token: " << true_token << " Predicted token: " << predicted_token << " Probability: " << max_score << endl;
     return true_token == predicted_token ? 1 : 0;
 }
 
@@ -699,7 +704,6 @@ int main(){
    
     json data = json::parse(content);
 
-    map<string, string> object_dict;
     map<string, int> frequency_1_gram;
     map<string, int> frequency_2_grams;
     map<string, int> frequency_3_grams;
@@ -747,7 +751,7 @@ int main(){
         vector<string> nodes(nodes_set.begin(), nodes_set.end());
 
         // create a map of string to string
-        object_dict = create_object_dict(data);
+        map<string, string> object_dict = create_object_dict(data);
         // how to access
         // cout << object_dict.at("PD-ROOT_obj-1") << endl;
 
@@ -825,64 +829,73 @@ int main(){
     int correct_predictions = 0;
     int total_predictions = 0;
 
-    ifstream myfile;
-    myfile.open("../sample_jsons/sample.json");
-    string content( (istreambuf_iterator<char>(myfile) ),
+    ifstream myfile_test;
+    myfile_test.open("../sample_jsons/sample2.json");
+    string content_test( (istreambuf_iterator<char>(myfile_test) ),
                        (istreambuf_iterator<char>()    ) );
    
-    json data = json::parse(content);
-    try{
-        auto connections = data["connections"];
-        vector<string> sources;
-        vector<string> destinations;
-        vector<vector<string> > edges;
-        vector<vector<string> > undirected_edges;
+    json data_test = json::parse(content_test);
 
-        for (auto connection: connections){
+    map<string, string> object_dict_test = create_object_dict(data_test);
+    
+    try{
+        
+        auto connections_test = data_test["connections"];
+
+        vector<string> sources_test;
+        vector<string> destinations_test;
+        vector<vector<string> > edges_test;
+        vector<vector<string> > undirected_edges_test;
+
+        for (auto connection: connections_test){
             string source = connection["patchline"]["source"][0];
             string destination = connection["patchline"]["destination"][0];
             // unidirectional edge
             vector<string> edge = {source, destination};
-            edges.push_back(edge);
+            edges_test.push_back(edge);
             
-            sources.push_back(source);
-            destinations.push_back(destination);
+            sources_test.push_back(source);
+            destinations_test.push_back(destination);
 
             vector<string> edge_2 = {destination, source};
-            undirected_edges.push_back(edge);
-            undirected_edges.push_back(edge_2);
+            undirected_edges_test.push_back(edge);
+            undirected_edges_test.push_back(edge_2);
             
         }
+
+        
 
         // if I have no sources or destinations, then I have no connections
 
-        if (sources.size() == 0 || destinations.size() == 0){
+        if (sources_test.size() == 0 || destinations_test.size() == 0){
             exit(0); // switch to continue when in db
         }
 
-        set<string> nodes_set;
-        for (auto source: sources){
-            nodes_set.insert(source);
+        set<string> nodes_set_test;
+        for (auto source: sources_test){
+            nodes_set_test.insert(source);
         }
-        for (auto destination: destinations){
-            nodes_set.insert(destination);
+        for (auto destination: destinations_test){
+            nodes_set_test.insert(destination);
         }
 
-        vector<string> nodes(nodes_set.begin(), nodes_set.end());
+        vector<string> nodes_test(nodes_set_test.begin(), nodes_set_test.end());
 
-        Graph G_directed(nodes, edges);
-        Graph G_undirected(nodes, undirected_edges);
+        Graph G_directed_test(nodes_test, edges_test);
+        Graph G_undirected_test(nodes_test, undirected_edges_test);
 
         // update object_dict with more keys, for each key in unique_tokens_train, add it to object_dict
         for (auto token: unique_tokens_train){
-            object_dict[token] = token.first;
+            object_dict_test[token] = token;
         }
 
-        vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
-        total_predictions += three_node_subgraphs.size();
-
-        for (auto subgraph: three_node_subgraphs){
-            int next_token_correctly_predicted = predict(subgraph, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed);
+        vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
+        
+        total_predictions += three_node_subgraphs_test.size();
+        
+        
+        for (auto subgraph: three_node_subgraphs_test){
+            int next_token_correctly_predicted = predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test);
             correct_predictions += next_token_correctly_predicted;
         }
 
@@ -894,9 +907,9 @@ int main(){
 
     cout << "correct_predictions: " << correct_predictions << endl;
     cout << "total_predictions: " << total_predictions << endl;
-    cout << "Accuracy: " << (correct_predictions / total_predictions) * 100 << "%" << endl;
+    cout << "Accuracy: " << ((correct_predictions * 1.0) / (total_predictions * 1.0)) << endl;
 
-    myfile.close();
+    myfile_test.close();
 
 
 
