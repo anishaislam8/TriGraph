@@ -1,4 +1,9 @@
-# include <bits/stdc++.h>
+# include <vector>
+# include <map>
+# include <string>
+# include <iostream>
+# include <fstream>
+# include <set>
 # include <openssl/sha.h>
 // # include <sqlite3.h>
 # include "graph.h"
