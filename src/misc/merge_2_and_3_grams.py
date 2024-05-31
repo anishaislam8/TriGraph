@@ -18,6 +18,12 @@ import pickle
 # with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/frequency_3_grams_train.pkl", "wb") as f:
 #     pickle.dump(frequency_3_grams, f)
 
+# write frequency_3_grams to another text file
+# with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/frequency_3_grams_train.txt", "w") as f:
+#     for key, value in frequency_3_grams.items():
+#         f.write(f"{key} {value}\n")
+
+
 
 frequency_2_grams = {}
 with open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src/vocabulary_frequencies/frequency_2_grams_train.txt", "r") as f:

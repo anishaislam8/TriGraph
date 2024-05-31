@@ -4,6 +4,8 @@
 # include <iostream>
 # include <fstream>
 # include <set>
+# include <algorithm>
+# include <utility>
 # include <openssl/sha.h>
 // # include <sqlite3.h>
 # include "graph.h"
@@ -606,7 +608,6 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
     string node_to_remove;
     string true_token;
     string predicted_token;
-    float max_score = 0.0;
 
     if (random_number == 0){
         node_to_remove = subgraph[0];
@@ -640,6 +641,15 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
     }
 
     Graph G_test(subgraph_nodes, subgraph_edges); // this is my initial subgraph
+
+    
+    auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
+        return left.second < right.second;
+    };
+
+    vector<pair<string, float> > heap;
+    make_heap(heap.begin(), heap.end(), cmp); 
+    int max_heap_size = 5;
 
     // iterate through the vocabulary to find the token that generates the highest score
     for (auto vocab: unique_tokens_train){
@@ -682,21 +692,54 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
         float score = 0.0;
         try{
             score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new);
+            float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
+            pair<string, float> p(vocab, negative_probability_score);
+            
+            
+            if (heap.size() < max_heap_size){
+                heap.push_back(p);
+
+                if (heap.size() == max_heap_size){
+                    make_heap(heap.begin(), heap.end(), cmp);
+                }
+            }
+            
+            else{
+                // this is okay as we are using negative probability, if the heap one is larger than the new one, 
+                // then replace it as smaller negative probability means bigger real probability
+                if (heap.front().second > p.second){ 
+                    pop_heap(heap.begin(), heap.end(), cmp);
+                    heap.pop_back();
+                    
+                    heap.push_back(p);
+                    push_heap(heap.begin(), heap.end(), cmp);
+
+                    
+                }
+                
+            }
+
         }
         catch(...){
             cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
             score = 0.0;
         }
 
-        if (score > max_score){
-            max_score = score;
-            predicted_token = vocab;
-        }
+        
     
 
     }
 
-    cout << "True token: " << true_token << " Predicted token: " << predicted_token << " Probability: " << max_score << endl;
+    sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
+    predicted_token = heap[0].first;
+    
+    cout << "True token: " << true_token << " Predicted token: " << predicted_token << endl;
+    // print heap
+    cout << "Heap: \n";
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
+    
     return true_token == predicted_token ? 1 : 0;
 }
 
