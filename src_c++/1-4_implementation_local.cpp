@@ -601,7 +601,7 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
     return score;
 }
 
-int predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+float predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
     int next_token_correctly_predicted = 0;
     
     int random_number = rand() % 3;
@@ -719,6 +719,8 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
                 
             }
 
+
+
         }
         catch(...){
             cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
@@ -731,16 +733,24 @@ int predict(vector<string> subgraph, map<string, string> object_dict, vector<str
     }
 
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    predicted_token = heap[0].first;
     
-    cout << "True token: " << true_token << " Predicted token: " << predicted_token << endl;
-    // print heap
-    cout << "Heap: \n";
+    // find the index of the true token in the heap first items
+    int index = 0;
     for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
+        if (token.first == true_token){
+            break;
+        }
+        index += 1;
     }
-    
-    return true_token == predicted_token ? 1 : 0;
+
+    float mean_reciprocal_rank = 0.0;
+    if (index != max_heap_size){
+        mean_reciprocal_rank = 1.0/(index+1); // if I find the true token at the first place, then it's reciprocal rank is 1; if I find it at the second place, then it's reciprocal rank is 0.5
+    }
+    else{
+        mean_reciprocal_rank = 0.0;
+    }
+    return mean_reciprocal_rank;
 }
 
 
@@ -807,10 +817,10 @@ int main(){
         frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
 
         // print unique tokens
-        cout << "unique_tokens: \n";
-        for (auto token: unique_tokens){
-            cout << token << endl;
-        }
+        // cout << "unique_tokens: \n";
+        // for (auto token: unique_tokens){
+        //     cout << token << endl;
+        // }
 
         //sort it before passing below
         vector<string> unique_tokens_train_vector(unique_tokens.begin(), unique_tokens.end());
@@ -830,13 +840,13 @@ int main(){
 
         frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
 
-        cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
+        // cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
 
-        // print frequency_2_grams
-        cout << "frequency_2_grams: \n";
-        for (auto token: frequency_2_grams){
-            cout << token.first << " " << token.second << endl;
-        }
+        // // print frequency_2_grams
+        // cout << "frequency_2_grams: \n";
+        // for (auto token: frequency_2_grams){
+        //     cout << token.first << " " << token.second << endl;
+        // }
 
 
         // step 2 done
@@ -854,13 +864,13 @@ int main(){
 
 
         
-        cout << "frequency 3 gram size: " << frequency_3_grams.size() << endl;
+        // cout << "frequency 3 gram size: " << frequency_3_grams.size() << endl;
 
-        // print frequency_3_grams
-        cout << "frequency_3_grams: \n";
-        for (auto token: frequency_3_grams){
-            cout << token.first << " " << token.second << endl;
-        }
+        // // print frequency_3_grams
+        // cout << "frequency_3_grams: \n";
+        // for (auto token: frequency_3_grams){
+        //     cout << token.first << " " << token.second << endl;
+        // }
 
         // step 3 done
 
@@ -872,10 +882,6 @@ int main(){
     
     myfile.close();
 
-
-    // now test
-    int correct_predictions = 0;
-    int total_predictions = 0;
 
     ifstream myfile_test;
     myfile_test.open("../sample_jsons/sample2.json");
@@ -939,13 +945,17 @@ int main(){
 
         vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
         
-        total_predictions += three_node_subgraphs_test.size();
+        // how many subgraphs are there in this program
+        int total_predictions_for_this_graph = three_node_subgraphs_test.size();
         
-        
+        // for each subgraph, I am going to calculae the mrr score
+        float mrr_score = 0.0;
         for (auto subgraph: three_node_subgraphs_test){
-            int next_token_correctly_predicted = predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test);
-            correct_predictions += next_token_correctly_predicted;
+            mrr_score += predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test);
         }
+
+        mrr_score = mrr_score/total_predictions_for_this_graph;
+        cout << "MRR score for this program: " << mrr_score << endl;
 
 
     }
@@ -953,9 +963,6 @@ int main(){
         cout << "Exception occured while testing" << endl;
     }
 
-    cout << "correct_predictions: " << correct_predictions << endl;
-    cout << "total_predictions: " << total_predictions << endl;
-    cout << "Accuracy: " << ((correct_predictions * 1.0) / (total_predictions * 1.0)) << endl;
 
     myfile_test.close();
 
