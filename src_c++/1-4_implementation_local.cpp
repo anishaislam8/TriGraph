@@ -601,19 +601,19 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
     return score;
 }
 
-float predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+float predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G, string blank_node){
     int next_token_correctly_predicted = 0;
     
-    int random_number = rand() % 3;
+   
     string node_to_remove;
     string true_token;
-    string predicted_token;
 
-    if (random_number == 0){
+
+    if (subgraph[0] == blank_node){
         node_to_remove = subgraph[0];
         true_token = object_dict.at(subgraph[0]);
     }
-    else if (random_number == 1){
+    else if (subgraph[1] == blank_node){
         node_to_remove = subgraph[1];
         true_token = object_dict.at(subgraph[1]);
     }
@@ -621,7 +621,6 @@ float predict(vector<string> subgraph, map<string, string> object_dict, vector<s
         node_to_remove = subgraph[2];
         true_token = object_dict.at(subgraph[2]);
     }
-
 
     vector<string> subgraph_nodes = subgraph;
     vector<vector<string> > subgraph_edges;
@@ -750,6 +749,7 @@ float predict(vector<string> subgraph, map<string, string> object_dict, vector<s
     else{
         mean_reciprocal_rank = 0.0;
     }
+
     return mean_reciprocal_rank;
 }
 
@@ -883,6 +883,8 @@ int main(){
     myfile.close();
 
 
+    // testing
+
     ifstream myfile_test;
     myfile_test.open("../sample_jsons/sample2.json");
     string content_test( (istreambuf_iterator<char>(myfile_test) ),
@@ -891,6 +893,7 @@ int main(){
     json data_test = json::parse(content_test);
 
     map<string, string> object_dict_test = create_object_dict(data_test);
+    int total_predictions_for_this_graph = 0;
     
     try{
         
@@ -945,14 +948,28 @@ int main(){
 
         vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
         
-        // how many subgraphs are there in this program
-        int total_predictions_for_this_graph = three_node_subgraphs_test.size();
+ 
         
         // for each subgraph, I am going to calculae the mrr score
         float mrr_score = 0.0;
-        for (auto subgraph: three_node_subgraphs_test){
-            mrr_score += predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test);
+
+        for (auto node: nodes_test){
+            // get all three_node_subgraphs that contain this node
+            vector<vector<string> > three_node_subgraphs_containing_this_node;
+            for (auto subgraph: three_node_subgraphs_test){
+                if (find(subgraph.begin(), subgraph.end(), node) != subgraph.end()){
+                    three_node_subgraphs_containing_this_node.push_back(subgraph);
+                }
+            }
+
+            total_predictions_for_this_graph += three_node_subgraphs_containing_this_node.size();
+            
+            for (auto subgraph: three_node_subgraphs_containing_this_node){
+                mrr_score += predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test, node);
+            }
+
         }
+        
 
         mrr_score = mrr_score/total_predictions_for_this_graph;
         cout << "MRR score for this program: " << mrr_score << endl;
