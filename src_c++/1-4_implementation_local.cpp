@@ -6,6 +6,7 @@
 # include <set>
 # include <algorithm>
 # include <utility>
+# include <time.h>
 # include <openssl/sha.h>
 // # include <sqlite3.h>
 # include "graph.h"
@@ -32,7 +33,7 @@ string sha256(const string &str)
 
 
 
-map<string, string> create_object_dict(json data){
+map<string, string> create_object_dict(const json &data){
     map<string, string> object_dict;
     auto all_objects = data["all_objects"];
 
@@ -65,7 +66,7 @@ map<string, string> create_object_dict(json data){
 }
 
 
-set<string> get_unique_tokens(vector<string> nodes, map<string, string> object_dict){
+set<string> get_unique_tokens(vector<string> nodes, const map<string, string> &object_dict){
     set<string> unique_tokens;
     for (string node: nodes){
         unique_tokens.insert(object_dict.at(node));
@@ -74,7 +75,7 @@ set<string> get_unique_tokens(vector<string> nodes, map<string, string> object_d
     return unique_tokens;
 }
 
-map<string, int> get_frequency_1_gram(set<string> unique_tokens, map<string, string> object_dict, vector<string> nodes){
+map<string, int> get_frequency_1_gram(set<string> unique_tokens, const map<string, string> &object_dict, vector<string> nodes){
     map<string, int> frequency_1_gram;
     for (string token: unique_tokens){
         frequency_1_gram[token] = 0;
@@ -131,7 +132,7 @@ int* create_two_node_adjacency_matrix(string node_0, string node_1, Graph G){
 
 
 
-map<string, int> get_frequency_2_grams(vector<vector<string> > connections, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
+map<string, int> get_frequency_2_grams(const vector<vector<string> > &connections, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
 
     map<string, int> frequncy_2_grams;
 
@@ -332,7 +333,7 @@ bool comparator(const string& a, const string& b, const map<string, string>& y) 
     return y.at(a) < y.at(b);
 }
 
-map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgraphs, map<string, string> object_dict, vector<string> unique_tokens_train, Graph G){
+map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgraphs, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
 
     map<string, int> frequncy_3_grams;
 
@@ -417,7 +418,7 @@ map<string, int> get_frequency_3_grams(vector<vector<string> > three_node_subgra
     return frequncy_3_grams;
 }
 
-float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+float get_score(vector<string> subgraph_nodes, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G){
     float score;
     float discount_factor = 0.05;
 
@@ -601,7 +602,7 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
     return score;
 }
 
-float predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G, string blank_node){
+float predict(vector<string> subgraph, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, string blank_node){
     int next_token_correctly_predicted = 0;
     
    
@@ -742,6 +743,7 @@ float predict(vector<string> subgraph, map<string, string> object_dict, vector<s
         index += 1;
     }
 
+
     float mean_reciprocal_rank = 0.0;
     if (index != max_heap_size){
         mean_reciprocal_rank = 1.0/(index+1); // if I find the true token at the first place, then it's reciprocal rank is 1; if I find it at the second place, then it's reciprocal rank is 0.5
@@ -767,117 +769,111 @@ int main(){
     map<string, int> frequency_3_grams;
     vector<string> unique_tokens_train;
 
-    try{
-        auto connections = data["connections"];
+    auto connections = data["connections"];
+    
+    
+    vector<string> sources;
+    vector<string> destinations;
+    vector<vector<string> > edges;
+    vector<vector<string> > undirected_edges;
+
+    for (auto connection: connections){
+        string source = connection["patchline"]["source"][0];
+        string destination = connection["patchline"]["destination"][0];
+        // unidirectional edge
+        vector<string> edge = {source, destination};
+        edges.push_back(edge);
         
+        sources.push_back(source);
+        destinations.push_back(destination);
+
+        vector<string> edge_2 = {destination, source};
+        undirected_edges.push_back(edge);
+        undirected_edges.push_back(edge_2);
         
-        vector<string> sources;
-        vector<string> destinations;
-        vector<vector<string> > edges;
-        vector<vector<string> > undirected_edges;
-
-        for (auto connection: connections){
-            string source = connection["patchline"]["source"][0];
-            string destination = connection["patchline"]["destination"][0];
-            // unidirectional edge
-            vector<string> edge = {source, destination};
-            edges.push_back(edge);
-            
-            sources.push_back(source);
-            destinations.push_back(destination);
-
-            vector<string> edge_2 = {destination, source};
-            undirected_edges.push_back(edge);
-            undirected_edges.push_back(edge_2);
-            
-        }
-
-        // if I have no sources or destinations, then I have no connections
-
-        if (sources.size() == 0 || destinations.size() == 0){
-            exit(0); // switch to continue when in db
-        }
-
-        set<string> nodes_set;
-        for (auto source: sources){
-            nodes_set.insert(source);
-        }
-        for (auto destination: destinations){
-            nodes_set.insert(destination);
-        }
-
-        vector<string> nodes(nodes_set.begin(), nodes_set.end());
-
-        // create a map of string to string
-        map<string, string> object_dict = create_object_dict(data);
-        // how to access
-        // cout << object_dict.at("PD-ROOT_obj-1") << endl;
-
-        set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
-        frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
-
-        // print unique tokens
-        // cout << "unique_tokens: \n";
-        // for (auto token: unique_tokens){
-        //     cout << token << endl;
-        // }
-
-        //sort it before passing below
-        vector<string> unique_tokens_train_vector(unique_tokens.begin(), unique_tokens.end());
-        sort(unique_tokens_train_vector.begin(), unique_tokens_train_vector.end());
-
-        for(auto token: unique_tokens_train_vector){
-            unique_tokens_train.push_back(token);
-        }
-
-
-        // step 1 done
-
-
-        // step 2: Extract 2-gram frequencies
-        // create a Graph
-        Graph G_directed(nodes, edges);
-
-        frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
-
-        // cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
-
-        // // print frequency_2_grams
-        // cout << "frequency_2_grams: \n";
-        // for (auto token: frequency_2_grams){
-        //     cout << token.first << " " << token.second << endl;
-        // }
-
-
-        // step 2 done
-
-        // step 3: extract 3-gram frequencies
-
-        Graph G_undirected(nodes, undirected_edges);
-
-        vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
-
-        // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
-
-        
-        frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
-
-
-        
-        // cout << "frequency 3 gram size: " << frequency_3_grams.size() << endl;
-
-        // // print frequency_3_grams
-        // cout << "frequency_3_grams: \n";
-        // for (auto token: frequency_3_grams){
-        //     cout << token.first << " " << token.second << endl;
-        // }
-
-        // step 3 done
-
     }
-    catch(...){
-        cout << "Exception occured" << endl;
+
+    // if I have no sources or destinations, then I have no connections
+
+    if (sources.size() == 0 || destinations.size() == 0){
+        exit(0); // switch to continue when in db
     }
+
+    set<string> nodes_set;
+    for (auto source: sources){
+        nodes_set.insert(source);
+    }
+    for (auto destination: destinations){
+        nodes_set.insert(destination);
+    }
+
+    vector<string> nodes(nodes_set.begin(), nodes_set.end());
+
+    // create a map of string to string
+    map<string, string> object_dict = create_object_dict(data);
+    // how to access
+    // cout << object_dict.at("PD-ROOT_obj-1") << endl;
+
+    set<string> unique_tokens = get_unique_tokens(nodes, object_dict);
+    frequency_1_gram = get_frequency_1_gram(unique_tokens, object_dict, nodes);
+
+    // print unique tokens
+    // cout << "unique_tokens: \n";
+    // for (auto token: unique_tokens){
+    //     cout << token << endl;
+    // }
+
+    //sort it before passing below
+    vector<string> unique_tokens_train_vector(unique_tokens.begin(), unique_tokens.end());
+    sort(unique_tokens_train_vector.begin(), unique_tokens_train_vector.end());
+
+    for(auto token: unique_tokens_train_vector){
+        unique_tokens_train.push_back(token);
+    }
+
+
+    // step 1 done
+
+
+    // step 2: Extract 2-gram frequencies
+    // create a Graph
+    Graph G_directed(nodes, edges);
+
+    frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
+
+    // cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
+
+    // // print frequency_2_grams
+    // cout << "frequency_2_grams: \n";
+    // for (auto token: frequency_2_grams){
+    //     cout << token.first << " " << token.second << endl;
+    // }
+
+
+    // step 2 done
+
+    // step 3: extract 3-gram frequencies
+
+    Graph G_undirected(nodes, undirected_edges);
+
+    vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
+
+    // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
+
+    
+    frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
+
+
+    
+    // cout << "frequency 3 gram size: " << frequency_3_grams.size() << endl;
+
+    // // print frequency_3_grams
+    // cout << "frequency_3_grams: \n";
+    // for (auto token: frequency_3_grams){
+    //     cout << token.first << " " << token.second << endl;
+    // }
+
+    // step 3 done
 
     
     myfile.close();
@@ -894,6 +890,9 @@ int main(){
 
     map<string, string> object_dict_test = create_object_dict(data_test);
     int total_predictions_for_this_graph = 0;
+
+    clock_t t;
+    t = clock();
     
     try{
         
@@ -980,6 +979,8 @@ int main(){
         cout << "Exception occured while testing" << endl;
     }
 
+    t = clock() - t;
+    cout << "Time taken: " << ((float)t)/CLOCKS_PER_SEC << " seconds" << endl;
 
     myfile_test.close();
 

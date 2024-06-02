@@ -33,7 +33,7 @@ string sha256(const string &str)
 
 
 
-map<string, string> create_object_dict(json data){
+map<string, string> create_object_dict(const json &data){
     map<string, string> object_dict;
     auto all_objects = data["all_objects"];
 
@@ -225,7 +225,7 @@ bool comparator(const string& a, const string& b, const map<string, string>& y) 
 }
 
 
-float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G){
+float get_score(vector<string> subgraph_nodes, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G){
     float score;
     float discount_factor = 0.05;
 
@@ -409,7 +409,7 @@ float get_score(vector<string> subgraph_nodes, map<string, string> object_dict, 
     return score;
 }
 
-float predict(vector<string> subgraph, map<string, string> object_dict, vector<string> unique_tokens_train, map<string, int> frequency_1_gram, map<string, int> frequency_2_grams, map<string, int> frequency_3_grams, Graph G, string blank_node){
+float predict(vector<string> subgraph, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, string blank_node){
 
     string node_to_remove;
     string true_token;
