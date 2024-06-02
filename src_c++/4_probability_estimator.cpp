@@ -225,33 +225,14 @@ bool comparator(const string& a, const string& b, const map<string, string>& y) 
 }
 
 
-float get_score(vector<string> subgraph_nodes, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G){
+float get_score(const vector<string> &subgraph_nodes, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){
     float score;
     float discount_factor = 0.05;
 
     
-    // sum of all values of frequency_1_gram
-    int sum_frequency_1_gram = 0;
-    for (auto token: frequency_1_gram){
-        sum_frequency_1_gram += token.second;
-    }
-
-    // sum of all values of frequency_2_grams
-    int sum_frequency_2_grams = 0;
-    for (auto token: frequency_2_grams){
-        sum_frequency_2_grams += token.second;
-    }
-
-    // sum of all values of frequency_3_grams
-    int sum_frequency_3_grams = 0;
-    for (auto token: frequency_3_grams){
-        sum_frequency_3_grams += token.second;
-    }
-
-
     int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
-    int vocab_index[unique_tokens_train.size() + 1];
-    int vocab_index_size  = unique_tokens_train.size() + 1;
+    int vocab_index[unique_tokens_train_map.size() + 1];
+    int vocab_index_size  = unique_tokens_train_map.size() + 1;
     int adjacency_matrix_size = 9; // 3 by 3 matrix
     
     // initialize with 0
@@ -260,26 +241,26 @@ float get_score(vector<string> subgraph_nodes, const map<string, string> &object
     }
 
 
-    auto it_0 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[0]));
-    auto it_1 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[1]));
-    auto it_2 = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(subgraph_nodes[2]));
+    auto it_0 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[0]));
+    auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
+    auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
 
-    if (it_0 != unique_tokens_train.end()){ // found
-        vocab_index[it_0 - unique_tokens_train.begin()] += 1;
+    if (it_0 != unique_tokens_train_map.end()){ // found
+        vocab_index[it_0->second] += 1;
     }
     else{
         vocab_index[vocab_index_size - 1] += 1;
     }
 
-    if (it_1 != unique_tokens_train.end()){ // found
-        vocab_index[it_1 - unique_tokens_train.begin()] += 1;
+    if (it_1 != unique_tokens_train_map.end()){ // found
+        vocab_index[it_1->second] += 1;
     }
     else{
         vocab_index[vocab_index_size - 1] += 1;
     }
 
-    if (it_2 != unique_tokens_train.end()){ // found
-        vocab_index[it_2 - unique_tokens_train.begin()] += 1;
+    if (it_2 != unique_tokens_train_map.end()){ // found
+        vocab_index[it_2->second] += 1;
     }
     else{
         vocab_index[vocab_index_size - 1] += 1;
@@ -325,9 +306,8 @@ float get_score(vector<string> subgraph_nodes, const map<string, string> &object
             });
 
             int* adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
-
-            int vocab_index_2_gram[unique_tokens_train.size() + 1];
-            int vocab_index_2_gram_size  = unique_tokens_train.size() + 1;
+            int vocab_index_2_gram[unique_tokens_train_map.size() + 1];
+            int vocab_index_2_gram_size  = unique_tokens_train_map.size() + 1;
             int adjacency_matrix_2_gram_size = 4; // 2 by 2 matrix
             
             // initialize with 0
@@ -336,19 +316,19 @@ float get_score(vector<string> subgraph_nodes, const map<string, string> &object
             }
 
 
-            auto it_0_2_gram = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(edge_vector[0]));
-            auto it_1_2_gram = find(unique_tokens_train.begin(), unique_tokens_train.end(), object_dict.at(edge_vector[1]));
+            auto it_0_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
+            auto it_1_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
             
 
-            if (it_0_2_gram != unique_tokens_train.end()){ // found
-                vocab_index_2_gram[it_0_2_gram - unique_tokens_train.begin()] += 1;
+            if (it_0_2_gram != unique_tokens_train_map.end()){ // found
+                vocab_index_2_gram[it_0_2_gram->second] += 1;
             }
             else{
                 vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
             }
 
-            if (it_1_2_gram != unique_tokens_train.end()){ // found
-                vocab_index_2_gram[it_1_2_gram - unique_tokens_train.begin()] += 1;
+            if (it_1_2_gram != unique_tokens_train_map.end()){ // found
+                vocab_index_2_gram[it_1_2_gram->second] += 1;
             }
             else{
                 vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
@@ -410,37 +390,52 @@ float get_score(vector<string> subgraph_nodes, const map<string, string> &object
 }
 
 float predict(vector<string> subgraph, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, string blank_node){
+    
+    // sum of all values of frequency_1_gram
+    int sum_frequency_1_gram = 0;
+    for (auto token: frequency_1_gram){
+        sum_frequency_1_gram += token.second;
+    }
 
+    // sum of all values of frequency_2_grams
+    int sum_frequency_2_grams = 0;
+    for (auto token: frequency_2_grams){
+        sum_frequency_2_grams += token.second;
+    }
+
+    // sum of all values of frequency_3_grams
+    int sum_frequency_3_grams = 0;
+    for (auto token: frequency_3_grams){
+        sum_frequency_3_grams += token.second;
+    }
+
+    map<string, int> unique_tokens_train_map;
+    for (int i = 0; i < unique_tokens_train.size(); i++) {
+        unique_tokens_train_map[unique_tokens_train[i]] = i;
+    }
+    
+    int next_token_correctly_predicted = 0;
+    
+   
     string node_to_remove;
     string true_token;
 
-
-    if (subgraph[0] == blank_node){
-        node_to_remove = subgraph[0];
-        true_token = object_dict.at(subgraph[0]);
-    }
-    else if (subgraph[1] == blank_node){
-        node_to_remove = subgraph[1];
-        true_token = object_dict.at(subgraph[1]);
-    }
-    else{
-        node_to_remove = subgraph[2];
-        true_token = object_dict.at(subgraph[2]);
+    for (auto node: subgraph){
+        if (node == blank_node){
+            node_to_remove = node;
+            true_token = object_dict.at(node);
+            break;
+        }
     }
 
     vector<string> subgraph_nodes = subgraph;
+    set<string> subgraph_nodes_set(subgraph.begin(), subgraph.end());
     vector<vector<string> > subgraph_edges;
     vector<vector<string> > edges_of_original_graph = G.get_edges();
 
 
-    for (auto edge: edges_of_original_graph){
-        if (edge[0] == subgraph_nodes[0] && ( edge[1] == subgraph_nodes[1] || edge[1] == subgraph_nodes[2])){
-            subgraph_edges.push_back(edge);
-        }
-        else if (edge[0] == subgraph_nodes[1] && ( edge[1] == subgraph_nodes[0] || edge[1] == subgraph_nodes[2])){
-            subgraph_edges.push_back(edge);
-        }
-        else if (edge[0] == subgraph_nodes[2] && ( edge[1] == subgraph_nodes[0] || edge[1] == subgraph_nodes[1])){
+    for (const auto& edge : edges_of_original_graph) {
+        if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
             subgraph_edges.push_back(edge);
         }
     }
@@ -457,9 +452,8 @@ float predict(vector<string> subgraph, const map<string, string> &object_dict, c
     int max_heap_size = 5;
 
     // iterate through the vocabulary to find the token that generates the highest score
-
     for (auto vocab: unique_tokens_train){
-
+        
         string node_to_add = vocab;
 
         vector<string> subgraph_nodes_test;
@@ -497,7 +491,7 @@ float predict(vector<string> subgraph, const map<string, string> &object_dict, c
 
         float score = 0.0;
         try{
-            score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new);
+            score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
             pair<string, float> p(vocab, negative_probability_score);
             
