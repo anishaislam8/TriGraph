@@ -34,13 +34,13 @@ vector<vector<string> > Graph::get_edges(){
 }
 
 // get neighbors of a node
-vector<string> Graph::get_neighbors_of_a_node(string node){
-    vector<string> neighbors;
+unordered_set<string> Graph::get_neighbors_of_a_node(string node){
+    unordered_set<string> neighbors; //find time is O(1)
     
     for (vector<string> edge: this->edges){
         // unidirectional edge: if source node is node, then destination node is neighbor
         if (edge[0] == node){
-            neighbors.push_back(edge[1]);
+            neighbors.insert(edge[1]);
         }
     }
     return neighbors;
@@ -56,7 +56,7 @@ void Graph::dfs(string node){
     if (current_path.size() == 3){
         all_paths.push_back(current_path);
     } else {
-        vector<string> neighbors = this->get_neighbors_of_a_node(node);
+        unordered_set<string> neighbors = this->get_neighbors_of_a_node(node);
         for (string neighbor: neighbors){
             if (!visited[neighbor]){
                 dfs(neighbor);

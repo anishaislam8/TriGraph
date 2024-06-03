@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_set>
 using namespace std;
 
 
@@ -34,7 +35,7 @@ class Graph
         vector<vector<string> > get_edges();
 
         // get neighbors of a node
-        vector<string> get_neighbors_of_a_node(string);
+        unordered_set<string> get_neighbors_of_a_node(string);
 
         // Depth First Search
         void dfs(string);
