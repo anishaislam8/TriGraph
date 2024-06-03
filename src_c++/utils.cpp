@@ -369,57 +369,8 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
     return score;
 }
 
-float predict(vector<string> subgraph, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, string blank_node){
-    
-    // sum of all values of frequency_1_gram
-    int sum_frequency_1_gram = 0;
-    for (auto token: frequency_1_gram){
-        sum_frequency_1_gram += token.second;
-    }
-
-    // sum of all values of frequency_2_grams
-    int sum_frequency_2_grams = 0;
-    for (auto token: frequency_2_grams){
-        sum_frequency_2_grams += token.second;
-    }
-
-    // sum of all values of frequency_3_grams
-    int sum_frequency_3_grams = 0;
-    for (auto token: frequency_3_grams){
-        sum_frequency_3_grams += token.second;
-    }
-
-    map<string, int> unique_tokens_train_map;
-    for (int i = 0; i < unique_tokens_train.size(); i++) {
-        unique_tokens_train_map[unique_tokens_train[i]] = i;
-    }
-   
-    string node_to_remove;
-    string true_token;
-
-    for (auto node: subgraph){
-        if (node == blank_node){
-            node_to_remove = node;
-            true_token = object_dict.at(node);
-            break;
-        }
-    }
-
-    vector<string> subgraph_nodes = subgraph;
-    set<string> subgraph_nodes_set(subgraph.begin(), subgraph.end());
-    vector<vector<string> > subgraph_edges;
-    vector<vector<string> > edges_of_original_graph = G.get_edges();
-
-
-    for (const auto& edge : edges_of_original_graph) {
-        if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
-            subgraph_edges.push_back(edge);
-        }
-    }
-
-    Graph G_test(subgraph_nodes, subgraph_edges); // this is my initial subgraph
-
-    
+float predict(const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string> &subgraph_nodes, const vector<vector<string> > &subgraph_edges, const string &true_token){
+        
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
     };
@@ -428,9 +379,11 @@ float predict(vector<string> subgraph, const map<string, string> &object_dict, c
     make_heap(heap.begin(), heap.end(), cmp); 
     int max_heap_size = 5;
 
+    
     // iterate through the vocabulary to find the token that generates the highest score
-    for (auto vocab: unique_tokens_train){
+    for (auto item: unique_tokens_train_map){
         
+        string vocab = item.first;
         string node_to_add = vocab;
 
         vector<string> subgraph_nodes_test;
@@ -490,14 +443,9 @@ float predict(vector<string> subgraph, const map<string, string> &object_dict, c
                     
                     heap.push_back(p);
                     push_heap(heap.begin(), heap.end(), cmp);
-
-                    
                 }
                 
             }
-
-
-
         }
         catch(...){
             cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
@@ -520,12 +468,12 @@ float predict(vector<string> subgraph, const map<string, string> &object_dict, c
         index += 1;
     }
 
-    // cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-    // // print heap
-    // cout << "Heap: \n";
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
+    // print heap
+    cout << "Heap: \n";
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
 
     float mean_reciprocal_rank = 0.0;
     if (index != max_heap_size){

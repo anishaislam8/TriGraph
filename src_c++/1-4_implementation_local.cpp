@@ -136,8 +136,9 @@ int main(){
     map<string, string> object_dict_test = create_object_dict(data_test);
     int total_predictions_for_this_graph = 0;
 
-    clock_t t;
-    t = clock();
+    clock_t start, end;
+    double elapsed_time;
+    start = clock();
     
     try{
         
@@ -192,11 +193,32 @@ int main(){
 
         vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
         
- 
+        // sum of all values of frequency_1_gram
+        int sum_frequency_1_gram = 0;
+        for (auto token: frequency_1_gram){
+            sum_frequency_1_gram += token.second;
+        }
+
+        // sum of all values of frequency_2_grams
+        int sum_frequency_2_grams = 0;
+        for (auto token: frequency_2_grams){
+            sum_frequency_2_grams += token.second;
+        }
+
+        // sum of all values of frequency_3_grams
+        int sum_frequency_3_grams = 0;
+        for (auto token: frequency_3_grams){
+            sum_frequency_3_grams += token.second;
+        }
+
+        map<string, int> unique_tokens_train_map;
+        for (int i = 0; i < unique_tokens_train.size(); i++) {
+            unique_tokens_train_map[unique_tokens_train[i]] = i;
+        }
         
         // for each subgraph, I am going to calculae the mrr score
         float mrr_score = 0.0;
-
+        
         for (auto node: nodes_test){
             // get all three_node_subgraphs that contain this node
             vector<vector<string> > three_node_subgraphs_containing_this_node;
@@ -207,9 +229,27 @@ int main(){
             }
 
             total_predictions_for_this_graph += three_node_subgraphs_containing_this_node.size();
+            string true_token = object_dict_test.at(node);
             
             for (auto subgraph: three_node_subgraphs_containing_this_node){
-                mrr_score += predict(subgraph, object_dict_test, unique_tokens_train, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_directed_test, node);
+                
+                
+
+                vector<string> subgraph_nodes = subgraph;
+                set<string> subgraph_nodes_set(subgraph.begin(), subgraph.end());
+                vector<vector<string> > subgraph_edges;
+                vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
+
+
+                for (const auto& edge : edges_of_original_graph) {
+                    if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
+                        subgraph_edges.push_back(edge);
+                    }
+                }
+
+                mrr_score += predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
+                
+                
             }
 
         }
@@ -224,8 +264,9 @@ int main(){
         cout << "Exception occured while testing" << endl;
     }
 
-    t = clock() - t;
-    cout << "Time taken: " << ((float)t)/CLOCKS_PER_SEC << " seconds" << endl;
+    end = clock();
+    elapsed_time = double(end - start) / double(CLOCKS_PER_SEC);
+    cout << "Time taken: " << elapsed_time << " seconds" << endl;
 
     myfile_test.close();
 
