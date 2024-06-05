@@ -468,12 +468,12 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
         index += 1;
     }
 
-    cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-    // print heap
-    cout << "Heap: \n";
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
-    }
+    // cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
+    // // print heap
+    // cout << "Heap: \n";
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
 
     float mean_reciprocal_rank = 0.0;
     if (index != max_heap_size){
@@ -775,4 +775,56 @@ map<string, int> get_frequency_3_grams(const vector<vector<string> > &three_node
     }
 
     return frequncy_3_grams;
+}
+
+string get_content_from_db(string line, sqlite3* db){
+    
+    sqlite3_stmt* stmt;
+    string hash_id = line;
+    const char* sql = "SELECT Content FROM Contents WHERE Hash = ?;";
+    string content;
+
+    
+
+    // Prepare the SQL statement
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << endl;
+        sqlite3_close(db);
+        return "";
+    }
+
+    // Bind the hash_id to the parameter in the SQL statement
+    rc = sqlite3_bind_text(stmt, 1, hash_id.c_str(), -1, SQLITE_TRANSIENT);
+    if (rc != SQLITE_OK) {
+        cerr << "Failed to bind parameter: " << sqlite3_errmsg(db) << endl;
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return "";
+    }
+
+    // Execute the SQL statement
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        // Retrieve the first column (content)
+        const unsigned char* text = sqlite3_column_text(stmt, 0);
+        if (text) {
+            content = reinterpret_cast<const char*>(text);
+        }
+    } else {
+        cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << endl;
+        return "";
+    }
+
+    // Finalize the statement to release resources
+    sqlite3_finalize(stmt);
+
+
+    // Output the retrieved content
+    if (content.empty()) {
+        cout << "No content found for hash id: " << hash_id << endl;
+        return "";
+    }
+
+    return content;
 }

@@ -6,7 +6,7 @@
 # include <algorithm>
 # include <utility>
 # include <openssl/sha.h>
-// # include <sqlite3.h>
+# include <sqlite3.h>
 # include "graph.h"
 # include "json.hpp"
 using json = nlohmann::json;
@@ -28,5 +28,6 @@ set<string> get_unique_tokens(const vector<string>&, const map<string, string>&)
 map<string, int> get_frequency_1_gram(const set<string>&, const map<string, string>&, const vector<string>&);
 map<string, int> get_frequency_2_grams(const vector<vector<string> >&, const map<string, string>&, const vector<string>&, Graph);
 map<string, int> get_frequency_3_grams(const vector<vector<string> >&, const map<string, string>&, const vector<string>&, Graph);
+string get_content_from_db(string, sqlite3*)
 
 
