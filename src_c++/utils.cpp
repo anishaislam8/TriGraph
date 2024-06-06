@@ -105,7 +105,7 @@ vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Gr
     // G.all_paths has all the paths, but there might be duplicates
     for (auto subgraph: G.all_paths){
 
-        set<string> path_set(subgraph.begin(), subgraph.end());
+        set<string> path_set(subgraph.begin(), subgraph.end()); // in case I get loop, discard it
         vector<string> path(path_set.begin(), path_set.end());
         sort(path.begin(), path.end());
 
@@ -369,8 +369,8 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
     return score;
 }
 
-float predict(const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string> &subgraph_nodes, const vector<vector<string> > &subgraph_edges, const string &true_token){
-        
+float predict(const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const set<string> &node_to_add_list, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string> &subgraph_nodes, const vector<vector<string> > &subgraph_edges, const string &true_token){
+
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
     };
@@ -378,13 +378,15 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     vector<pair<string, float> > heap;
     make_heap(heap.begin(), heap.end(), cmp); 
     int max_heap_size = 5;
-
-    
+   
     // iterate through the vocabulary to find the token that generates the highest score
-    for (auto item: unique_tokens_train_map){
+    for (auto item: node_to_add_list){
+
+        if (item.empty()){
+            continue;
+        }
         
-        string vocab = item.first;
-        string node_to_add = vocab;
+        string node_to_add = item;
 
         vector<string> subgraph_nodes_test;
         for (string node: subgraph_nodes){
@@ -423,7 +425,7 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
         try{
             score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
-            pair<string, float> p(vocab, negative_probability_score);
+            pair<string, float> p(node_to_add, negative_probability_score);
             
             
             if (heap.size() < max_heap_size){
@@ -456,9 +458,12 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     
 
     }
-
+    make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    
+    // cout << "Heap: \n";
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
     // find the index of the true token in the heap first items
     int index = 0;
     for (auto token: heap){
@@ -469,21 +474,17 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     }
 
     // cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-    // // print heap
-    // cout << "Heap: \n";
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
+   
+
+    // float mean_reciprocal_rank = 0.0;
+    // if (index != max_heap_size){
+    //     mean_reciprocal_rank = 1.0/(index+1); // if I find the true token at the first place, then it's reciprocal rank is 1; if I find it at the second place, then it's reciprocal rank is 0.5
+    // }
+    // else{
+    //     mean_reciprocal_rank = 0.0;
     // }
 
-    float mean_reciprocal_rank = 0.0;
-    if (index != max_heap_size){
-        mean_reciprocal_rank = 1.0/(index+1); // if I find the true token at the first place, then it's reciprocal rank is 1; if I find it at the second place, then it's reciprocal rank is 0.5
-    }
-    else{
-        mean_reciprocal_rank = 0.0;
-    }
-
-    return mean_reciprocal_rank;
+    return index+1 > max_heap_size ? -1 : index+1;
 }
 
 vector<string> load_unique_tokens(){
@@ -583,6 +584,32 @@ map<string, int> load_frequency_3_grams(){
 
 
 }
+
+set<vector<string> > get_three_node_subgraphs_sorted_by_object_dict(){
+
+    ifstream myfile_3_grams_train;
+    myfile_3_grams_train.open("vocabulary_frequencies/3_grams_train_filtered_final.txt");
+    set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
+    string token_0;
+    string token_1;
+    string token_2;
+
+    string line;
+    
+    while (getline(myfile_3_grams_train, line)) { 
+        // split line into token and frequency
+        stringstream iss(line);
+        iss >> token_0 >> token_1 >> token_2;
+        if (token_0 == "" || token_1 == "" || token_2 == ""){
+            continue;
+        }
+        three_node_subgraphs_sorted_by_object_dict.insert({token_0, token_1, token_2});
+    }
+    
+
+    myfile_3_grams_train.close();
+    return three_node_subgraphs_sorted_by_object_dict;
+} 
 
 set<string> get_unique_tokens(const vector<string> &nodes, const map<string, string> &object_dict){
     set<string> unique_tokens;
@@ -827,4 +854,28 @@ string get_content_from_db(string line, sqlite3* db){
     }
 
     return content;
+}
+
+vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
+    multiset<string> set1(subgraph.begin(), subgraph.end());
+    multiset<string> set2(two_nodes.begin(), two_nodes.end());
+    vector<string> result;
+
+    // Find the difference between the two sets
+    set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), back_inserter(result));
+    if (result.size() > 1){
+        cout << "Result size: " << result.size() << endl;
+        cout << "Set 1: " << endl;
+        for (auto item: set1){
+            cout << item << " ";
+        }
+        cout << endl;
+        cout << "Set 2: " << endl;
+        for (auto item: set2){
+            cout << item << " ";
+        }
+        cout << endl;
+    }
+
+    return result;
 }

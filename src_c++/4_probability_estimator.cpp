@@ -6,6 +6,8 @@ int main(){
     map<string, int> frequency_2_grams = load_frequency_2_grams();
     map<string, int> frequency_3_grams = load_frequency_3_grams();
     vector<string> unique_tokens_train = load_unique_tokens();
+    set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
+    
     
     
     // testing
@@ -18,7 +20,6 @@ int main(){
     json data_test = json::parse(content_test);
 
     map<string, string> object_dict_test = create_object_dict(data_test);
-    int total_predictions_for_this_graph = 0;
     
     try{
         
@@ -98,7 +99,7 @@ int main(){
         }
         
         // for each subgraph, I am going to calculae the mrr score
-        float mrr_score = 0.0;
+        int rank = -1;
         clock_t start, end;
         double elapsed_time;
         cout << "Starting testing" << endl;
@@ -112,9 +113,9 @@ int main(){
                 }
             }
 
-            total_predictions_for_this_graph += three_node_subgraphs_containing_this_node.size();
             string true_token = object_dict_test.at(node);
             
+            // I am calling the predict function for each three_node_subgraph that contains this node
             for (auto subgraph: three_node_subgraphs_containing_this_node){
                 
                 vector<string> subgraph_nodes = subgraph;
@@ -122,26 +123,58 @@ int main(){
                 vector<vector<string> > subgraph_edges;
                 vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
 
-
+                // this is okay, if edge is (0,0) and nodes set is (0,1,2) -> add this edge
                 for (const auto& edge : edges_of_original_graph) {
                     if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
                         subgraph_edges.push_back(edge);
                     }
                 }
 
+
+                // create node to add list for this subgraph
+
+                vector<string> two_nodes;
+                for (auto item: subgraph){
+                    if (item != node){ // take the ones except for this one
+                        two_nodes.push_back(object_dict_test.at(item));
+                    }
+                }
+
+
+                // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
+                set<string> node_to_add_list;
                 
+                for (auto subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
+                    vector<string> result;
+                    if (two_nodes[0] == two_nodes[1]){
+                        if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 2){
+                            result = find_the_set_difference(subgraph_inner, two_nodes);
+                            node_to_add_list.insert(result[0]);
+                        }
+                    }
+                    else{
+                        if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 1 && count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]) >= 1){
+                            result = find_the_set_difference(subgraph_inner, two_nodes);
+                            node_to_add_list.insert(result[0]);
+                        }
+
+                    }
+                } 
+                
+                if (node_to_add_list.size() == 0){
+                    continue;
+                }
+                cout << "Node to add list size: " << node_to_add_list.size() << endl;
                 start = clock();
-                mrr_score += predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
+                rank = predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node_to_add_list, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
                 end = clock();
-                elapsed_time = double(end - start) / double(CLOCKS_PER_SEC);
-                cout << "Time taken to iterate vocabulary once : " << elapsed_time << " seconds" << endl;
+                elapsed_time = double(end - start) / CLOCKS_PER_SEC;
+                cout << "Time to iterate: " << elapsed_time << endl;
+                cout << "Rank: " << rank << endl;
             }
 
         }
         
-
-        mrr_score = mrr_score/total_predictions_for_this_graph;
-        cout << "MRR score for this program: " << mrr_score << endl;
 
 
     }
@@ -152,7 +185,7 @@ int main(){
 
     myfile_test.close();
 
-
+    
     return 0;
 
 }

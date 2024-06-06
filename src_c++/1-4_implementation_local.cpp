@@ -105,6 +105,17 @@ int main(){
 
     // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
 
+    set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
+    for (auto subgraph: three_node_subgraphs){
+               
+        vector<string> object_dict_values;
+        for (auto node: subgraph){
+            object_dict_values.push_back(object_dict[node]);
+        }
+        sort(object_dict_values.begin(), object_dict_values.end());
+        three_node_subgraphs_sorted_by_object_dict.insert(object_dict_values);
+    }
+
     
     frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
 
@@ -215,10 +226,10 @@ int main(){
         for (int i = 0; i < unique_tokens_train.size(); i++) {
             unique_tokens_train_map[unique_tokens_train[i]] = i;
         }
-        
+
         // for each subgraph, I am going to calculae the mrr score
-        float mrr_score = 0.0;
-        
+        int rank = -1;
+
         for (auto node: nodes_test){
             // get all three_node_subgraphs that contain this node
             vector<vector<string> > three_node_subgraphs_containing_this_node;
@@ -228,18 +239,15 @@ int main(){
                 }
             }
 
-            total_predictions_for_this_graph += three_node_subgraphs_containing_this_node.size();
             string true_token = object_dict_test.at(node);
             
+
             for (auto subgraph: three_node_subgraphs_containing_this_node){
                 
-                
-
                 vector<string> subgraph_nodes = subgraph;
                 set<string> subgraph_nodes_set(subgraph.begin(), subgraph.end());
                 vector<vector<string> > subgraph_edges;
                 vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
-
 
                 for (const auto& edge : edges_of_original_graph) {
                     if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
@@ -247,21 +255,46 @@ int main(){
                     }
                 }
 
-                mrr_score += predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
+                vector<string> two_nodes;
+                for (auto item: subgraph){
+                    if (item != node){ // take the ones except for this one
+                        two_nodes.push_back(object_dict_test.at(item));
+                    }
+                }
+
+                // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
+                set<string> node_to_add_list;
+                for (auto subgraph: three_node_subgraphs_sorted_by_object_dict){
+                    vector<string> result;
+                    if (two_nodes[0] == two_nodes[1]){
+                        if (count(subgraph.begin(), subgraph.end(), two_nodes[0]) >= 2){
+                            result = find_the_set_difference(subgraph, two_nodes);
+                            node_to_add_list.insert(result[0]);
+                        }
+                    }
+                    else{
+                        if (count(subgraph.begin(), subgraph.end(), two_nodes[0]) >= 1 && count(subgraph.begin(), subgraph.end(), two_nodes[1]) >= 1){
+                            result = find_the_set_difference(subgraph, two_nodes);
+                            node_to_add_list.insert(result[0]);
+                        }
+
+                    }
+                } 
                 
+                if (node_to_add_list.size() == 0){
+                    continue;
+                }
                 
+                rank = predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node_to_add_list, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
+
             }
 
         }
         
 
-        mrr_score = mrr_score/total_predictions_for_this_graph;
-        cout << "MRR score for this program: " << mrr_score << endl;
-
-
     }
-    catch(...){
-        cout << "Exception occured while testing" << endl;
+    catch(const exception& e){
+        cout << "Exception occured while testing: " << e.what() << endl;
     }
 
     end = clock();
