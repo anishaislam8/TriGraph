@@ -45,7 +45,7 @@ int main(){
     }
 
     int processing = 0;
-    int rank = -1;
+    int rank;
     clock_t start, end;
     double elapsed_time;
 
@@ -57,7 +57,7 @@ int main(){
 
     while(!myfile_test.eof()){
         string line;
-        getline(myfile, line);
+        getline(myfile_test, line);
 
         // for each of the hash ids access the sqlite db and get content
         if (line.empty()) {
@@ -204,10 +204,10 @@ int main(){
 
                     // write to the file the subgraph nodes, blank nodes, rank
                     for (auto sub_node: subgraph_nodes){
-                        myfile_output << sub_node << " ";
+                        myfile_output << object_dict_test.at(sub_node) << " ";
                     }
 
-                    myfile_output << node << " " << true_token << " " << rank << endl;
+                    myfile_output << object_dict_test.at(node) << " " << true_token << " " << rank << endl;
                     
                 }
 
