@@ -207,7 +207,7 @@ int main(){
                         myfile_output << object_dict_test.at(sub_node) << " ";
                     }
 
-                    myfile_output << object_dict_test.at(node) << " " << true_token << " " << rank << endl;
+                    myfile_output << object_dict_test.at(node) << " " << true_token << " " << rank << "\n";
                     
                 }
 
@@ -215,13 +215,13 @@ int main(){
 
             end = clock();
             elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-            elapsed_time_file << line << " " << elapsed_time << endl;
+            elapsed_time_file << line << " " << elapsed_time << "\n";
             
 
 
         }
         catch(const exception& e){
-            exception_file << line << ": Exception: " << e.what() << endl;
+            exception_file << line << ": Exception: " << e.what() << "\n";
         }
 
         myfile_output.close();

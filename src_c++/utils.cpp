@@ -224,52 +224,52 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
     auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
     auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
 
-    if (it_0 != unique_tokens_train_map.end()){ // found
-        vocab_index[it_0->second] += 1;
-    }
-    else{
-        vocab_index[vocab_index_size - 1] += 1;
+    auto it_3_gram = frequency_3_grams.end();
+
+    // if I have found all the nodes in unique trains before, only then calculate the hash
+    if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
+        
+        if (it_0 != unique_tokens_train_map.end()){ // found
+            vocab_index[it_0->second] += 1;
+        }
+       
+        if (it_1 != unique_tokens_train_map.end()){ // found
+            vocab_index[it_1->second] += 1;
+        }
+       
+
+        if (it_2 != unique_tokens_train_map.end()){ // found
+            vocab_index[it_2->second] += 1;
+        }
+       
+        // concatenate adjacency matrix and vocab_index
+        int initial_key[vocab_index_size + adjacency_matrix_size];
+        
+
+        for (int i = 0; i < vocab_index_size; i++){
+            initial_key[i] = vocab_index[i];
+        }
+        
+        for (int i = 0; i < adjacency_matrix_size; i++){
+            initial_key[vocab_index_size + i] = adjacency_matrix[i];
+        }
+
+        // convert this array to string
+        string key = "";
+        int initial_key_size = vocab_index_size + adjacency_matrix_size;
+        for (int i = 0; i < initial_key_size; i++){
+            key += to_string(initial_key[i]);
+        }
+
+        // now calculate sha256 of this key
+        string key_sha256 = sha256(key);
+
+        delete[] adjacency_matrix;
+
+        it_3_gram = frequency_3_grams.find(key_sha256);
     }
 
-    if (it_1 != unique_tokens_train_map.end()){ // found
-        vocab_index[it_1->second] += 1;
-    }
-    else{
-        vocab_index[vocab_index_size - 1] += 1;
-    }
-
-    if (it_2 != unique_tokens_train_map.end()){ // found
-        vocab_index[it_2->second] += 1;
-    }
-    else{
-        vocab_index[vocab_index_size - 1] += 1;
-    }
-
-    // concatenate adjacency matrix and vocab_index
-    int initial_key[vocab_index_size + adjacency_matrix_size];
     
-
-    for (int i = 0; i < vocab_index_size; i++){
-        initial_key[i] = vocab_index[i];
-    }
-    
-    for (int i = 0; i < adjacency_matrix_size; i++){
-        initial_key[vocab_index_size + i] = adjacency_matrix[i];
-    }
-
-    // convert this array to string
-    string key = "";
-    int initial_key_size = vocab_index_size + adjacency_matrix_size;
-    for (int i = 0; i < initial_key_size; i++){
-        key += to_string(initial_key[i]);
-    }
-
-    // now calculate sha256 of this key
-    string key_sha256 = sha256(key);
-
-    delete[] adjacency_matrix;
-
-    auto it_3_gram = frequency_3_grams.find(key_sha256);
     // if key_sha256 is in frequency_3_grams,then return it's probability
     if (it_3_gram != frequency_3_grams.end()){ // found
         return ((it_3_gram->second * 1.0)/(sum_frequency_3_grams * 1.0));
@@ -297,45 +297,50 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
             auto it_0_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
             auto it_1_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
+
+            auto it_2_gram = frequency_2_grams.end();
+
+            if(it_0_2_gram != unique_tokens_train_map.end() && it_1_2_gram != unique_tokens_train_map.end()){
+                
+
+                if (it_0_2_gram != unique_tokens_train_map.end()){ // found
+                    vocab_index_2_gram[it_0_2_gram->second] += 1;
+                }
+                else{
+                    vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
+                }
+
+                if (it_1_2_gram != unique_tokens_train_map.end()){ // found
+                    vocab_index_2_gram[it_1_2_gram->second] += 1;
+                }
+                else{
+                    vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
+                }
+
             
+                // concatenate adjacency matrix and vocab_index
+                int initial_key_2_gram[vocab_index_2_gram_size + adjacency_matrix_2_gram_size];
+                
 
-            if (it_0_2_gram != unique_tokens_train_map.end()){ // found
-                vocab_index_2_gram[it_0_2_gram->second] += 1;
-            }
-            else{
-                vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
-            }
+                for (int i = 0; i < vocab_index_2_gram_size; i++){
+                    initial_key_2_gram[i] = vocab_index_2_gram[i];
+                }
+                
+                for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
+                    initial_key_2_gram[vocab_index_2_gram_size + i] = adjacency_matrix_2_gram[i];
+                }
 
-            if (it_1_2_gram != unique_tokens_train_map.end()){ // found
-                vocab_index_2_gram[it_1_2_gram->second] += 1;
-            }
-            else{
-                vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
-            }
+                // convert this array to string
+                string key_2_gram = "";
+                int initial_key_2_gram_size = vocab_index_2_gram_size + adjacency_matrix_2_gram_size;
+                for (int i = 0; i < initial_key_2_gram_size; i++){
+                    key_2_gram += to_string(initial_key_2_gram[i]);
+                }
 
-           
-            // concatenate adjacency matrix and vocab_index
-            int initial_key_2_gram[vocab_index_2_gram_size + adjacency_matrix_2_gram_size];
-            
-
-            for (int i = 0; i < vocab_index_2_gram_size; i++){
-                initial_key_2_gram[i] = vocab_index_2_gram[i];
+                // now calculate sha256 of this key
+                string key_sha256_2_gram = sha256(key_2_gram);
+                it_2_gram = frequency_2_grams.find(key_sha256_2_gram);
             }
-            
-            for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
-                initial_key_2_gram[vocab_index_2_gram_size + i] = adjacency_matrix_2_gram[i];
-            }
-
-            // convert this array to string
-            string key_2_gram = "";
-            int initial_key_2_gram_size = vocab_index_2_gram_size + adjacency_matrix_2_gram_size;
-            for (int i = 0; i < initial_key_2_gram_size; i++){
-                key_2_gram += to_string(initial_key_2_gram[i]);
-            }
-
-            // now calculate sha256 of this key
-            string key_sha256_2_gram = sha256(key_2_gram);
-            auto it_2_gram = frequency_2_grams.find(key_sha256_2_gram);
 
             // if key_sha256 is in frequency_2_grams,then return it's probability
             if (it_2_gram != frequency_2_grams.end()){ // found
