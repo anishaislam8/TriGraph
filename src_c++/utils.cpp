@@ -236,13 +236,20 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
         // convert this array to string
         string key = "";
         for (int i = 0; i < vocab_index_size; i++){
-            key += to_string(vocab_index[i]);
+	    if (vocab_index[i]) {
+              key += to_string(i);
+	      key += ",";
+	    }
         }
         for (int i = 0; i < adjacency_matrix_size; i++){
             key += to_string(adjacency_matrix[i]);
         }
-        
+	// cout << "key for whatever" << endl;
+        // cout << key << endl;
+	// cout << adjacency_matrix_size << endl;
         // now calculate sha256 of this key (not the bottleneck of time)
+	// DONE2
+	//
         string key_sha256 = sha256(key);
 
         delete[] adjacency_matrix;
@@ -289,13 +296,17 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 // convert this array to string
                 string key_2_gram = "";
                 for (int i = 0; i < vocab_index_size; i++){
-                    key_2_gram += to_string(vocab_index[i]);
+		    if (vocab_index[i]) {
+                      key_2_gram += to_string(i);
+                      key_2_gram += ",";
+		    }
                 }
                 for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
                     key_2_gram += to_string(adjacency_matrix_2_gram[i]);
                 }
 
                 // now calculate sha256 of this key
+		// DONE2
                 string key_sha256_2_gram = sha256(key_2_gram);
                 it_2_gram = frequency_2_grams.find(key_sha256_2_gram);
             }
@@ -640,23 +651,21 @@ map<string, int> get_frequency_2_grams(const vector<vector<string> > &connection
         // concatenate adjacency matrix and vocab_index
         int initial_key[vocab_index_size + adjacency_matrix_size];
         
-
+        string key = "";
         for (int i = 0; i < vocab_index_size; i++){
-            initial_key[i] = vocab_index[i];
+	    if (vocab_index[i]) {
+              key += to_string(i);
+	      key += ",";
+	    }
         }
         
         for (int i = 0; i < adjacency_matrix_size; i++){
-            initial_key[vocab_index_size + i] = adjacency_matrix[i];
+            key += to_string(adjacency_matrix[i]);
         }
 
-        // convert this array to string
-        string key = "";
-        int initial_key_size = vocab_index_size + adjacency_matrix_size;
-        for (int i = 0; i < initial_key_size; i++){
-            key += to_string(initial_key[i]);
-        }
-
+        // cout << key << endl;
         // now calculate sha256 of this key
+	// DONE2
         string key_sha256 = sha256(key);
 
         // update the frequency_2_grams
@@ -723,23 +732,20 @@ map<string, int> get_frequency_3_grams(const vector<vector<string> > &three_node
         // concatenate adjacency matrix and vocab_index
         int initial_key[vocab_index_size + adjacency_matrix_size];
         
-
+        string key = "";
         for (int i = 0; i < vocab_index_size; i++){
-            initial_key[i] = vocab_index[i];
+            if (vocab_index[i]) {
+	      key += to_string(i);
+              key += ",";
+	    }
         }
         
         for (int i = 0; i < adjacency_matrix_size; i++){
-            initial_key[vocab_index_size + i] = adjacency_matrix[i];
-        }
-
-        // convert this array to string
-        string key = "";
-        int initial_key_size = vocab_index_size + adjacency_matrix_size;
-        for (int i = 0; i < initial_key_size; i++){
-            key += to_string(initial_key[i]);
+            key += to_string(adjacency_matrix[i]);
         }
 
         // now calculate sha256 of this key
+	// DONE2
         string key_sha256 = sha256(key);
 
         // update the frequency_3_grams

@@ -1,4 +1,19 @@
 # include "utils.h"
+#include <dlfcn.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+
+void sigUsr1Handler(int sig)
+{
+    fprintf(stderr, "Exiting on SIGUSR1\n");
+    void (*_mcleanup)(void);
+    _mcleanup = (void (*)(void))dlsym(RTLD_DEFAULT, "_mcleanup");
+    if (_mcleanup == NULL)
+         fprintf(stderr, "Unable to find gprof exit hook\n");
+    else _mcleanup();
+    _exit(0);
+}
 
 int main(){
    
@@ -8,7 +23,7 @@ int main(){
     vector<string> unique_tokens_train = load_unique_tokens();
     set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
     
-    
+    signal(SIGUSR1, sigUsr1Handler);
     
     // testing
 
