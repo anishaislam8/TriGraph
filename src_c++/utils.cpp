@@ -229,23 +229,13 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
     // if I have found all the nodes in unique trains before, only then calculate the hash
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
-        if (it_0 != unique_tokens_train_map.end()){ // found
-            vocab_index[it_0->second] += 1;
-        }
-       
-        if (it_1 != unique_tokens_train_map.end()){ // found
-            vocab_index[it_1->second] += 1;
-        }
-       
-
-        if (it_2 != unique_tokens_train_map.end()){ // found
-            vocab_index[it_2->second] += 1;
-        }
-       
+        vocab_index[it_0->second] += 1;
+        vocab_index[it_1->second] += 1;
+        vocab_index[it_2->second] += 1;
+        
         // concatenate adjacency matrix and vocab_index
         int initial_key[vocab_index_size + adjacency_matrix_size];
         
-
         for (int i = 0; i < vocab_index_size; i++){
             initial_key[i] = vocab_index[i];
         }
@@ -263,7 +253,6 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
         // now calculate sha256 of this key (not the bottleneck of time)
         string key_sha256 = sha256(key);
-
 
         delete[] adjacency_matrix;
 
@@ -295,30 +284,19 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 vocab_index_2_gram[i] = 0;
             }
 
+            string first_edge_item = object_dict.at(edge_vector[0]);
+            string second_edge_item = object_dict.at(edge_vector[1]);
 
-            auto it_0_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
-            auto it_1_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[1]));
+            auto it_0_2_gram = unique_tokens_train_map.find(first_edge_item);
+            auto it_1_2_gram = unique_tokens_train_map.find(second_edge_item);
 
             auto it_2_gram = frequency_2_grams.end();
 
             if(it_0_2_gram != unique_tokens_train_map.end() && it_1_2_gram != unique_tokens_train_map.end()){
                 
-
-                if (it_0_2_gram != unique_tokens_train_map.end()){ // found
-                    vocab_index_2_gram[it_0_2_gram->second] += 1;
-                }
-                else{
-                    vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
-                }
-
-                if (it_1_2_gram != unique_tokens_train_map.end()){ // found
-                    vocab_index_2_gram[it_1_2_gram->second] += 1;
-                }
-                else{
-                    vocab_index_2_gram[vocab_index_2_gram_size - 1] += 1;
-                }
-
-            
+                vocab_index_2_gram[it_0_2_gram->second] += 1;
+                vocab_index_2_gram[it_1_2_gram->second] += 1;
+                
                 // concatenate adjacency matrix and vocab_index
                 int initial_key_2_gram[vocab_index_2_gram_size + adjacency_matrix_2_gram_size];
                 
@@ -350,7 +328,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
             else{
                 score *= discount_factor; // missed two grams
 
-                auto it_1_gram = frequency_1_gram.find(object_dict.at(edge_vector[0]));
+                auto it_1_gram = frequency_1_gram.find(first_edge_item);
                 if (it_1_gram != frequency_1_gram.end()){ // found
                     score *= ((it_1_gram->second * 1.0)/(sum_frequency_1_gram * 1.0));
                 }
@@ -358,7 +336,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                     score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
                 }
 
-                it_1_gram = frequency_1_gram.find(object_dict.at(edge_vector[1]));
+                it_1_gram = frequency_1_gram.find(second_edge_item);
                 if (it_1_gram != frequency_1_gram.end()){ // found
                     score *= ((it_1_gram->second * 1.0)/(sum_frequency_1_gram * 1.0));
                 }
