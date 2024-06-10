@@ -261,8 +261,9 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
             key += to_string(initial_key[i]);
         }
 
-        // now calculate sha256 of this key
+        // now calculate sha256 of this key (not the bottleneck of time)
         string key_sha256 = sha256(key);
+
 
         delete[] adjacency_matrix;
 
@@ -296,7 +297,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
 
             auto it_0_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
-            auto it_1_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[0]));
+            auto it_1_2_gram = unique_tokens_train_map.find(object_dict.at(edge_vector[1]));
 
             auto it_2_gram = frequency_2_grams.end();
 
@@ -385,7 +386,11 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     int max_heap_size = 5;
    
     // iterate through the vocabulary to find the token that generates the highest score
+
     for (auto item: node_to_add_list){
+
+        // per item in the loop takes : 0.015625 seconds
+
 
         if (item.empty()){
             continue;
@@ -428,6 +433,7 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
 
         float score = 0.0;
         try{
+            // time: highest 0.015625 seconds, the entire time for running one item in the loop goes here
             score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
             pair<string, float> p(node_to_add, negative_probability_score);
@@ -459,8 +465,6 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
             score = 0.0;
         }
 
-        
-    
 
     }
     make_heap(heap.begin(), heap.end(), cmp);

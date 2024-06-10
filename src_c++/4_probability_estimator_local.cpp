@@ -102,7 +102,7 @@ int main(){
         int rank = -1;
         clock_t start, end;
         double elapsed_time;
-        cout << "Starting testing" << endl;
+
 
         for (auto node: nodes_test){
             // get all three_node_subgraphs that contain this node
@@ -173,6 +173,7 @@ int main(){
                 cout << "Time to iterate: " << elapsed_time << endl;
                 cout << "Rank: " << rank << endl;
             }
+
 
         }
         
