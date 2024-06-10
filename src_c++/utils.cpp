@@ -232,25 +232,16 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
         vocab_index[it_0->second] += 1;
         vocab_index[it_1->second] += 1;
         vocab_index[it_2->second] += 1;
-        
-        // concatenate adjacency matrix and vocab_index
-        int initial_key[vocab_index_size + adjacency_matrix_size];
-        
-        for (int i = 0; i < vocab_index_size; i++){
-            initial_key[i] = vocab_index[i];
-        }
-        
-        for (int i = 0; i < adjacency_matrix_size; i++){
-            initial_key[vocab_index_size + i] = adjacency_matrix[i];
-        }
-
+       
         // convert this array to string
         string key = "";
-        int initial_key_size = vocab_index_size + adjacency_matrix_size;
-        for (int i = 0; i < initial_key_size; i++){
-            key += to_string(initial_key[i]);
+        for (int i = 0; i < vocab_index_size; i++){
+            key += to_string(vocab_index[i]);
         }
-
+        for (int i = 0; i < adjacency_matrix_size; i++){
+            key += to_string(adjacency_matrix[i]);
+        }
+        
         // now calculate sha256 of this key (not the bottleneck of time)
         string key_sha256 = sha256(key);
 
@@ -275,13 +266,11 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
             });
 
             int* adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
-            int vocab_index_2_gram[unique_tokens_train_map.size() + 1];
-            int vocab_index_2_gram_size  = unique_tokens_train_map.size() + 1;
             int adjacency_matrix_2_gram_size = 4; // 2 by 2 matrix
             
             // initialize with 0
-            for (int i = 0; i < vocab_index_2_gram_size; i++){
-                vocab_index_2_gram[i] = 0;
+            for (int i = 0; i < vocab_index_size; i++){
+                vocab_index[i] = 0;
             }
 
             string first_edge_item = object_dict.at(edge_vector[0]);
@@ -294,26 +283,16 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
             if(it_0_2_gram != unique_tokens_train_map.end() && it_1_2_gram != unique_tokens_train_map.end()){
                 
-                vocab_index_2_gram[it_0_2_gram->second] += 1;
-                vocab_index_2_gram[it_1_2_gram->second] += 1;
-                
-                // concatenate adjacency matrix and vocab_index
-                int initial_key_2_gram[vocab_index_2_gram_size + adjacency_matrix_2_gram_size];
-                
-
-                for (int i = 0; i < vocab_index_2_gram_size; i++){
-                    initial_key_2_gram[i] = vocab_index_2_gram[i];
-                }
-                
-                for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
-                    initial_key_2_gram[vocab_index_2_gram_size + i] = adjacency_matrix_2_gram[i];
-                }
-
+                vocab_index[it_0_2_gram->second] += 1;
+                vocab_index[it_1_2_gram->second] += 1;
+               
                 // convert this array to string
                 string key_2_gram = "";
-                int initial_key_2_gram_size = vocab_index_2_gram_size + adjacency_matrix_2_gram_size;
-                for (int i = 0; i < initial_key_2_gram_size; i++){
-                    key_2_gram += to_string(initial_key_2_gram[i]);
+                for (int i = 0; i < vocab_index_size; i++){
+                    key_2_gram += to_string(vocab_index[i]);
+                }
+                for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
+                    key_2_gram += to_string(adjacency_matrix_2_gram[i]);
                 }
 
                 // now calculate sha256 of this key
