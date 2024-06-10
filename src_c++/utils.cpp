@@ -440,16 +440,6 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     }
 
     // cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-   
-
-    // float mean_reciprocal_rank = 0.0;
-    // if (index != max_heap_size){
-    //     mean_reciprocal_rank = 1.0/(index+1); // if I find the true token at the first place, then it's reciprocal rank is 1; if I find it at the second place, then it's reciprocal rank is 0.5
-    // }
-    // else{
-    //     mean_reciprocal_rank = 0.0;
-    // }
-
     return index+1 > max_heap_size ? -1 : index+1;
 }
 
