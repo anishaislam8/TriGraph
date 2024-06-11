@@ -1,6 +1,7 @@
 # include "utils.h"
 
 
+
 // sha256 function collected from https://stackoverflow.com/a/10632725
 string sha256(const string &str)
 {
@@ -16,6 +17,7 @@ string sha256(const string &str)
     }
     return ss.str();
 }
+
 
 map<string, string> create_object_dict(const json &data){
     map<string, string> object_dict;
@@ -50,11 +52,11 @@ map<string, string> create_object_dict(const json &data){
 }
 
 
-int* create_two_node_adjacency_matrix(const string &node_0, const string &node_1, Graph G){
+vector<int> create_two_node_adjacency_matrix(const string &node_0, const string &node_1, Graph G){
 
     // we are considering only 1 edge, so entries of adjacency matrix will be 0 or 1
 
-    int* adjacency_matrix_2_gram = new int[4];
+    vector<int> adjacency_matrix_2_gram(4, 0);
     
     unordered_set<string> neighbors_of_node_0 = G.get_neighbors_of_a_node(node_0); // where node_0 is source
     unordered_set<string> neighbors_of_node_1 = G.get_neighbors_of_a_node(node_1); // where node_1 is source
@@ -91,6 +93,7 @@ int* create_two_node_adjacency_matrix(const string &node_0, const string &node_1
 
 }
 
+
 vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Graph G){
     
     set<vector<string> > three_node_subgraphs_set;
@@ -119,10 +122,11 @@ vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Gr
     return three_node_subgraphs;
 }
 
-int* create_three_node_adjacency_matrix(const string &node_0, const string &node_1, const string &node_2, Graph G){
+
+vector<int> create_three_node_adjacency_matrix(const string &node_0, const string &node_1, const string &node_2, Graph G){
 
 
-    int* adjacency_matrix_3_gram = new int[9];
+    vector<int> adjacency_matrix_3_gram(9, 0);
     
     unordered_set<string> neighbors_of_node_0 = G.get_neighbors_of_a_node(node_0); // where node_0 is source
     unordered_set<string> neighbors_of_node_1 = G.get_neighbors_of_a_node(node_1); // where node_1 is source
@@ -199,27 +203,19 @@ int* create_three_node_adjacency_matrix(const string &node_0, const string &node
 
 }
 
+
 // comparator code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
 bool comparator(const string& a, const string& b, const map<string, string>& y) {
     return y.at(a) < y.at(b);
 }
 
+
 float get_score(const vector<string> &subgraph_nodes, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){
     float score;
     float discount_factor = 0.05;
 
-    
-    int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
-    int vocab_index[unique_tokens_train_map.size() + 1];
-    int vocab_index_size  = unique_tokens_train_map.size() + 1;
-    int adjacency_matrix_size = 9; // 3 by 3 matrix
-    
-    // initialize with 0
-    for (int i = 0; i < vocab_index_size; i++){
-        vocab_index[i] = 0;
-    }
-
-
+    vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
+   
     auto it_0 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[0]));
     auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
     auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
@@ -228,30 +224,12 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
     // if I have found all the nodes in unique trains before, only then calculate the hash
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
-        
-        vocab_index[it_0->second] += 1;
-        vocab_index[it_1->second] += 1;
-        vocab_index[it_2->second] += 1;
-       
-        // convert this array to string
-        string key = "";
-        for (int i = 0; i < vocab_index_size; i++){
-            key += to_string(vocab_index[i]);
-        }
-        for (int i = 0; i < adjacency_matrix_size; i++){
-            key += to_string(adjacency_matrix[i]);
-        }
-        
-        // now calculate sha256 of this key (not the bottleneck of time)
-        string key_sha256 = sha256(key);
-
-        delete[] adjacency_matrix;
-
-        it_3_gram = frequency_3_grams.find(key_sha256);
+        string key = get_key({it_0->second, it_1->second, it_2->second}, adjacency_matrix);
+        it_3_gram = frequency_3_grams.find(key);
     }
 
     
-    // if key_sha256 is in frequency_3_grams,then return it's probability
+    // if key is in frequency_3_grams,then return it's probability
     if (it_3_gram != frequency_3_grams.end()){ // found
         return ((it_3_gram->second * 1.0)/(sum_frequency_3_grams * 1.0));
     }
@@ -265,14 +243,8 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 return comparator(a, b, object_dict);
             });
 
-            int* adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
-            int adjacency_matrix_2_gram_size = 4; // 2 by 2 matrix
-            
-            // initialize with 0
-            for (int i = 0; i < vocab_index_size; i++){
-                vocab_index[i] = 0;
-            }
-
+            vector<int> adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
+           
             string first_edge_item = object_dict.at(edge_vector[0]);
             string second_edge_item = object_dict.at(edge_vector[1]);
 
@@ -281,23 +253,9 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
             auto it_2_gram = frequency_2_grams.end();
 
-            if(it_0_2_gram != unique_tokens_train_map.end() && it_1_2_gram != unique_tokens_train_map.end()){
-                
-                vocab_index[it_0_2_gram->second] += 1;
-                vocab_index[it_1_2_gram->second] += 1;
-               
-                // convert this array to string
-                string key_2_gram = "";
-                for (int i = 0; i < vocab_index_size; i++){
-                    key_2_gram += to_string(vocab_index[i]);
-                }
-                for (int i = 0; i < adjacency_matrix_2_gram_size; i++){
-                    key_2_gram += to_string(adjacency_matrix_2_gram[i]);
-                }
-
-                // now calculate sha256 of this key
-                string key_sha256_2_gram = sha256(key_2_gram);
-                it_2_gram = frequency_2_grams.find(key_sha256_2_gram);
+            if(it_0_2_gram != unique_tokens_train_map.end() && it_1_2_gram != unique_tokens_train_map.end()){               
+                string key_2_gram = get_key({it_0_2_gram->second, it_1_2_gram->second}, adjacency_matrix_2_gram);
+                it_2_gram = frequency_2_grams.find(key_2_gram);
             }
 
             // if key_sha256 is in frequency_2_grams,then return it's probability
@@ -322,15 +280,13 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 else{
                     score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
                 }
-            }
-
-            delete[] adjacency_matrix_2_gram;
-            
+            }            
         }
     }
 
     return score;
 }
+
 
 float predict(const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const set<string> &node_to_add_list, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string> &subgraph_nodes, const vector<vector<string> > &subgraph_edges, const string &true_token){
 
@@ -443,6 +399,8 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
     return index+1 > max_heap_size ? -1 : index+1;
 }
 
+
+
 vector<string> load_unique_tokens(){
     ifstream myfile_unique_tokens_train;
     myfile_unique_tokens_train.open("vocabulary_frequencies/unique_tokens_train.txt");
@@ -459,6 +417,7 @@ vector<string> load_unique_tokens(){
 
 
 }
+
 
 map<string, int> load_frequency_1_gram(){
     ifstream myfile_frequency_1_gram_train;
@@ -487,6 +446,7 @@ map<string, int> load_frequency_1_gram(){
 
 }
 
+
 map<string, int> load_frequency_2_grams(){
     ifstream myfile_frequency_2_gram_train;
     myfile_frequency_2_gram_train.open("vocabulary_frequencies/frequency_2_grams_train.txt");
@@ -513,6 +473,7 @@ map<string, int> load_frequency_2_grams(){
 
 
 }
+
 
 map<string, int> load_frequency_3_grams(){
     ifstream myfile_frequency_3_gram_train;
@@ -541,6 +502,7 @@ map<string, int> load_frequency_3_grams(){
 
 }
 
+
 set<vector<string> > get_three_node_subgraphs_sorted_by_object_dict(){
 
     ifstream myfile_3_grams_train;
@@ -567,6 +529,7 @@ set<vector<string> > get_three_node_subgraphs_sorted_by_object_dict(){
     return three_node_subgraphs_sorted_by_object_dict;
 } 
 
+
 set<string> get_unique_tokens(const vector<string> &nodes, const map<string, string> &object_dict){
     set<string> unique_tokens;
     for (string node: nodes){
@@ -575,6 +538,20 @@ set<string> get_unique_tokens(const vector<string> &nodes, const map<string, str
 
     return unique_tokens;
 }
+
+
+string get_key(const vector<int>& nodes_indices, const vector<int>& adjacency_matrix){
+    string key = "";
+    for (int node: nodes_indices){
+        key += to_string(node);
+        key += ",";
+    }
+    for (int entry: adjacency_matrix){
+        key += to_string(entry);
+    }
+    return key;
+}
+
 
 map<string, int> get_frequency_1_gram(const set<string> &unique_tokens, const map<string, string> &object_dict, const vector<string> &nodes){
     map<string, int> frequency_1_gram;
@@ -588,6 +565,7 @@ map<string, int> get_frequency_1_gram(const set<string> &unique_tokens, const ma
 
     return frequency_1_gram;
 }
+
 
 map<string, int> get_frequency_2_grams(const vector<vector<string> > &connections, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
 
@@ -618,64 +596,30 @@ map<string, int> get_frequency_2_grams(const vector<vector<string> > &connection
             node_1 = connection[0];
         }
 
-        int* adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G);
-        int vocab_index[unique_tokens_train.size() + 1];
-
-        int vocab_index_size  = unique_tokens_train.size() + 1;
-        int adjacency_matrix_size = 4; // 2 by 2 matrix
-
-        // initialize with 0
-        for (int i = 0; i < vocab_index_size; i++){
-            vocab_index[i] = 0;
-        }
-        
+        vector<int> adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G);
 
         int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
         int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[1]) - unique_tokens_train.begin();
-
-        vocab_index[node_0_index] += 1;
-        vocab_index[node_1_index] += 1;
-
-
-        // concatenate adjacency matrix and vocab_index
-        int initial_key[vocab_index_size + adjacency_matrix_size];
         
+        string key = get_key({node_0_index, node_1_index}, adjacency_matrix);
 
-        for (int i = 0; i < vocab_index_size; i++){
-            initial_key[i] = vocab_index[i];
-        }
-        
-        for (int i = 0; i < adjacency_matrix_size; i++){
-            initial_key[vocab_index_size + i] = adjacency_matrix[i];
-        }
-
-        // convert this array to string
-        string key = "";
-        int initial_key_size = vocab_index_size + adjacency_matrix_size;
-        for (int i = 0; i < initial_key_size; i++){
-            key += to_string(initial_key[i]);
-        }
-
-        // now calculate sha256 of this key
-        string key_sha256 = sha256(key);
 
         // update the frequency_2_grams
-        if (frequncy_2_grams.find(key_sha256) == frequncy_2_grams.end()){ // could not find it in our map
-            frequncy_2_grams[key_sha256] = 1;
+        if (frequncy_2_grams.find(key) == frequncy_2_grams.end()){ // could not find it in our map
+            frequncy_2_grams[key] = 1;
         }
         else{
-            frequncy_2_grams[key_sha256] += 1;
+            frequncy_2_grams[key] += 1;
         }
-
-        // freeing the allocated memory
-        delete[] adjacency_matrix;
         
     }
     return frequncy_2_grams;
    
 }
 
-map<string, int> get_frequency_3_grams(const vector<vector<string> > &three_node_subgraphs, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
+
+
+map<string, int> get_frequency_3_grams(const vector<vector<string> >& three_node_subgraphs, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
 
     map<string, int> frequncy_3_grams;
 
@@ -699,66 +643,26 @@ map<string, int> get_frequency_3_grams(const vector<vector<string> > &three_node
         }
         
 
-        int* adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
-        int vocab_index[unique_tokens_train.size() + 1];
-
-        int vocab_index_size  = unique_tokens_train.size() + 1;
-        int adjacency_matrix_size = 9; // 3 by 3 matrix
-
-
-        // initialize with 0
-        for (int i = 0; i < vocab_index_size; i++){
-            vocab_index[i] = 0;
-        }
-        
-
+        vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
+    
         int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
         int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[1]) - unique_tokens_train.begin();
         int node_2_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), subgraph_nodes_object_dict[2]) - unique_tokens_train.begin();
 
-        vocab_index[node_0_index] += 1;
-        vocab_index[node_1_index] += 1;
-        vocab_index[node_2_index] += 1;
-
-        // concatenate adjacency matrix and vocab_index
-        int initial_key[vocab_index_size + adjacency_matrix_size];
+        string key = get_key({node_0_index, node_1_index, node_2_index}, adjacency_matrix);
         
-
-        for (int i = 0; i < vocab_index_size; i++){
-            initial_key[i] = vocab_index[i];
-        }
-        
-        for (int i = 0; i < adjacency_matrix_size; i++){
-            initial_key[vocab_index_size + i] = adjacency_matrix[i];
-        }
-
-        // convert this array to string
-        string key = "";
-        int initial_key_size = vocab_index_size + adjacency_matrix_size;
-        for (int i = 0; i < initial_key_size; i++){
-            key += to_string(initial_key[i]);
-        }
-
-        // now calculate sha256 of this key
-        string key_sha256 = sha256(key);
-
         // update the frequency_3_grams
-        if (frequncy_3_grams.find(key_sha256) == frequncy_3_grams.end()){ // could not find it in our map
-            frequncy_3_grams[key_sha256] = 1;
+        if (frequncy_3_grams.find(key) == frequncy_3_grams.end()){ // could not find it in our map
+            frequncy_3_grams[key] = 1;
         }
         else{
-            frequncy_3_grams[key_sha256] += 1;
+            frequncy_3_grams[key] += 1;
         }
-
-        // freeing the allocated memory
-        delete[] adjacency_matrix;
-
-
-
     }
 
     return frequncy_3_grams;
 }
+
 
 string get_content_from_db(string line, sqlite3* db){
     
@@ -811,6 +715,7 @@ string get_content_from_db(string line, sqlite3* db){
 
     return content;
 }
+
 
 vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
     multiset<string> set1(subgraph.begin(), subgraph.end());
