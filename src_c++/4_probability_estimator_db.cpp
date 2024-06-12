@@ -136,7 +136,7 @@ int main(){
 
             vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
             
-            // for each subgraph, I am going to calculae the rank
+            // for each subgraph, I am going to calculate the rank
 
             start = clock();
             for (auto node: nodes_test){
