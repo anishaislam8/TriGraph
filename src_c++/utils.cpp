@@ -258,7 +258,6 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 it_2_gram = frequency_2_grams.find(key_2_gram);
             }
 
-            // if key_sha256 is in frequency_2_grams,then return it's probability
             if (it_2_gram != frequency_2_grams.end()){ // found
                 score *= ((it_2_gram->second * 1.0)/(sum_frequency_2_grams * 1.0));
             }
@@ -477,7 +476,7 @@ map<string, int> load_frequency_2_grams(){
 
 map<string, int> load_frequency_3_grams(){
     ifstream myfile_frequency_3_gram_train;
-    myfile_frequency_3_gram_train.open("vocabulary_frequencies/frequency_3_grams_train_merged.txt");
+    myfile_frequency_3_gram_train.open("vocabulary_frequencies/frequency_3_grams_train.txt");
     map<string, int> frequency_3_gram;
     string token;
     string frequency;

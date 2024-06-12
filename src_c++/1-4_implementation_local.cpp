@@ -105,16 +105,16 @@ int main(){
 
     // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
 
-    // set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
-    // for (auto subgraph: three_node_subgraphs){
+    set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
+    for (auto subgraph: three_node_subgraphs){
                
-    //     vector<string> object_dict_values;
-    //     for (auto node: subgraph){
-    //         object_dict_values.push_back(object_dict[node]);
-    //     }
-    //     sort(object_dict_values.begin(), object_dict_values.end());
-    //     three_node_subgraphs_sorted_by_object_dict.insert(object_dict_values);
-    // }
+        vector<string> object_dict_values;
+        for (auto node: subgraph){
+            object_dict_values.push_back(object_dict[node]);
+        }
+        sort(object_dict_values.begin(), object_dict_values.end());
+        three_node_subgraphs_sorted_by_object_dict.insert(object_dict_values);
+    }
 
     
     frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
@@ -135,7 +135,7 @@ int main(){
     myfile.close();
 
 
-    /*
+    
     // testing
 
     ifstream myfile_test;
@@ -306,7 +306,7 @@ int main(){
 
     myfile_test.close();
 
-    */
+    
 
 
     return 0;
