@@ -33,7 +33,7 @@ int main(){
     
 
     ifstream myfile_test;
-    myfile_test.open("/media/baguette/aislam4/paths/train_test_split/train_hashes.txt");
+    myfile_test.open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_1.txt");
     
     sqlite3* db;
     const char* dbPath = "/media/crouton/aislam4/database.db";
@@ -50,10 +50,10 @@ int main(){
     double elapsed_time;
 
     ofstream elapsed_time_file;
-    elapsed_time_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/elapsed_time.txt", ios::app);
+    elapsed_time_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/elapsed_time_1.txt", ios::app);
 
     ofstream exception_file;
-    exception_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/exception.txt", ios::app);
+    exception_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
 
     while(!myfile_test.eof()){
         string line;
@@ -116,7 +116,8 @@ int main(){
             // if I have no sources or destinations, then I have no connections
 
             if (sources_test.size() == 0 || destinations_test.size() == 0){
-                exit(0); // switch to continue when in db
+                exception_file << line << ": 0 connections" << endl;
+                continue;
             }
 
             set<string> nodes_set_test;
@@ -210,7 +211,7 @@ int main(){
                         myfile_output << object_dict_test.at(sub_node) << " ";
                     }
 
-                    myfile_output << object_dict_test.at(node) << " " << true_token << " " << rank << endl;
+                    myfile_output << object_dict_test.at(node) << " " << rank << endl;
                     
                 }
 

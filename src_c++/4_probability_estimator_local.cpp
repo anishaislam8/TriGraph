@@ -49,7 +49,7 @@ int main(){
         // if I have no sources or destinations, then I have no connections
 
         if (sources_test.size() == 0 || destinations_test.size() == 0){
-            exit(0); // switch to continue when in db
+            continue; // switch to continue when in db
         }
 
         set<string> nodes_set_test;
