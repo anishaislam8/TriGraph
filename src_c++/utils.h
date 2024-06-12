@@ -5,14 +5,12 @@
 # include <set>
 # include <algorithm>
 # include <utility>
-# include <openssl/sha.h>
 # include <sqlite3.h>
 # include "graph.h"
 # include "json.hpp"
 using json = nlohmann::json;
 
 
-string sha256(const string&);
 map<string, string> create_object_dict(const json&);
 vector<int> create_two_node_adjacency_matrix(const string&, const string&, Graph);
 vector<vector<string> > get_three_node_subgraphs(const vector<string>&, Graph);

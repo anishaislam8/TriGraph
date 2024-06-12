@@ -197,7 +197,10 @@ int main(){
                     } 
                     
                     if (node_to_add_list.size() == 0){
-                        continue;
+                        // iterate through the entire vocabulary, so node to add list is unique_tokens_train
+                        for (auto token: unique_tokens_train){
+                            node_to_add_list.insert(token);
+                        }
                     }
                     
                     rank = predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node_to_add_list, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);

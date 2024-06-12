@@ -7,9 +7,7 @@ int main(){
     map<string, int> frequency_3_grams = load_frequency_3_grams();
     vector<string> unique_tokens_train = load_unique_tokens();
     set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
-    
-    
-    
+
     // testing
 
     ifstream myfile_test;
@@ -105,7 +103,9 @@ int main(){
 
 
         for (auto node: nodes_test){
-            // get all three_node_subgraphs that contain this node
+            // This node is in the graph (source or destination)
+            // and there is going to be a three node subgraph that contains this node 
+            
             vector<vector<string> > three_node_subgraphs_containing_this_node;
             for (auto subgraph: three_node_subgraphs_test){
                 if (find(subgraph.begin(), subgraph.end(), node) != subgraph.end()){
@@ -114,6 +114,8 @@ int main(){
             }
 
             string true_token = object_dict_test.at(node);
+
+            
             
             // I am calling the predict function for each three_node_subgraph that contains this node
             for (auto subgraph: three_node_subgraphs_containing_this_node){
@@ -160,9 +162,14 @@ int main(){
 
                     }
                 } 
+
+                // now node_to_add list could be empty since this is a test graph, and I might not have seen this node before during train
                 
                 if (node_to_add_list.size() == 0){
-                    continue;
+                    // iterate through the entire vocabulary, so node to add list is unique_tokens_train
+                    for (auto token: unique_tokens_train){
+                        node_to_add_list.insert(token);
+                    }
                 }
 
                 
