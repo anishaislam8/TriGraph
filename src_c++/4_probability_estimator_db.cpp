@@ -33,7 +33,7 @@ int main(){
     
 
     ifstream myfile_test;
-    myfile_test.open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_1.txt");
+    myfile_test.open("/media/baguette/aislam4/paths/train_test_split/parallel/test_hashes_1.txt");
     
     sqlite3* db;
     const char* dbPath = "/media/crouton/aislam4/database.db";

@@ -103,7 +103,6 @@ vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Gr
     return three_node_subgraphs;
 }
 
-
 vector<int> create_three_node_adjacency_matrix(const string &node_0, const string &node_1, const string &node_2, Graph G){
 
 
@@ -267,8 +266,92 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
     return score;
 }
 
+float score_of_a_subgraph_with_a_word_from_vocab(const string &node_to_add, const string &node_to_remove, const vector<string> &subgraph, const vector<vector<string> > &subgraph_edges, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){
 
-float predict(const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const set<string> &node_to_add_list, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string> &subgraph_nodes, const vector<vector<string> > &subgraph_edges, const string &true_token){
+    vector<string> subgraph_nodes_test;
+    for (string node: subgraph){
+        if (node != node_to_remove){
+            subgraph_nodes_test.push_back(node);
+        }
+    }
+    subgraph_nodes_test.push_back(node_to_add);
+
+    // for all the edges in subgraph_edges, if the edge is connected to node_to_remove, 
+    // then add an edge to node_to_add, and add the remaining edges as it is
+    vector<vector<string> > subgraph_edges_test;
+    for (auto edge: subgraph_edges){
+        if (edge[0] == node_to_remove && edge[1] == node_to_remove){
+            subgraph_edges_test.push_back({node_to_add, node_to_add});
+        }
+        else if (edge[0] == node_to_remove){
+            subgraph_edges_test.push_back({node_to_add, edge[1]});
+        }
+        else if (edge[1] == node_to_remove){
+            subgraph_edges_test.push_back({edge[0], node_to_add});
+        }
+        else{
+            subgraph_edges_test.push_back(edge);
+        }
+    }
+
+    Graph G_test_new(subgraph_nodes_test, subgraph_edges_test);
+
+    // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
+    sort(subgraph_nodes_test.begin(), subgraph_nodes_test.end(), [&object_dict](const string& a, const string& b) {
+        return comparator(a, b, object_dict);
+    });
+
+    float score = 0.0;
+    try{
+        
+        score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
+    }
+    catch(...){
+        cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
+        score = 0.0;
+    }
+
+    return score;
+
+}
+
+set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, const string &node_to_remove, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict){
+    // create node to add list for this subgraph
+
+    vector<string> two_nodes;
+    for (auto item: subgraph){
+        if (item != node_to_remove){ // take the ones except for this one
+            two_nodes.push_back(object_dict.at(item));
+        }
+    }
+
+
+    // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
+    set<string> node_to_add_list;
+    
+    for (auto subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
+        vector<string> result;
+        if (two_nodes[0] == two_nodes[1]){
+            if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 2){
+                result = find_the_set_difference(subgraph_inner, two_nodes);
+                node_to_add_list.insert(result[0]);
+            }
+        }
+        else{
+            if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 1 && count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]) >= 1){
+                result = find_the_set_difference(subgraph_inner, two_nodes);
+                node_to_add_list.insert(result[0]);
+            }
+
+        }
+    } 
+
+    
+
+    return node_to_add_list;
+}
+
+float predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, Graph G_directed_test){
 
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
@@ -276,90 +359,87 @@ float predict(const map<string, string> &object_dict, const map<string, int> &fr
 
     vector<pair<string, float> > heap;
     make_heap(heap.begin(), heap.end(), cmp); 
-    int max_heap_size = 5;
-   
-    // iterate through the vocabulary to find the token that generates the highest score
+    int max_heap_size = 10;
+    float score;
 
-    for (auto item: node_to_add_list){
+    string true_token = object_dict.at(node_to_remove);
+    vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
 
-        // per item in the loop takes : 0.015625 seconds
+    // I am calling the predict function for each three_node_subgraph that contains this node
+    for (auto subgraph: three_node_subgraphs_containing_this_node){
 
-
-        if (item.empty()){
-            continue;
-        }
+        vector<vector<string> > subgraph_edges;
         
-        string node_to_add = item;
-
-        vector<string> subgraph_nodes_test;
-        for (string node: subgraph_nodes){
-            if (node != node_to_remove){
-                subgraph_nodes_test.push_back(node);
-            }
-        }
-        subgraph_nodes_test.push_back(node_to_add);
-
-        // for all the edges in subgraph_edges, if the edge is connected to node_to_remove, 
-        // then add an edge to node_to_add, and add the remaining edges as it is
-        vector<vector<string> > subgraph_edges_test;
-        for (auto edge: subgraph_edges){
-            if (edge[0] == node_to_remove && edge[1] == node_to_remove){
-                subgraph_edges_test.push_back({node_to_add, node_to_add});
-            }
-            else if (edge[0] == node_to_remove){
-                subgraph_edges_test.push_back({node_to_add, edge[1]});
-            }
-            else if (edge[1] == node_to_remove){
-                subgraph_edges_test.push_back({edge[0], node_to_add});
-            }
-            else{
-                subgraph_edges_test.push_back(edge);
+        // this is okay, if edge is (0,0) and nodes set is (0,1,2) -> add this edge
+        for (const auto& edge : edges_of_original_graph) {
+            if (count(subgraph.begin(), subgraph.end(), edge[0]) > 0 && count(subgraph.begin(), subgraph.end(), edge[1]) > 0) {
+                subgraph_edges.push_back(edge);
             }
         }
 
-        Graph G_test_new(subgraph_nodes_test, subgraph_edges_test);
+        // create a list of vocabulary to iterate through for this subgraph
+        set<string> node_to_add_list = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, three_node_subgraphs_sorted_by_object_dict, object_dict);
+        
+        // now node_to_add list could be empty since this is a test graph, and I might not have seen this node before during train
+        if (node_to_add_list.size() == 0){
+            for (auto token: unique_tokens_train_map){
+                node_to_add_list.insert(token.first);
+            }
+        }
+        // iterate through the vocabulary to find the token that generates the highest score
 
-        // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
-        sort(subgraph_nodes_test.begin(), subgraph_nodes_test.end(), [&object_dict](const string& a, const string& b) {
-            return comparator(a, b, object_dict);
-        });
+        for (auto item: node_to_add_list){
 
-        float score = 0.0;
-        try{
-            // time: highest 0.015625 seconds, the entire time for running one item in the loop goes here
-            score = get_score(subgraph_nodes_test, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G_test_new, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
+            if (item.empty()){
+                continue;
+            }
+            
+            score = score_of_a_subgraph_with_a_word_from_vocab(item, node_to_remove, subgraph, subgraph_edges, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
-            pair<string, float> p(node_to_add, negative_probability_score);
+            pair<string, float> p(item, negative_probability_score);
             
-            
-            if (heap.size() < max_heap_size){
-                heap.push_back(p);
-
-                if (heap.size() == max_heap_size){
-                    make_heap(heap.begin(), heap.end(), cmp);
+            // if heap has that item already, then no need to insert it again, check if the current probability is less than the one in the heap, if yes, then update it
+            bool found = false;
+            for (auto &token: heap){
+                if (token.first == item){
+                    found = true;
+                    if (token.second > p.second){
+                        token.second = p.second;
+                    }
+                    break;
                 }
             }
-            
+            if (found){
+                make_heap(heap.begin(), heap.end(), cmp);
+            }
             else{
-                // this is okay as we are using negative probability, if the heap one is larger than the new one, 
-                // then replace it as smaller negative probability means bigger real probability
-                if (heap.front().second > p.second){ 
-                    pop_heap(heap.begin(), heap.end(), cmp);
-                    heap.pop_back();
-                    
+                if (heap.size() < max_heap_size){
                     heap.push_back(p);
-                    push_heap(heap.begin(), heap.end(), cmp);
+
+                    if (heap.size() == max_heap_size){
+                        make_heap(heap.begin(), heap.end(), cmp);
+                    }
                 }
                 
+                else{
+                    // this is okay as we are using negative probability, if the heap one is larger than the new one, 
+                    // then replace it as smaller negative probability means bigger real probability
+                    if (heap.front().second > p.second){ 
+                        pop_heap(heap.begin(), heap.end(), cmp);
+                        heap.pop_back();
+
+                        heap.push_back(p);
+                        push_heap(heap.begin(), heap.end(), cmp);
+                    }
+                    
+                }
             }
-        }
-        catch(...){
-            cout << "Exception occured while calculating score, assigning 0.0 to score" << endl;
-            score = 0.0;
-        }
+            
 
-
+        }
     }
+   
+
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
     // cout << "Heap: \n";

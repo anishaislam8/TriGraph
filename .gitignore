@@ -10,3 +10,7 @@ sample_output
 src_c++/*.exe
 src_c++/test.txt
 src_c++/local_test.cpp
+src_c++/Makefile
+src_c++/gmon.out
+src_c++/output.png
+src_c++/output.txt

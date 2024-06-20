@@ -49,7 +49,7 @@ int main(){
         // if I have no sources or destinations, then I have no connections
 
         if (sources_test.size() == 0 || destinations_test.size() == 0){
-            continue; // switch to continue when in db
+            exit(0); // continue in db
         }
 
         set<string> nodes_set_test;
@@ -113,75 +113,12 @@ int main(){
                 }
             }
 
-            string true_token = object_dict_test.at(node);
-
-            
-            
-            // I am calling the predict function for each three_node_subgraph that contains this node
-            for (auto subgraph: three_node_subgraphs_containing_this_node){
-                
-                vector<string> subgraph_nodes = subgraph;
-                set<string> subgraph_nodes_set(subgraph.begin(), subgraph.end());
-                vector<vector<string> > subgraph_edges;
-                vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
-
-                // this is okay, if edge is (0,0) and nodes set is (0,1,2) -> add this edge
-                for (const auto& edge : edges_of_original_graph) {
-                    if (subgraph_nodes_set.count(edge[0]) > 0 && subgraph_nodes_set.count(edge[1]) > 0) {
-                        subgraph_edges.push_back(edge);
-                    }
-                }
-
-
-                // create node to add list for this subgraph
-
-                vector<string> two_nodes;
-                for (auto item: subgraph){
-                    if (item != node){ // take the ones except for this one
-                        two_nodes.push_back(object_dict_test.at(item));
-                    }
-                }
-
-
-                // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
-                set<string> node_to_add_list;
-                
-                for (auto subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
-                    vector<string> result;
-                    if (two_nodes[0] == two_nodes[1]){
-                        if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 2){
-                            result = find_the_set_difference(subgraph_inner, two_nodes);
-                            node_to_add_list.insert(result[0]);
-                        }
-                    }
-                    else{
-                        if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 1 && count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]) >= 1){
-                            result = find_the_set_difference(subgraph_inner, two_nodes);
-                            node_to_add_list.insert(result[0]);
-                        }
-
-                    }
-                } 
-
-                // now node_to_add list could be empty since this is a test graph, and I might not have seen this node before during train
-                
-                if (node_to_add_list.size() == 0){
-                    // iterate through the entire vocabulary, so node to add list is unique_tokens_train
-                    for (auto token: unique_tokens_train){
-                        node_to_add_list.insert(token);
-                    }
-                }
-
-                
-                start = clock();
-                rank = predict(object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node_to_add_list, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, subgraph_nodes, subgraph_edges, true_token);
-                end = clock();
-                elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-                cout << "Time to iterate: " << elapsed_time << endl;
-                cout << "Rank: " << rank << endl;
-            }
-
-
+            start = clock();
+            rank = predict(three_node_subgraphs_containing_this_node, three_node_subgraphs_sorted_by_object_dict, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
+            end = clock();
+            elapsed_time = double(end - start) / CLOCKS_PER_SEC;
+            cout << "Time to predict one node: " << elapsed_time << endl;
+            cout << "Rank: " << rank << endl;
         }
         
 
