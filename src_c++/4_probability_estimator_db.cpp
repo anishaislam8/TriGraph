@@ -152,7 +152,7 @@ int main(){
                 }
 
                 rank = predict(three_node_subgraphs_containing_this_node, three_node_subgraphs_sorted_by_object_dict, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
-                myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node)  " " << rank << endl;
+                myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
             }
 
             end = clock();
