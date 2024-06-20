@@ -329,20 +329,15 @@ set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, 
     // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
     set<string> node_to_add_list;
     
-    for (auto subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
+    for (auto& subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
+        
         vector<string> result;
-        if (two_nodes[0] == two_nodes[1]){
-            if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 2){
-                result = find_the_set_difference(subgraph_inner, two_nodes);
-                node_to_add_list.insert(result[0]);
-            }
-        }
-        else{
-            if (count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]) >= 1 && count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]) >= 1){
-                result = find_the_set_difference(subgraph_inner, two_nodes);
-                node_to_add_list.insert(result[0]);
-            }
+        auto count_node_0 = count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]);
+        auto count_node_1 = count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]);
 
+        if (((two_nodes[0] == two_nodes[1]) && count_node_0 >= 2) || ((two_nodes[0] != two_nodes[1]) && (count_node_0 >= 1 && count_node_1 >= 1))){
+            result = find_the_set_difference(subgraph_inner, two_nodes);
+            node_to_add_list.insert(result[0]);
         }
     } 
 
@@ -455,7 +450,7 @@ float predict(const vector<vector <string> > &three_node_subgraphs_containing_th
         index += 1;
     }
 
-    // cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
+    //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
     return index+1 > max_heap_size ? -1 : index+1;
 }
 
@@ -778,21 +773,34 @@ string get_content_from_db(string line, sqlite3* db){
 
 
 vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
-    multiset<string> set1(subgraph.begin(), subgraph.end());
-    multiset<string> set2(two_nodes.begin(), two_nodes.end());
-    vector<string> result;
 
-    // Find the difference between the two sets
-    set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), back_inserter(result));
-    if (result.size() > 1){
+    unordered_map<string, int> count_map;
+    
+    // Count occurrences in subgraph
+    for (const auto &item : subgraph) {
+        count_map[item]++;
+    }
+
+    // Subtract counts for two_nodes
+    for (const auto &item : two_nodes) {
+        count_map[item]--;
+    }
+
+    vector<string> result;
+    for (const auto &pair : count_map) {
+        if (pair.second > 0) {
+            result.push_back(pair.first);
+        }
+    }
+    if (result.size() > 1) {
         cout << "Result size: " << result.size() << endl;
         cout << "Set 1: " << endl;
-        for (auto item: set1){
+        for (const auto &item : subgraph) {
             cout << item << " ";
         }
         cout << endl;
         cout << "Set 2: " << endl;
-        for (auto item: set2){
+        for (const auto &item : two_nodes) {
             cout << item << " ";
         }
         cout << endl;
