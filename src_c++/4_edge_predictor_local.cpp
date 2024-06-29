@@ -100,8 +100,7 @@ int main(){
         
         // for each subgraph, I am going to calculae the mrr score
         int rank = -1;
-        clock_t start, end;
-        double elapsed_time;
+
 
 
         for (auto subgraph: three_node_subgraphs_test){
