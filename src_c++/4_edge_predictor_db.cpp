@@ -30,6 +30,9 @@ int main(){
     for (int i = 0; i < unique_tokens_train.size(); i++) {
         unique_tokens_train_map[unique_tokens_train[i]] = i;
     }
+
+    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequnecy_2_gram_map(frequency_2_grams);
+    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequnecy_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
     
 
     ifstream myfile_test;
@@ -78,7 +81,7 @@ int main(){
         
         // write to a file line.txt
         ofstream myfile_output;
-        myfile_output.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/edge_rank/" + line + ".txt", ios::app);
+        myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/edge_rank/" + line + ".txt", ios::app);
 
 
         try{
@@ -131,8 +134,8 @@ int main(){
             vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
 
             for (auto subgraph: three_node_subgraphs_test){
-                rank = predict_edges(subgraph, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
-                myfile_output << subgraph[0] << " " << subgraph[1] << " " << subgraph[2] << " " << object_dict_test.at(subgraph[0]) <<  " " <<  object_dict_test.at(subgraph[1]) <<  " " <<  object_dict_test.at(subgraph[2]) <<  " " << rank << endl;
+                rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
+                myfile_output << object_dict_test.at(subgraph[0]) <<  " " <<  object_dict_test.at(subgraph[1]) <<  " " <<  object_dict_test.at(subgraph[2]) <<  " " << rank << endl;
             }
             
 

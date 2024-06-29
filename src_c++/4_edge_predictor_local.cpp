@@ -8,8 +8,32 @@ int main(){
     vector<string> unique_tokens_train = load_unique_tokens();
     set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
 
+    // sum of all values of frequency_1_gram
+    int sum_frequency_1_gram = 0;
+    for (auto token: frequency_1_gram){
+        sum_frequency_1_gram += token.second;
+    }
+
+    // sum of all values of frequency_2_grams
+    int sum_frequency_2_grams = 0;
+    for (auto token: frequency_2_grams){
+        sum_frequency_2_grams += token.second;
+    }
+
+    // sum of all values of frequency_3_grams
+    int sum_frequency_3_grams = 0;
+    for (auto token: frequency_3_grams){
+        sum_frequency_3_grams += token.second;
+    }
+
+    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequnecy_2_gram_map(frequency_2_grams);
+    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequnecy_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
     
-    
+    map<string, int> unique_tokens_train_map;
+    for (int i = 0; i < unique_tokens_train.size(); i++) {
+        unique_tokens_train_map[unique_tokens_train[i]] = i;
+    }
+
     // testing
 
     ifstream myfile_test;
@@ -74,37 +98,11 @@ int main(){
 
         vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
         
- 
-        // sum of all values of frequency_1_gram
-        int sum_frequency_1_gram = 0;
-        for (auto token: frequency_1_gram){
-            sum_frequency_1_gram += token.second;
-        }
-
-        // sum of all values of frequency_2_grams
-        int sum_frequency_2_grams = 0;
-        for (auto token: frequency_2_grams){
-            sum_frequency_2_grams += token.second;
-        }
-
-        // sum of all values of frequency_3_grams
-        int sum_frequency_3_grams = 0;
-        for (auto token: frequency_3_grams){
-            sum_frequency_3_grams += token.second;
-        }
-
-        map<string, int> unique_tokens_train_map;
-        for (int i = 0; i < unique_tokens_train.size(); i++) {
-            unique_tokens_train_map[unique_tokens_train[i]] = i;
-        }
         
         // for each subgraph, I am going to calculae the mrr score
         int rank = -1;
-
-
-
         for (auto subgraph: three_node_subgraphs_test){
-            rank = predict_edges(subgraph, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
+            rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
             cout << "Rank for this subgraph adjacency matrix: " << rank << endl;
         }
         

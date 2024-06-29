@@ -507,30 +507,60 @@ vector<pair<string, float> > create_heap(const vector<pair<string, float> >& hea
     return heap;
 }
 
-pair<string, float> get_three_gram_pair(const auto& three_gram, const int sum_frequency_3_grams){
-    vector<string> tokens;
-    string token;
-    istringstream tokenStream(three_gram.first);
-    while (getline(tokenStream, token, ',')){
-        tokens.push_back(token);
+
+map<string, vector<pair<string, float> > > get_frequnecy_2_gram_map(const map<string, int>& frequency_2_grams){
+     // create a map from frequency_2_gram where key is the first two tokens of current key separated by delimeters and value is a vector of map of <string, int> where string is the third token of the current key
+    map<string, vector<pair<string, float> > > frequency_2_grams_map;
+    for (auto two_gram: frequency_2_grams){
+        vector<string> tokens;
+        string token;
+        istringstream tokenStream(two_gram.first);
+        while (getline(tokenStream, token, ',')){
+            tokens.push_back(token);
+        }
+        string adj_mat = tokens[2];
+        pair<string, float> p = make_pair(adj_mat, two_gram.second*1.0);
+        vector<pair<string, float> > v;
+        string key = tokens[0] + "," + tokens[1];
+
+        if (frequency_2_grams_map.find(key) == frequency_2_grams_map.end()){ // could not find the key
+            v.push_back(p);
+            frequency_2_grams_map[key] = v;
+        }
+        else{
+            frequency_2_grams_map[key].push_back(p);
+        }
+
     }
-    string adj_mat = tokens[3];
-    float negative_probability_score = -1 * log( (three_gram.second * 1.0)/(sum_frequency_3_grams * 1.0) ); // biggest is smallest, following Liveguess MITLM
-    pair<string, float> p(adj_mat, negative_probability_score);
-    return p;
+    return frequency_2_grams_map;
 }
 
-pair<string, float> get_two_gram_pair(const auto& two_gram){
+map<string, vector<pair<string, float> > > get_frequnecy_3_gram_map(const map<string, int>& frequency_3_grams, const int sum_frequency_3_grams){
+     // create a map from frequency_2_gram where key is the first two tokens of current key separated by delimeters and value is a vector of map of <string, int> where string is the third token of the current key
+    map<string, vector<pair<string, float> > > frequency_3_grams_map;
+    for (auto three_gram: frequency_3_grams){
+        vector<string> tokens;
+        string token;
+        istringstream tokenStream(three_gram.first);
+        while (getline(tokenStream, token, ',')){
+            tokens.push_back(token);
+        }
+        string adj_mat = tokens[3];
+        float negative_probability_score = -1 * log( (three_gram.second * 1.0)/(sum_frequency_3_grams * 1.0) );
+        pair<string, float> p = make_pair(adj_mat, negative_probability_score);
+        vector<pair<string, float> > v;
+        string key = tokens[0] + "," + tokens[1] + "," + tokens[2];
 
-    vector<string> tokens;
-    string token;
-    istringstream tokenStream(two_gram.first);
-    while (getline(tokenStream, token, ',')){
-        tokens.push_back(token);
+        if (frequency_3_grams_map.find(key) == frequency_3_grams_map.end()){ // could not find the key
+            v.push_back(p);
+            frequency_3_grams_map[key] = v;
+        }
+        else{
+            frequency_3_grams_map[key].push_back(p);
+        }
+
     }
-    string adj_mat = tokens[2];
-    pair<string, float> p(adj_mat, two_gram.second*1.0);
-    return p;
+    return frequency_3_grams_map;
 }
 
 pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const auto& two_gram_1_2, const auto& two_gram_0_2, const int sum_frequency_2_grams){
@@ -569,7 +599,7 @@ pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const a
     return p;
 }
 
-int predict_edges(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, int>& frequency_1_gram, const map<string, int>& frequency_2_grams, const map<string, int>& frequency_3_grams, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
+int predict_edges(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_2_grams_map, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
     
    
     vector<pair<string, float> > heap;
@@ -608,17 +638,16 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     // if I have found all the nodes in unique trains, only then check the frequency_3_grams
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
-        string partial_key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
+        string key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
+        auto it_3_gram = frequency_3_grams_map.find(key);
+
+        if (it_3_gram != frequency_3_grams_map.end()){
+            heap_3_gram = it_3_gram->second;
+        }
+
         
-        // check if frequency_3_gram keys start with partial_key
-        for (const auto three_gram: frequency_3_grams){
-            if (three_gram.first.find(partial_key) == 0){ // key starts with this partial key
-                pair<string, float> p = get_three_gram_pair(three_gram, sum_frequency_3_grams);
-                heap_3_gram.push_back(p);
-            }
-            
-        } 
     }
+    
     
     
     // if heap_3_gram is empty then I couldn't find any three gram in our frequency_3_grams that matches our nodes
@@ -641,43 +670,37 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         // node_0 and node_1
 
         if (it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end()){
-            string partial_key = to_string(it_0->second) + "," + to_string(it_1->second);
-            
-            for (const auto two_gram: frequency_2_grams){
-                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
-                    pair<string, float> p = get_two_gram_pair(two_gram);
-                    node_0_node_1.push_back(p);
-                }
-                
+            string key = to_string(it_0->second) + "," + to_string(it_1->second);
+            auto it_2_gram = frequency_2_grams_map.find(key);
+            if (it_2_gram != frequency_2_grams_map.end()){
+                node_0_node_1 = it_2_gram->second;
             }
+            
+            
         }
 
         // node_1 and node_2
 
         if (it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
-            string partial_key = to_string(it_1->second) + "," + to_string(it_2->second);
-
-            for (const auto two_gram: frequency_2_grams){
-                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
-                    pair<string, float> p = get_two_gram_pair(two_gram);
-                    node_1_node_2.push_back(p);
-                }
-                
+            string key = to_string(it_1->second) + "," + to_string(it_2->second);
+            auto it_2_gram = frequency_2_grams_map.find(key);
+            if (it_2_gram != frequency_2_grams_map.end()){
+                node_1_node_2 = it_2_gram->second;
             }
+
+            
         }
 
         // node_0 and node_2
 
         if (it_0 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
-            string partial_key = to_string(it_0->second) + "," + to_string(it_2->second);
-
-            for (const auto two_gram: frequency_2_grams){
-                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
-                    pair<string, float> p = get_two_gram_pair(two_gram);
-                    node_0_node_2.push_back(p);
-                }
-                
+            string key = to_string(it_0->second) + "," + to_string(it_2->second);
+            auto it_2_gram = frequency_2_grams_map.find(key);
+            if (it_2_gram != frequency_2_grams_map.end()){
+                node_0_node_2 = it_2_gram->second;
             }
+
+            
         }
 
         // if node_0_node_1 is empty, then I couldn't find any two gram in our frequency_2_grams that matches our nodes
@@ -1045,7 +1068,6 @@ string get_content_from_db(string line, sqlite3* db){
 
     return content;
 }
-
 
 vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
 

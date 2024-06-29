@@ -20,7 +20,7 @@ float get_score(const vector<string>&, const map<string, string>&, const map<str
 set<string> get_node_to_add_list_for_a_subgraph(const vector<string>&, const string&, const set<vector<string> >&, const map<string, string>&);
 float score_of_a_subgraph_with_a_word_from_vocab(const string&, const string&, const vector<string>&, const vector<vector<string> >&, const map<string, string>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const int, const int, const int);
 int predict(const vector<vector <string> >&, const set<vector<string> >&, const map<string, string>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const string&, const int, const int, const int, const map<string, int>&, Graph);
-int predict_edges(const vector<string>&, const map<string, string>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const int, const int, const int, const map<string, int>&, Graph);
+int predict_edges(const vector<string>&, const map<string, string>&, const map<string, vector<pair<string, float> > >&, const map<string, vector<pair<string, float> > >&, const int, const int, const map<string, int>&, Graph);
 vector<string> load_unique_tokens();
 map<string, int> load_frequency_1_gram();
 map<string, int> load_frequency_2_grams();
@@ -34,7 +34,7 @@ string get_content_from_db(string, sqlite3*);
 vector<string> find_the_set_difference(const vector<string>&, const vector<string>&);
 string get_key(const vector<int>&, const vector<int>&);
 vector<pair<string, float> > create_heap(const vector<pair<string, float> >&);
-pair<string, float> get_three_gram_pair(const auto&, const int);
-pair<string, float> get_two_gram_pair(const auto&);
 pair<string, float> get_two_gram_pair_for_heap(const auto&,const auto&, const auto&, const int);
+map<string, vector<pair<string, float> > > get_frequnecy_2_gram_map(const map<string, int>&);
+map<string, vector<pair<string, float> > > get_frequnecy_3_gram_map(const map<string, int>&, const int);
 
