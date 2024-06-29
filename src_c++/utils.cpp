@@ -442,16 +442,16 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
     //     cout << token.first << " " << token.second << endl;
     // }
     // find the index of the true token in the heap first items
-    int index = 0;
-    for (auto token: heap){
-        if (token.first == true_token){
+    int index = -1;
+    for (int i = 0; i < heap.size(); i++){
+        if (heap[i].first == true_token){
+            index = i+1;
             break;
         }
-        index += 1;
     }
 
     //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-    return index+1 > max_heap_size ? -1 : index+1;
+    return index;
 }
 
 
@@ -521,13 +521,14 @@ pair<string, float> get_three_gram_pair(const auto& three_gram, const int sum_fr
 }
 
 pair<string, float> get_two_gram_pair(const auto& two_gram){
+
     vector<string> tokens;
     string token;
     istringstream tokenStream(two_gram.first);
     while (getline(tokenStream, token, ',')){
         tokens.push_back(token);
     }
-    string adj_mat = tokens[3];
+    string adj_mat = tokens[2];
     pair<string, float> p(adj_mat, two_gram.second*1.0);
     return p;
 }
@@ -538,6 +539,7 @@ pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const a
     ind_1 = two_gram_0_1.first[1];
     ind_3 = two_gram_0_1.first[2];
     ind_4 = two_gram_0_1.first[3];
+
 
     // if ind_4 is not 1, then it is currently 0 and it could be 0 or 1 based on the next part
     if (ind_4 != "1"){
@@ -602,7 +604,6 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
 
     vector<pair<string, float> > heap_3_gram;
     
-
     // if I have found all the nodes in unique trains, only then check the frequency_3_grams
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
@@ -617,14 +618,15 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
             
         } 
     }
-
+    
     // if heap_3_gram is empty then I couldn't find any three gram in our frequency_3_grams that matches our nodes
     // in this case, I will have to move to 2 grams
     
     //in the case where I have unknown tokens, I wouldn't have gone inside the if above and heap_3_gram would be empty
     
     // in either cases, when heap_3_grams is empty, move to 2 grams, if not, then insert in heap
-
+    
+    
     if (heap_3_gram.size() > 0){
         heap = create_heap(heap_3_gram);
     }
@@ -691,7 +693,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         if (node_0_node_2.size() == 0){
             node_0_node_2.push_back({"0000", 0.05});
         }
-        
+
         vector<pair<string, float> > heap_2_gram;
 
 
@@ -715,17 +717,25 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
 
+    // // print heap
+    // cout << "Heap: " << endl;
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
+
+    // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+
     // find the index of the true token in the heap first items
-    int index = 0;
-    for (auto token: heap){
-        if (token.first == true_adjacency_matrix){
+    int index = -1;
+    for (int i = 0; i < heap.size(); i++){
+        if (heap[i].first == true_adjacency_matrix){
+            index = i+1;
             break;
         }
-        index += 1;
     }
 
     //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
-    return index+1 > max_heap_size ? -1 : index+1;
+    return index;
 
 }
 
