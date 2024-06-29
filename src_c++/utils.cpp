@@ -346,7 +346,7 @@ set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, 
     return node_to_add_list;
 }
 
-float predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, Graph G_directed_test){
+int predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, Graph G_directed_test){
 
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
@@ -420,11 +420,11 @@ float predict(const vector<vector <string> > &three_node_subgraphs_containing_th
                     // this is okay as we are using negative probability, if the heap one is larger than the new one, 
                     // then replace it as smaller negative probability means bigger real probability
                     if (heap.front().second > p.second){ 
-                        pop_heap(heap.begin(), heap.end(), cmp);
-                        heap.pop_back();
+                        pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
+                        heap.pop_back(); // actually remove that element from the container
 
-                        heap.push_back(p);
-                        push_heap(heap.begin(), heap.end(), cmp);
+                        heap.push_back(p); // add the new element to the end of the container
+                        push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
                     }
                     
                 }
@@ -452,6 +452,281 @@ float predict(const vector<vector <string> > &three_node_subgraphs_containing_th
 
     //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
     return index+1 > max_heap_size ? -1 : index+1;
+}
+
+
+vector<pair<string, float> > create_heap(const vector<pair<string, float> >& heap_to_insert){
+    
+    auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
+        return left.second < right.second;
+    };
+
+    vector<pair<string, float> > heap;
+    make_heap(heap.begin(), heap.end(), cmp); 
+    int max_heap_size = 10;
+    
+    for (auto p: heap_to_insert){
+        bool found = false;
+        for (auto &token: heap){
+            if (token.first == p.first){
+                found = true;
+                if (token.second > p.second){
+                    token.second = p.second;
+                }
+                break;
+            }
+        }
+        if (found){
+            make_heap(heap.begin(), heap.end(), cmp);
+        }
+        else{
+            if (heap.size() < max_heap_size){
+                heap.push_back(p);
+
+                if (heap.size() == max_heap_size){
+                    make_heap(heap.begin(), heap.end(), cmp);
+                }
+            }
+            
+            else{
+                // this is okay as we are using negative probability, if the heap one is larger than the new one, 
+                // then replace it as smaller negative probability means bigger real probability
+                if (heap.front().second > p.second){ 
+                    pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
+                    heap.pop_back(); // actually remove that element from the container
+
+                    heap.push_back(p); // add the new element to the end of the container
+                    push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
+                }
+                
+            }
+        }
+        
+    }
+
+    return heap;
+}
+
+pair<string, float> get_three_gram_pair(const auto& three_gram, const int sum_frequency_3_grams){
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(three_gram.first);
+    while (getline(tokenStream, token, ',')){
+        tokens.push_back(token);
+    }
+    string adj_mat = tokens[3];
+    float negative_probability_score = -1 * log( (three_gram.second * 1.0)/(sum_frequency_3_grams * 1.0) ); // biggest is smallest, following Liveguess MITLM
+    pair<string, float> p(adj_mat, negative_probability_score);
+    return p;
+}
+
+pair<string, float> get_two_gram_pair(const auto& two_gram){
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(two_gram.first);
+    while (getline(tokenStream, token, ',')){
+        tokens.push_back(token);
+    }
+    string adj_mat = tokens[3];
+    pair<string, float> p(adj_mat, two_gram.second*1.0);
+    return p;
+}
+
+pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const auto& two_gram_1_2, const auto& two_gram_0_2, const int sum_frequency_2_grams){
+    string ind_0, ind_1, ind_2, ind_3, ind_4, ind_5, ind_6, ind_7, ind_8;
+    ind_0 = two_gram_0_1.first[0];
+    ind_1 = two_gram_0_1.first[1];
+    ind_3 = two_gram_0_1.first[2];
+    ind_4 = two_gram_0_1.first[3];
+
+    // if ind_4 is not 1, then it is currently 0 and it could be 0 or 1 based on the next part
+    if (ind_4 != "1"){
+        ind_4 = two_gram_1_2.first[0];
+    }
+    
+
+    ind_5 = two_gram_1_2.first[1];
+    ind_7 = two_gram_1_2.first[2];
+    ind_8 = two_gram_1_2.first[3];
+    
+    if(ind_0 != "1"){
+        ind_0 = two_gram_0_2.first[0];
+    }
+    
+    ind_2 = two_gram_0_2.first[1];
+    ind_6 = two_gram_0_2.first[2];
+    
+    if(ind_8 != "1"){
+        ind_8 = two_gram_0_2.first[3];
+    }
+
+    string adj_mat = ind_0 + ind_1 + ind_2 + ind_3 + ind_4 + ind_5 + ind_6 + ind_7 + ind_8;
+    float negative_probability_score = -1 * log( (two_gram_0_1.second * two_gram_1_2.second * two_gram_0_2.second)/(sum_frequency_2_grams * sum_frequency_2_grams * sum_frequency_2_grams * 1.0) ); // biggest is smallest, following Liveguess MITLM
+    pair<string, float> p(adj_mat, negative_probability_score);
+
+    return p;
+}
+
+int predict_edges(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, int>& frequency_1_gram, const map<string, int>& frequency_2_grams, const map<string, int>& frequency_3_grams, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
+    
+   
+    vector<pair<string, float> > heap;
+    int max_heap_size = 10;
+    auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
+        return left.second < right.second;
+    };
+
+    vector<string> subgraph_nodes;
+    for (auto item: subgraph){
+        subgraph_nodes.push_back(item);
+    }
+
+    // sort subgraph nodes based on object_dict
+    sort(subgraph_nodes.begin(), subgraph_nodes.end(), [&object_dict](const string& a, const string& b) {
+        return comparator(a, b, object_dict);
+    });
+    
+
+    vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
+
+    string true_adjacency_matrix = "";
+    for (auto item: adjacency_matrix){
+        true_adjacency_matrix += to_string(item);
+    }
+
+    // given three nodes, I need to find in the frequency three gram keys, if the key contains these three nodes
+
+    auto it_0 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[0]));
+    auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
+    auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
+
+    vector<pair<string, float> > heap_3_gram;
+    
+
+    // if I have found all the nodes in unique trains, only then check the frequency_3_grams
+    if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
+        
+        string partial_key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
+        
+        // check if frequency_3_gram keys start with partial_key
+        for (const auto three_gram: frequency_3_grams){
+            if (three_gram.first.find(partial_key) == 0){ // key starts with this partial key
+                pair<string, float> p = get_three_gram_pair(three_gram, sum_frequency_3_grams);
+                heap_3_gram.push_back(p);
+            }
+            
+        } 
+    }
+
+    // if heap_3_gram is empty then I couldn't find any three gram in our frequency_3_grams that matches our nodes
+    // in this case, I will have to move to 2 grams
+    
+    //in the case where I have unknown tokens, I wouldn't have gone inside the if above and heap_3_gram would be empty
+    
+    // in either cases, when heap_3_grams is empty, move to 2 grams, if not, then insert in heap
+
+    if (heap_3_gram.size() > 0){
+        heap = create_heap(heap_3_gram);
+    }
+    else{
+        // move to 2 grams
+        vector<pair<string, float> > node_0_node_1;
+        vector<pair<string, float> > node_1_node_2;
+        vector<pair<string, float> > node_0_node_2;
+
+        // node_0 and node_1
+
+        if (it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end()){
+            string partial_key = to_string(it_0->second) + "," + to_string(it_1->second);
+            
+            for (const auto two_gram: frequency_2_grams){
+                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
+                    pair<string, float> p = get_two_gram_pair(two_gram);
+                    node_0_node_1.push_back(p);
+                }
+                
+            }
+        }
+
+        // node_1 and node_2
+
+        if (it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
+            string partial_key = to_string(it_1->second) + "," + to_string(it_2->second);
+
+            for (const auto two_gram: frequency_2_grams){
+                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
+                    pair<string, float> p = get_two_gram_pair(two_gram);
+                    node_1_node_2.push_back(p);
+                }
+                
+            }
+        }
+
+        // node_0 and node_2
+
+        if (it_0 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
+            string partial_key = to_string(it_0->second) + "," + to_string(it_2->second);
+
+            for (const auto two_gram: frequency_2_grams){
+                if (two_gram.first.find(partial_key) == 0){ // key starts with this partial key
+                    pair<string, float> p = get_two_gram_pair(two_gram);
+                    node_0_node_2.push_back(p);
+                }
+                
+            }
+        }
+
+        // if node_0_node_1 is empty, then I couldn't find any two gram in our frequency_2_grams that matches our nodes
+        // in this case, there are no connections between node_0 and node_1
+        // also if node_0 or node_1 is unknown, then I wouldn't have gone inside the if above and node_0_node_1 would be empty
+        // in either cases, when node_0_node_1 is empty, there are no connections between node_0 and node_1
+
+        // same for node_1_node_2 and node_0_node_2
+        if (node_0_node_1.size() == 0){
+            node_0_node_1.push_back({"0000", 0.05});
+        }
+        if (node_1_node_2.size() == 0){
+            node_1_node_2.push_back({"0000", 0.05});
+        }
+        if (node_0_node_2.size() == 0){
+            node_0_node_2.push_back({"0000", 0.05});
+        }
+        
+        vector<pair<string, float> > heap_2_gram;
+
+
+        for (const auto two_gram_0_1: node_0_node_1){
+            for (const auto two_gram_1_2: node_1_node_2){
+                for (const auto two_gram_0_2: node_0_node_2){
+                    pair<string, float> p = get_two_gram_pair_for_heap(two_gram_0_1, two_gram_1_2, two_gram_0_2, sum_frequency_2_grams);
+                    heap_2_gram.push_back(p);
+                }
+            }
+        }
+
+
+        // there should be at least one element in heap as we have added a default one in the beginning
+        // this covers the scenario when all nodes are unknown and we could not connect them
+
+        heap = create_heap(heap_2_gram);
+
+    }
+
+    make_heap(heap.begin(), heap.end(), cmp);
+    sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
+
+    // find the index of the true token in the heap first items
+    int index = 0;
+    for (auto token: heap){
+        if (token.first == true_adjacency_matrix){
+            break;
+        }
+        index += 1;
+    }
+
+    //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
+    return index+1 > max_heap_size ? -1 : index+1;
+
 }
 
 
@@ -626,32 +901,24 @@ map<string, int> get_frequency_2_grams(const vector<vector<string> > &connection
 
     map<string, int> frequncy_2_grams;
 
+    set<vector<string> > connections_set;
+
     for (auto connection: connections){
-        string source = object_dict.at(connection[0]); // this is msg, tgl etc
-        string destination = object_dict.at(connection[1]);
+        sort(connection.begin(), connection.end(), [&object_dict](const string& a, const string& b) {
+            return comparator(a, b, object_dict);
+        });
 
-        if (source == "" || destination == ""){
-            continue;
-        }
-        
-        vector<string> nodes;
-        nodes.push_back(source);
-        nodes.push_back(destination);
-        sort(nodes.begin(), nodes.end());
+        // the connection is now sorted by object dict
+        connections_set.insert(connection);
+    }
 
-        string node_0;
-        string node_1;
+    // connections set contains all unique two node connections regardless of loop
+    for (auto connection: connections_set){
 
-        if (nodes[0] == source){
-            node_0 = connection[0]; // has to be original node name like PD-ROOT_obj-0
-            node_1 = connection[1];
-        }
-        else{
-            node_0 = connection[1];
-            node_1 = connection[0];
-        }
+        // connection is already sorted by object_dict
+        vector<string> nodes = {object_dict.at(connection[0]), object_dict.at(connection[1])};
 
-        vector<int> adjacency_matrix = create_two_node_adjacency_matrix(node_0, node_1, G);
+        vector<int> adjacency_matrix = create_two_node_adjacency_matrix(connection[0], connection[1], G);
 
         int node_0_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[0]) - unique_tokens_train.begin(); // msg is where in unique_tokens
         int node_1_index = find(unique_tokens_train.begin(), unique_tokens_train.end(), nodes[1]) - unique_tokens_train.begin();

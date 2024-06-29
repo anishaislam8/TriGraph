@@ -86,38 +86,38 @@ int main(){
 
     frequency_2_grams = get_frequency_2_grams(edges, object_dict, unique_tokens_train, G_directed);
 
-    // cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
+    cout << "frequency 2 gram size: " << frequency_2_grams.size() << endl;
 
-    // // print frequency_2_grams
-    // cout << "frequency_2_grams: \n";
-    // for (auto token: frequency_2_grams){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    // print frequency_2_grams
+    cout << "frequency_2_grams: \n";
+    for (auto token: frequency_2_grams){
+        cout << token.first << " " << token.second << endl;
+    }
 
 
     // step 2 done
 
     // step 3: extract 3-gram frequencies
 
-    Graph G_undirected(nodes, undirected_edges);
+    // Graph G_undirected(nodes, undirected_edges);
 
-    vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
+    // vector<vector<string> > three_node_subgraphs = get_three_node_subgraphs(nodes, G_undirected);
 
-    // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
+    // // cout << "G_undirected all paths size: " << G_undirected.all_paths.size() << endl; // output 0 as I did not pass a pointer to this graph
 
-    set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
-    for (auto subgraph: three_node_subgraphs){
+    // set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
+    // for (auto subgraph: three_node_subgraphs){
                
-        vector<string> object_dict_values;
-        for (auto node: subgraph){
-            object_dict_values.push_back(object_dict[node]);
-        }
-        sort(object_dict_values.begin(), object_dict_values.end());
-        three_node_subgraphs_sorted_by_object_dict.insert(object_dict_values);
-    }
+    //     vector<string> object_dict_values;
+    //     for (auto node: subgraph){
+    //         object_dict_values.push_back(object_dict[node]);
+    //     }
+    //     sort(object_dict_values.begin(), object_dict_values.end());
+    //     three_node_subgraphs_sorted_by_object_dict.insert(object_dict_values);
+    // }
 
     
-    frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
+    // frequency_3_grams = get_frequency_3_grams(three_node_subgraphs, object_dict, unique_tokens_train, G_directed);
 
 
     
@@ -134,7 +134,7 @@ int main(){
     
     myfile.close();
 
-
+    /*
     
     // testing
 
@@ -307,7 +307,7 @@ int main(){
     myfile_test.close();
 
     
-
+    */
 
     return 0;
 

@@ -14,3 +14,15 @@ src_c++/Makefile
 src_c++/gmon.out
 src_c++/output.png
 src_c++/output.txt
+test_hashes/
+src_c++/4_part1.cpp
+src_c++/4_part2.cpp
+src_c++/4_part3.cpp
+src_c++/4_part4.cpp
+src_c++/rank/
+src_c++/elapsed_time*
+src_c++/exception*
+src_c++/last_halfs
+src_c++/investigating_0_mrrs
+src_c++/0_mrr_test.py
+src_c++/mrr.txt
