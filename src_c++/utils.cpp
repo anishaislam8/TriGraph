@@ -604,6 +604,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
 
     vector<pair<string, float> > heap_3_gram;
     
+    
     // if I have found all the nodes in unique trains, only then check the frequency_3_grams
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
@@ -618,6 +619,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
             
         } 
     }
+    
     
     // if heap_3_gram is empty then I couldn't find any three gram in our frequency_3_grams that matches our nodes
     // in this case, I will have to move to 2 grams
@@ -684,15 +686,12 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         // in either cases, when node_0_node_1 is empty, there are no connections between node_0 and node_1
 
         // same for node_1_node_2 and node_0_node_2
-        if (node_0_node_1.size() == 0){
-            node_0_node_1.push_back({"0000", 0.05});
-        }
-        if (node_1_node_2.size() == 0){
-            node_1_node_2.push_back({"0000", 0.05});
-        }
-        if (node_0_node_2.size() == 0){
-            node_0_node_2.push_back({"0000", 0.05});
-        }
+
+        // give a small probability to no connections and ensure that there's at least one element in the heap
+        node_0_node_1.push_back({"0000", 1});
+        node_1_node_2.push_back({"0000", 1});
+        node_0_node_2.push_back({"0000", 1});
+        
 
         vector<pair<string, float> > heap_2_gram;
 
@@ -734,7 +733,6 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         }
     }
 
-    //cout << "True token: " << true_token << " Predicted token: " << heap[0].first << endl;
     return index;
 
 }
