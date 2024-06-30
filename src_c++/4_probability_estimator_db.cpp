@@ -46,14 +46,9 @@ int main(){
 
     int processing = 0;
     int rank;
-    clock_t start, end;
-    double elapsed_time;
-
-    ofstream elapsed_time_file;
-    elapsed_time_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/elapsed_time_1.txt", ios::app);
 
     ofstream exception_file;
-    exception_file.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
+    exception_file.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
 
     while(!myfile_test.eof()){
         string line;
@@ -83,7 +78,7 @@ int main(){
         
         // write to a file line.txt
         ofstream myfile_output;
-        myfile_output.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/rank/" + line + ".txt", ios::app);
+        myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/node_rank/" + line + ".txt", ios::app);
 
 
         try{
@@ -139,7 +134,6 @@ int main(){
             
             // for each subgraph, I am going to calculate the rank
 
-            start = clock();
             for (auto node: nodes_test){
                 // This node is in the graph (source or destination)
                 // and there is going to be a three node subgraph that contains this node 
@@ -155,9 +149,6 @@ int main(){
                 myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
             }
 
-            end = clock();
-            elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-            elapsed_time_file << line << " " << elapsed_time << endl;
             
 
 
@@ -170,7 +161,6 @@ int main(){
     }
 
     myfile_test.close();
-    elapsed_time_file.close();
     exception_file.close();
     sqlite3_close(db);
     
