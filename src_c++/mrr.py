@@ -8,7 +8,7 @@
 
 
 
-# folder = "edge_rank"
+# folder = "node_rank"
 
 # # for each hash in hash, read the rank/hash file
 
@@ -31,8 +31,8 @@
 #     except:
 #         pass
 
-# write the mrr to a file
-# with open(f'edge_mrr.txt', 'w') as f:
+# #write the mrr to a file
+# with open(f'node_mrr.txt', 'w') as f:
 #     for hash, mrr_value in mrr.items():
 #         f.write(f'{hash} {mrr_value}\n')
 
@@ -42,7 +42,7 @@
 
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('edge_mrr_completed.txt', 'r') as f:
+with open('node_mrr_completed_v1.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))
@@ -53,7 +53,7 @@ import matplotlib.pyplot as plt
 plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
 plt.xlabel('MRR')
 plt.ylabel('Frequency of Test Graphs')
-plt.title('Histogram of Edge Prediction MRR for Test Graphs')
+plt.title('Histogram of Node Prediction MRR for Test Graphs')
 plt.show()
 
 
