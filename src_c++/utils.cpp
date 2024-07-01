@@ -196,6 +196,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
 
     vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G);
    
+    // subgraph nodes are already sorted
     auto it_0 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[0]));
     auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
     auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
@@ -217,12 +218,19 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
         score = 1.0 * discount_factor;
         vector<vector<string> > edges_of_G = G.get_edges();
 
-        for(auto edge: edges_of_G){
-            vector<string> edge_vector = edge;
-            sort(edge_vector.begin(), edge_vector.end(), [&object_dict](const string& a, const string& b) {
+        set<vector<string> > connections_set;
+
+        for (auto connection: edges_of_G){
+            sort(connection.begin(), connection.end(), [&object_dict](const string& a, const string& b) {
                 return comparator(a, b, object_dict);
             });
 
+            // the connection is now sorted by object dict
+            connections_set.insert(connection);
+        }
+        // the edge_vectors are already sorted
+        for(auto edge_vector: connections_set){
+           
             vector<int> adjacency_matrix_2_gram = create_two_node_adjacency_matrix(edge_vector[0], edge_vector[1], G);
            
             string first_edge_item = object_dict.at(edge_vector[0]);
