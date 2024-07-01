@@ -258,6 +258,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 }
                 else{
                     score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
+                    score *= discount_factor; // missed one grams
                 }
 
                 it_1_gram = frequency_1_gram.find(second_edge_item);
@@ -266,6 +267,7 @@ float get_score(const vector<string> &subgraph_nodes, const map<string, string> 
                 }
                 else{
                     score *= (0.5 * (1.0/(sum_frequency_1_gram * 1.0)));
+                    score *= discount_factor; // missed one grams
                 }
             }            
         }
