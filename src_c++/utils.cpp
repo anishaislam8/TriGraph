@@ -190,6 +190,54 @@ bool comparator(const string& a, const string& b, const map<string, string>& y) 
 }
 
 
+map<string, set<string> > get_map_two_grams_to_connections(){
+
+    map<string, set<string> > two_grams_to_connections;
+    vector<string> observed_three_grams = load_observed_three_grams();
+    for (auto three_grams: observed_three_grams){
+        vector<string> tokens;
+        string token;
+        istringstream tokenStream(three_grams);
+        while (getline(tokenStream, token, ',')){
+            tokens.push_back(token);
+        }
+        string first_token = tokens[0];
+        string second_token = tokens[1];
+        string third_token = tokens[2];
+
+        string key_1 = first_token + "," + second_token;
+        string key_2 = second_token + "," + third_token;
+        string key_3 = first_token + "," + third_token;
+
+        if (two_grams_to_connections.find(key_1) == two_grams_to_connections.end()){ // not found
+            two_grams_to_connections[key_1] = {third_token};
+        }
+        else{
+            two_grams_to_connections[key_1].insert(third_token);
+        }
+
+        if (two_grams_to_connections.find(key_2) == two_grams_to_connections.end()){ // not found
+            two_grams_to_connections[key_2] = {first_token};
+        }
+        else{
+            two_grams_to_connections[key_2].insert(first_token);
+        }
+
+        if (two_grams_to_connections.find(key_3) == two_grams_to_connections.end()){ // not found
+            two_grams_to_connections[key_3] = {second_token};
+        }
+        else{
+            two_grams_to_connections[key_3].insert(second_token);
+        }
+
+        
+    }
+
+    return two_grams_to_connections;
+
+
+}
+
 float get_score(const vector<string> &subgraph_nodes, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){
     float score;
     float discount_factor = 0.05;
@@ -325,7 +373,7 @@ float score_of_a_subgraph_with_a_word_from_vocab(const string &node_to_add, cons
 
 }
 
-set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, const string &node_to_remove, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict){
+set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, const string &node_to_remove, const map<string, set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map){
     // create node to add list for this subgraph
 
     vector<string> two_nodes;
@@ -335,28 +383,35 @@ set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, 
         }
     }
 
+    auto it_0 = unique_tokens_train_map.find(two_nodes[0]);
+    auto it_1 = unique_tokens_train_map.find(two_nodes[1]);
+
+    if (it_0 == unique_tokens_train_map.end() || it_1 == unique_tokens_train_map.end()){
+        return {};
+    }
 
     // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
     set<string> node_to_add_list;
     
-    for (auto& subgraph_inner: three_node_subgraphs_sorted_by_object_dict){
-        
-        vector<string> result;
-        auto count_node_0 = count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[0]);
-        auto count_node_1 = count(subgraph_inner.begin(), subgraph_inner.end(), two_nodes[1]);
+    // what is the unique_tokens_train_map value for this two nodes
+    int value_0 = it_0->second;
+    int value_1 = it_1->second;
 
-        if (((two_nodes[0] == two_nodes[1]) && count_node_0 >= 2) || ((two_nodes[0] != two_nodes[1]) && (count_node_0 >= 1 && count_node_1 >= 1))){
-            result = find_the_set_difference(subgraph_inner, two_nodes);
-            node_to_add_list.insert(result[0]);
-        }
-    } 
+    vector<int> two_nodes_int = {value_0, value_1};
+    // sort the two nodes
+    sort(two_nodes_int.begin(), two_nodes_int.end());
 
-    
+    string key = to_string(two_nodes_int[0]) + "," + to_string(two_nodes_int[1]);
+
+
+    if (two_grams_to_connections.find(key) != two_grams_to_connections.end()){ // found
+        node_to_add_list = two_grams_to_connections.at(key);
+    }
 
     return node_to_add_list;
 }
 
-int predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const set<vector<string> > &three_node_subgraphs_sorted_by_object_dict, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, Graph G_directed_test){
+int predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const map<string, set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string>& unique_tokens_train, Graph G_directed_test){
 
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
@@ -383,7 +438,16 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
         }
 
         // create a list of vocabulary to iterate through for this subgraph
-        set<string> node_to_add_list = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, three_node_subgraphs_sorted_by_object_dict, object_dict);
+        set<string> node_to_add_list_int = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, two_grams_to_connections, object_dict, unique_tokens_train_map);
+
+        set<string> node_to_add_list;
+        for (auto item: node_to_add_list_int){
+            node_to_add_list.insert(unique_tokens_train[stoi(item)]);
+        }
+
+
+
+
         
         // now node_to_add list could be empty since this is a test graph, and I might not have seen this node before during train
         if (node_to_add_list.size() == 0){
@@ -518,7 +582,7 @@ vector<pair<string, float> > create_heap(const vector<pair<string, float> >& hea
 }
 
 
-map<string, vector<pair<string, float> > > get_frequnecy_2_gram_map(const map<string, int>& frequency_2_grams){
+map<string, vector<pair<string, float> > > get_frequency_2_gram_map(const map<string, int>& frequency_2_grams){
      // create a map from frequency_2_gram where key is the first two tokens of current key separated by delimeters and value is a vector of map of <string, int> where string is the third token of the current key
     map<string, vector<pair<string, float> > > frequency_2_grams_map;
     for (auto two_gram: frequency_2_grams){
@@ -545,7 +609,7 @@ map<string, vector<pair<string, float> > > get_frequnecy_2_gram_map(const map<st
     return frequency_2_grams_map;
 }
 
-map<string, vector<pair<string, float> > > get_frequnecy_3_gram_map(const map<string, int>& frequency_3_grams, const int sum_frequency_3_grams){
+map<string, vector<pair<string, float> > > get_frequency_3_gram_map(const map<string, int>& frequency_3_grams, const int sum_frequency_3_grams){
      // create a map from frequency_2_gram where key is the first two tokens of current key separated by delimeters and value is a vector of map of <string, int> where string is the third token of the current key
     map<string, vector<pair<string, float> > > frequency_3_grams_map;
     for (auto three_gram: frequency_3_grams){
@@ -770,7 +834,22 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
 
 }
 
+vector<string> load_observed_three_grams(){
+    ifstream myfile_observed_three_grams;
+    myfile_observed_three_grams.open("vocabulary_frequencies/observed_3_grams_train.txt");
+    string token;
+    vector<string> observed_three_grams;
+    while (myfile_observed_three_grams >> token){
+        observed_three_grams.push_back(token);
+    }
 
+
+    myfile_observed_three_grams.close();
+    sort(observed_three_grams.begin(), observed_three_grams.end());
+    return observed_three_grams;
+
+
+}
 
 vector<string> load_unique_tokens(){
     ifstream myfile_unique_tokens_train;

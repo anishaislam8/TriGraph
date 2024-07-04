@@ -31,8 +31,8 @@ int main(){
         unique_tokens_train_map[unique_tokens_train[i]] = i;
     }
 
-    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequnecy_2_gram_map(frequency_2_grams);
-    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequnecy_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
+    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequency_2_gram_map(frequency_2_grams);
+    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequency_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
     
 
     ifstream myfile_test;

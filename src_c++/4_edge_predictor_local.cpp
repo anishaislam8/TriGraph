@@ -26,8 +26,8 @@ int main(){
         sum_frequency_3_grams += token.second;
     }
 
-    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequnecy_2_gram_map(frequency_2_grams);
-    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequnecy_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
+    map<string, vector<pair<string, float> > > frequency_2_grams_map = get_frequency_2_gram_map(frequency_2_grams);
+    map<string, vector<pair<string, float> > > frequency_3_grams_map = get_frequency_3_gram_map(frequency_3_grams, sum_frequency_3_grams);
     
     map<string, int> unique_tokens_train_map;
     for (int i = 0; i < unique_tokens_train.size(); i++) {
