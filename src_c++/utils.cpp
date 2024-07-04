@@ -1158,6 +1158,8 @@ string get_content_from_db(string line, sqlite3* db){
     return content;
 }
 
+
+
 vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
 
     unordered_map<string, int> count_map;

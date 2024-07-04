@@ -39,4 +39,3 @@ map<string, vector<pair<string, float> > > get_frequency_2_gram_map(const map<st
 map<string, vector<pair<string, float> > > get_frequency_3_gram_map(const map<string, int>&, const int);
 vector<string> load_observed_three_grams();
 map<string, set<string> > get_map_two_grams_to_connections();
-
