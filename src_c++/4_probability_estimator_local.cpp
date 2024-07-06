@@ -32,7 +32,7 @@ int main(){
     }
     
 
-    map <string, set<string> > two_grams_to_connections = get_map_two_grams_to_connections();
+    map <string, unordered_set<string> > two_grams_to_connections = get_map_two_grams_to_connections();
 
     // testing
 
