@@ -424,6 +424,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
 
     string true_token = object_dict.at(node_to_remove);
     vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
+    unordered_map<string, float> token_to_score;
 
     // I am calling the predict function for each three_node_subgraph that contains this node
     for (auto subgraph: three_node_subgraphs_containing_this_node){
@@ -453,6 +454,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
         }
         // iterate through the vocabulary to find the token that generates the highest score
 
+        
         for (auto item: node_to_add_list){
 
             if (item.empty()){
@@ -461,49 +463,40 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
             
             score = score_of_a_subgraph_with_a_word_from_vocab(item, node_to_remove, subgraph, subgraph_edges, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
-            pair<string, float> p(item, negative_probability_score);
-            
-            // if heap has that item already, then no need to insert it again, check if the current probability is less than the one in the heap, if yes, then update it
-            bool found = false;
-            for (auto &token: heap){
-                if (token.first == item){
-                    found = true;
-                    if (token.second > p.second){
-                        token.second = p.second;
-                    }
-                    break;
-                }
-            }
-            if (found){
-                make_heap(heap.begin(), heap.end(), cmp);
+
+            if (token_to_score.find(item) == token_to_score.end()){ // not found
+                token_to_score[item] = negative_probability_score;
             }
             else{
-                if (heap.size() < max_heap_size){
-                    heap.push_back(p);
-
-                    if (heap.size() == max_heap_size){
-                        make_heap(heap.begin(), heap.end(), cmp);
-                    }
-                }
-                
-                else{
-                    // this is okay as we are using negative probability, if the heap one is larger than the new one, 
-                    // then replace it as smaller negative probability means bigger real probability
-                    if (heap.front().second > p.second){ 
-                        pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
-                        heap.pop_back(); // actually remove that element from the container
-
-                        heap.push_back(p); // add the new element to the end of the container
-                        push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
-                    }
-                    
+                if (token_to_score[item] > negative_probability_score){
+                    token_to_score[item] = negative_probability_score;
                 }
             }
             
-
         }
     }
-   
+    
+    for (auto &item: token_to_score){
+        pair<string, float> p(item.first, item.second);
+        if (heap.size() < max_heap_size){
+            heap.push_back(p);
+            push_heap(heap.begin(), heap.end(), cmp);
+
+        }
+        
+        else{
+            // this is okay as we are using negative probability, if the heap one is larger than the new one, 
+            // then replace it as smaller negative probability means bigger real probability
+            if (heap.front().second > p.second){ 
+                pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
+                heap.pop_back(); // actually remove that element from the container
+
+                heap.push_back(p); // add the new element to the end of the container
+                push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
+            }
+            
+        }
+    }
 
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
