@@ -823,6 +823,87 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
 
 }
 
+
+int predict_edges_baseline(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
+    
+   
+    vector<pair<string, float> > heap;
+    int max_heap_size = 10;
+    auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
+        return left.second < right.second;
+    };
+
+    vector<string> subgraph_nodes;
+    for (auto item: subgraph){
+        subgraph_nodes.push_back(item);
+    }
+
+    // sort subgraph nodes based on object_dict
+    sort(subgraph_nodes.begin(), subgraph_nodes.end(), [&object_dict](const string& a, const string& b) {
+        return comparator(a, b, object_dict);
+    });
+    
+
+    vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
+
+    string true_adjacency_matrix = "";
+    for (auto item: adjacency_matrix){
+        true_adjacency_matrix += to_string(item);
+    }
+
+    // given three nodes, I need to find in the frequency three gram keys, if the key contains these three nodes
+
+    auto it_0 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[0]));
+    auto it_1 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[1]));
+    auto it_2 = unique_tokens_train_map.find(object_dict.at(subgraph_nodes[2]));
+
+    vector<pair<string, float> > heap_3_gram;
+    
+    
+    
+    // if I have found all the nodes in unique trains, only then check the frequency_3_grams
+    if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
+        
+        string key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
+        auto it_3_gram = frequency_3_grams_map.find(key);
+
+        if (it_3_gram != frequency_3_grams_map.end()){
+            heap_3_gram = it_3_gram->second;
+        }
+
+        
+    }
+    
+    
+    if (heap_3_gram.size() > 0){
+        heap = create_heap(heap_3_gram);
+    }
+    
+
+    make_heap(heap.begin(), heap.end(), cmp);
+    sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
+
+    // // print heap
+    // cout << "Heap: " << endl;
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
+
+    // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+
+    // find the index of the true token in the heap first items
+    int index = -1;
+    for (int i = 0; i < heap.size(); i++){
+        if (heap[i].first == true_adjacency_matrix){
+            index = i+1;
+            break;
+        }
+    }
+
+    return index;
+
+}
+
 vector<string> load_observed_three_grams(){
     ifstream myfile_observed_three_grams;
     myfile_observed_three_grams.open("vocabulary_frequencies/observed_3_grams_train.txt");

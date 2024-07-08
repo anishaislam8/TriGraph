@@ -21,6 +21,7 @@ unordered_set<string> get_node_to_add_list_for_a_subgraph(const vector<string>&,
 float score_of_a_subgraph_with_a_word_from_vocab(const string&, const string&, const vector<string>&, const vector<vector<string> >&, const map<string, string>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const int, const int, const int);
 int predict(const vector<vector <string> >&, const map<string, unordered_set<string> >&, const map<string, string>&, const map<string, int>&, const map<string, int>&, const map<string, int>&, const string&, const int, const int, const int, const map<string, int>&, const vector<string>&, Graph);
 int predict_edges(const vector<string>&, const map<string, string>&, const map<string, vector<pair<string, float> > >&, const map<string, vector<pair<string, float> > >&, const int, const int, const map<string, int>&, Graph);
+int predict_edges_baseline(const vector<string>&, const map<string, string>&, const map<string, vector<pair<string, float> > >&, const int, const map<string, int>&, Graph);
 vector<string> load_unique_tokens();
 map<string, int> load_frequency_1_gram();
 map<string, int> load_frequency_2_grams();
