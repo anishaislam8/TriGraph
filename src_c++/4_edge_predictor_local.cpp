@@ -37,7 +37,7 @@ int main(){
     // testing
 
     ifstream myfile_test;
-    myfile_test.open("../sample_jsons/sample2.json");
+    myfile_test.open("../sample_jsons/example.json");
     string content_test( (istreambuf_iterator<char>(myfile_test) ),
                        (istreambuf_iterator<char>()    ) );
    
@@ -102,6 +102,7 @@ int main(){
         // for each subgraph, I am going to calculae the mrr score
         int rank = -1;
         for (auto subgraph: three_node_subgraphs_test){
+            cout << object_dict_test[subgraph[0]] << " " << object_dict_test[subgraph[1]] << " " << object_dict_test[subgraph[2]] << endl;
             rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
             cout << "Rank for this subgraph adjacency matrix: " << rank << endl;
         }

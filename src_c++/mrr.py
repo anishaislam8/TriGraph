@@ -40,9 +40,10 @@
 
 # print the highest mrr, lowest mrr and average mrr, also, generate a histogram of mrr
 
+'''
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('node_mrr_completed_v1.txt', 'r') as f:
+with open('edge_mrr_completed.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))
@@ -53,7 +54,7 @@ import matplotlib.pyplot as plt
 plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
 plt.xlabel('MRR')
 plt.ylabel('Frequency of Test Graphs')
-plt.title('Histogram of Node Prediction MRR for Test Graphs')
+plt.title('Edge Prediction MRR for Test Graphs - Model 2')
 plt.show()
 
 
@@ -84,5 +85,52 @@ df = pd.DataFrame(mrr_values, columns=['MRR'])
 print(df.describe())
 
 
+'''
+
+model_1_mrr = []
+with open('edge_mrr_baseline.txt', 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        model_1_mrr.append(float(line.strip().split(" ")[1]))
 
 
+model_2_mrr = []
+with open('edge_mrr_completed.txt', 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        model_2_mrr.append(float(line.strip().split(" ")[1]))
+
+
+# import matplotlib.pyplot as plt
+
+print(len(model_1_mrr))
+print(len(model_2_mrr))
+
+# data = [model_1_mrr, model_2_mrr]
+
+# # Creating boxplot
+# plt.boxplot(data, labels=['Model 1', 'Model 2'])
+# plt.title('Edge Prediction MRR Distribution: Model 1 vs. Model 2')
+# plt.xlabel('Model')
+# plt.ylabel('MRR')
+# plt.show()
+
+
+import numpy as np
+from scipy.stats import wilcoxon
+
+# Scores before and after the new teaching method
+before = model_1_mrr
+after = model_2_mrr
+
+# Perform the Wilcoxon signed-rank test
+res = wilcoxon(before, after, alternative='greater')
+
+print('Statistics=%.10f, p=%.10f' % (res.statistic, res.pvalue))
+
+# Interpret the result
+alpha = 0.05
+if res.pvalue > alpha:
+    print('Same distribution (fail to reject H0)')
+else:
+    print('Different distribution (reject H0)')

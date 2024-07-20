@@ -500,10 +500,10 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
 
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    // cout << "Heap: \n";
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    cout << "Heap: \n";
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
     // find the index of the true token in the heap first items
     int index = -1;
     for (int i = 0; i < heap.size(); i++){
@@ -681,13 +681,17 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         return comparator(a, b, object_dict);
     });
     
+    cout << "sorted subgraph nodes: \n" << object_dict.at(subgraph_nodes[0]) << " " << object_dict.at(subgraph_nodes[1]) << " " << object_dict.at(subgraph_nodes[2]) << endl;
 
     vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
+    
 
     string true_adjacency_matrix = "";
     for (auto item: adjacency_matrix){
         true_adjacency_matrix += to_string(item);
     }
+
+    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // given three nodes, I need to find in the frequency three gram keys, if the key contains these three nodes
 
@@ -803,10 +807,10 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
 
     // // print heap
-    // cout << "Heap: " << endl;
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    cout << "Heap: " << endl;
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
 
     // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
