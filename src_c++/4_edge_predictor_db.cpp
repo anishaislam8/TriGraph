@@ -6,7 +6,6 @@ int main(){
     map<string, int> frequency_2_grams = load_frequency_2_grams();
     map<string, int> frequency_3_grams = load_frequency_3_grams();
     vector<string> unique_tokens_train = load_unique_tokens();
-    set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
 
     // sum of all values of frequency_1_gram
     int sum_frequency_1_gram = 0;

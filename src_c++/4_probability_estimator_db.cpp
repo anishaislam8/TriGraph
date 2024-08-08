@@ -129,8 +129,9 @@ int main(){
             Graph G_undirected_test(nodes_test, undirected_edges_test);
 
             
-
+               
             vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
+
             
             // for each subgraph, I am going to calculate the rank
 
@@ -138,6 +139,7 @@ int main(){
                 // This node is in the graph (source or destination)
                 // and there is going to be a three node subgraph that contains this node 
                 
+                // if this is empty then, all the ranks will be -1 for this node
                 vector<vector<string> > three_node_subgraphs_containing_this_node;
                 for (auto subgraph: three_node_subgraphs_test){
                     if (find(subgraph.begin(), subgraph.end(), node) != subgraph.end()){

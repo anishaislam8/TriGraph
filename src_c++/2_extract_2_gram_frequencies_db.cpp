@@ -13,7 +13,7 @@ int main(){
     }
 
     map<string, int> frequency_2_grams_train;
-    vector<string> unique_tokens_train = load_unique_tokens();
+    vector<string> unique_tokens_train = load_unique_tokens(); // read from file and sorted
 
 
     while(!myfile.eof()){

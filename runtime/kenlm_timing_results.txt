@@ -1,0 +1,100 @@
+Run 1:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m22.929s
+user	43m16.123s
+sys	0m5.582s
+
+Run 2:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m48.439s
+user	43m41.185s
+sys	0m5.973s
+
+Run 3:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m8.635s
+user	43m2.261s
+sys	0m5.194s
+
+Run 4:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	44m41.522s
+user	44m35.038s
+sys	0m5.270s
+
+Run 5:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m55.216s
+user	43m48.446s
+sys	0m5.365s
+
+Run 6:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	44m7.836s
+user	44m1.229s
+sys	0m5.349s
+
+Run 7:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m39.951s
+user	43m32.973s
+sys	0m5.782s
+
+Run 8:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m24.809s
+user	43m18.645s
+sys	0m4.982s
+
+Run 9:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m6.460s
+user	42m59.932s
+sys	0m5.342s
+
+Run 10:
+Loading the LM will be faster if you build a binary file.
+Reading /home/aislam4/aislam4/models/Kenlm-for-next-token-prediction/trained_models/kenlm_3_paths_all_not_padded.arpa
+----5---10---15---20---25---30---35---40---45---50---55---60---65---70---75---80---85---90---95--100
+****************************************************************************************************
+
+real	43m49.246s
+user	43m42.246s
+sys	0m5.693s
+

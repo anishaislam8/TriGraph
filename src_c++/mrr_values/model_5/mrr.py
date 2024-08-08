@@ -40,10 +40,10 @@
 
 # print the highest mrr, lowest mrr and average mrr, also, generate a histogram of mrr
 
-'''
+
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('edge_mrr_completed.txt', 'r') as f:
+with open('edge_mrr_baseline.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))
@@ -54,7 +54,7 @@ import matplotlib.pyplot as plt
 plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
 plt.xlabel('MRR')
 plt.ylabel('Frequency of Test Graphs')
-plt.title('Edge Prediction MRR for Test Graphs - Model 2')
+plt.title('Edge Prediction MRR for Test Graphs - Model 1 (Version 5)')
 plt.show()
 
 
@@ -116,21 +116,23 @@ print(len(model_2_mrr))
 # plt.show()
 
 
-import numpy as np
-from scipy.stats import wilcoxon
+# import numpy as np
+# from scipy.stats import wilcoxon
 
-# Scores before and after the new teaching method
-before = model_1_mrr
-after = model_2_mrr
+# # Scores before and after the new teaching method
+# before = model_1_mrr
+# after = model_2_mrr
 
-# Perform the Wilcoxon signed-rank test
-res = wilcoxon(before, after, alternative='greater')
+# # Perform the Wilcoxon signed-rank test
+# res = wilcoxon(before, after, alternative='greater')
 
-print('Statistics=%.10f, p=%.10f' % (res.statistic, res.pvalue))
+# print('Statistics=%.10f, p=%.10f' % (res.statistic, res.pvalue))
 
-# Interpret the result
-alpha = 0.05
-if res.pvalue > alpha:
-    print('Same distribution (fail to reject H0)')
-else:
-    print('Different distribution (reject H0)')
+# # Interpret the result
+# alpha = 0.05
+# if res.pvalue > alpha:
+#     print('Same distribution (fail to reject H0)')
+# else:
+#     print('Different distribution (reject H0)')
+
+'''

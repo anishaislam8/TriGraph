@@ -387,7 +387,7 @@ unordered_set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &
     auto it_1 = unique_tokens_train_map.find(two_nodes[1]);
 
     if (it_0 == unique_tokens_train_map.end() || it_1 == unique_tokens_train_map.end()){
-        return {};
+        return {}; // if any of the two nodes are unknown, then we have not seen them in our 2 or 3 grams, so no node to add list
     }
 
     // find the third node in three_node_subgraphs_sorted_by_object_dict which has these two nodes
@@ -500,10 +500,10 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
 
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    cout << "Heap: \n";
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
-    }
+    //cout << "Heap: \n";
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
     // find the index of the true token in the heap first items
     int index = -1;
     for (int i = 0; i < heap.size(); i++){
@@ -681,8 +681,10 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         return comparator(a, b, object_dict);
     });
     
-    cout << "sorted subgraph nodes: \n" << object_dict.at(subgraph_nodes[0]) << " " << object_dict.at(subgraph_nodes[1]) << " " << object_dict.at(subgraph_nodes[2]) << endl;
+    //cout << "sorted subgraph nodes: \n" << object_dict.at(subgraph_nodes[0]) << " " << object_dict.at(subgraph_nodes[1]) << " " << object_dict.at(subgraph_nodes[2]) << endl;
 
+    // I am assuming between node0 and node1 there is one directed edge from node0 to node1
+    // as in adjacency matrix, the entry between node0 and node1 will be just 1, in reality, there could be multiple
     vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
     
 
@@ -691,7 +693,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         true_adjacency_matrix += to_string(item);
     }
 
-    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+    //cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // given three nodes, I need to find in the frequency three gram keys, if the key contains these three nodes
 
@@ -807,11 +809,12 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
 
     // // print heap
+    /*
     cout << "Heap: " << endl;
     for (auto token: heap){
         cout << token.first << " " << token.second << endl;
     }
-
+    */
     // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // find the index of the true token in the heap first items
