@@ -33,10 +33,10 @@ int main(){
     
 
     ifstream myfile_test;
-    myfile_test.open("/media/baguette/aislam4/paths/train_test_split/parallel/test_hashes_1.txt");
+    myfile_test.open("test.txt");
     
     sqlite3* db;
-    const char* dbPath = "/media/crouton/aislam4/database.db";
+    const char* dbPath = "../../../dataset/database.db";
     // Open the database
     int rc = sqlite3_open(dbPath, &db);
     if (rc != SQLITE_OK) {
@@ -47,8 +47,8 @@ int main(){
     int processing = 0;
     int rank;
 
-    ofstream exception_file;
-    exception_file.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
+    // ofstream exception_file;
+    // exception_file.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
 
     while(!myfile_test.eof()){
         string line;
@@ -64,8 +64,8 @@ int main(){
             continue;
         }
 
-        cout << "Processing: " << processing << endl;
-        processing += 1;
+        // cout << "Processing: " << processing << endl;
+        // processing += 1;
 
         json data_test = json::parse(content);
 
@@ -77,8 +77,8 @@ int main(){
 
         
         // write to a file line.txt
-        ofstream myfile_output;
-        myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/node_rank/" + line + ".txt", ios::app);
+        // ofstream myfile_output;
+        // myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/node_rank/" + line + ".txt", ios::app);
 
 
         try{
@@ -111,7 +111,7 @@ int main(){
             // if I have no sources or destinations, then I have no connections
 
             if (sources_test.size() == 0 || destinations_test.size() == 0){
-                exception_file << line << ": 0 connections" << endl;
+                //exception_file << line << ": 0 connections" << endl;
                 continue;
             }
 
@@ -148,7 +148,8 @@ int main(){
                 }
 
                 rank = predict(three_node_subgraphs_containing_this_node, two_grams_to_connections, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, unique_tokens_train, G_directed_test);
-                myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
+                cout << "Rank for this node: "  << node << " " << rank << endl; 
+                //myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
             }
 
             
@@ -156,14 +157,14 @@ int main(){
 
         }
         catch(const exception& e){
-            exception_file << line << ": Exception: " << e.what() << endl;
+            //exception_file << line << ": Exception: " << e.what() << endl;
         }
 
-        myfile_output.close();
+       // myfile_output.close();
     }
 
     myfile_test.close();
-    exception_file.close();
+    //exception_file.close();
     sqlite3_close(db);
     
     return 0;

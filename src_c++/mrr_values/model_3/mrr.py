@@ -43,7 +43,7 @@
 
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('kenlm_mrr_model4.txt', 'r') as f:
+with open('kenlm_mrr_model3.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))
@@ -54,7 +54,7 @@ with open('kenlm_mrr_model4.txt', 'r') as f:
 # plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
 # plt.xlabel('MRR')
 # plt.ylabel('Frequency of Test Graphs')
-# plt.title('Edge Prediction MRR for Test Graphs - Model 1 (Version 4)')
+# plt.title('Node Prediction MRR for Test Graphs Using Graph Model (Version 3)')
 # plt.show()
 
 

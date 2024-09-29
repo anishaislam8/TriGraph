@@ -352,6 +352,8 @@ float score_of_a_subgraph_with_a_word_from_vocab(const string &node_to_add, cons
         }
     }
 
+    
+
     Graph G_test_new(subgraph_nodes_test, subgraph_edges_test);
 
     // code modified from https://www.geeksforgeeks.org/how-to-sort-vector-using-custom-comparator-in-cpp/
@@ -423,6 +425,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
     float score;
 
     string true_token = object_dict.at(node_to_remove);
+    
     vector<vector<string> > edges_of_original_graph = G_directed_test.get_edges();
     unordered_map<string, float> token_to_score;
 
@@ -430,14 +433,24 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
     for (auto subgraph: three_node_subgraphs_containing_this_node){
 
         vector<vector<string> > subgraph_edges;
-        
+        cout << "Subgraph: ";
+
+        for (auto item: subgraph){
+            cout << item << " ";
+        }
+        cout << endl;
         // this is okay, if edge is (0,0) and nodes set is (0,1,2) -> add this edge
+        // double edges are captured here
         for (const auto& edge : edges_of_original_graph) {
             if (count(subgraph.begin(), subgraph.end(), edge[0]) > 0 && count(subgraph.begin(), subgraph.end(), edge[1]) > 0) {
                 subgraph_edges.push_back(edge);
             }
-        }
+        } // works
 
+        cout << "Subgraph edges: \n";
+        for (auto edge: subgraph_edges){
+            cout << edge[0] << " " << edge[1] << endl;
+        }
         // create a list of vocabulary to iterate through for this subgraph
         unordered_set<string> node_to_add_list_int = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, two_grams_to_connections, object_dict, unique_tokens_train_map);
 
@@ -454,6 +467,8 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
         }
         // iterate through the vocabulary to find the token that generates the highest score
 
+        //cout << "node to add list: "  << node_to_add_list.size() << endl;
+        
         
         for (auto item: node_to_add_list){
 
@@ -461,14 +476,15 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
                 continue;
             }
             
-            score = score_of_a_subgraph_with_a_word_from_vocab(item, node_to_remove, subgraph, subgraph_edges, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
+            score = score_of_a_subgraph_with_a_word_from_vocab(item, node_to_remove, subgraph, subgraph_edges, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams); // works
             float negative_probability_score = -1 * log( score ); // biggest is smallest, following Liveguess MITLM
-
+            // cout << "Score: " << score << " Negative probability score: " << negative_probability_score << endl;
             if (token_to_score.find(item) == token_to_score.end()){ // not found
                 token_to_score[item] = negative_probability_score;
             }
             else{
                 if (token_to_score[item] > negative_probability_score){
+                    //cout << "Replacing " << token_to_score[item] << " with " << negative_probability_score << " since negative probability is smaller" << endl;
                     token_to_score[item] = negative_probability_score;
                 }
             }
@@ -488,22 +504,38 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
             // this is okay as we are using negative probability, if the heap one is larger than the new one, 
             // then replace it as smaller negative probability means bigger real probability
             if (heap.front().second > p.second){ 
+                //cout << "I am replacing " << heap.front().first << " " << heap.front().second << " with " << p.first << " " << p.second <<" since p has smaller negative probability (thus higher positive probability)" <<endl;
                 pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
                 heap.pop_back(); // actually remove that element from the container
 
                 heap.push_back(p); // add the new element to the end of the container
                 push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
+
+                // cout << "Heap after insertion in the replacement scenario: \n";
+                // for (auto token: heap){
+                //     cout << token.first << " " << token.second << endl;
+                // }
+                // cout  << endl;
             }
             
         }
+        
     }
 
     make_heap(heap.begin(), heap.end(), cmp);
-    sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    //cout << "Heap: \n";
+    // cout << "Heap after done min or max: \n";
     // for (auto token: heap){
     //     cout << token.first << " " << token.second << endl;
     // }
+    // cout << endl;
+    
+    sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
+    // cout << "Heap after sorting: \n";
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
+
+    // cout << "True token: " << true_token << endl;
     // find the index of the true token in the heap first items
     int index = -1;
     for (int i = 0; i < heap.size(); i++){
@@ -555,6 +587,7 @@ vector<pair<string, float> > create_heap(const vector<pair<string, float> >& hea
                 // this is okay as we are using negative probability, if the heap one is larger than the new one, 
                 // then replace it as smaller negative probability means bigger real probability
                 if (heap.front().second > p.second){ 
+                    //cout << "I am replacing " << heap.front().first << " " << heap.front().second << " with " << p.first << " " << p.second <<" since p has smaller negative probability (thus higher positive probability)" <<endl;
                     pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
                     heap.pop_back(); // actually remove that element from the container
 
@@ -708,6 +741,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
         string key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
+        cout << "Key: " << key << endl;
         auto it_3_gram = frequency_3_grams_map.find(key);
 
         if (it_3_gram != frequency_3_grams_map.end()){
@@ -717,6 +751,11 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         
     }
     
+    // cout << "heap_3_gram: " << endl;
+
+    // for (auto token: heap_3_gram){
+    //     cout << token.first << " " << token.second << endl;
+    // }
     
     
     // if heap_3_gram is empty then I couldn't find any three gram in our frequency_3_grams that matches our nodes
@@ -725,7 +764,8 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     //in the case where I have unknown tokens, I wouldn't have gone inside the if above and heap_3_gram would be empty
     
     // in either cases, when heap_3_grams is empty, move to 2 grams, if not, then insert in heap
-    
+
+    // heap_3_gram.clear();
     
     if (heap_3_gram.size() > 0){
         heap = create_heap(heap_3_gram);
@@ -784,6 +824,22 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         node_1_node_2.push_back({"0000", 1});
         node_0_node_2.push_back({"0000", 1});
         
+        // cout << "node_0_node_1: " << endl;
+        // for (auto token: node_0_node_1){
+        //     cout << token.first << " " << token.second << endl;
+        // }
+
+        // cout << "node_1_node_2: " << endl;
+        // for (auto token: node_1_node_2){
+        //     cout << token.first << " " << token.second << endl;
+        // }
+
+        // cout << "node_0_node_2: " << endl;
+        // for (auto token: node_0_node_2){
+        //     cout << token.first << " " << token.second << endl;
+        // }
+
+
 
         vector<pair<string, float> > heap_2_gram;
 
@@ -806,8 +862,16 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     }
 
     make_heap(heap.begin(), heap.end(), cmp);
+    // cout << "min or max: \n";
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-
+    cout << "sorted: \n";
+    
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
     // // print heap
     /*
     cout << "Heap: " << endl;
@@ -815,7 +879,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         cout << token.first << " " << token.second << endl;
     }
     */
-    // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // find the index of the true token in the heap first items
     int index = -1;
@@ -1030,33 +1094,6 @@ map<string, int> load_frequency_3_grams(){
 }
 
 
-set<vector<string> > get_three_node_subgraphs_sorted_by_object_dict(){
-
-    ifstream myfile_3_grams_train;
-    myfile_3_grams_train.open("vocabulary_frequencies/3_grams_train_filtered_final.txt");
-    set<vector<string> > three_node_subgraphs_sorted_by_object_dict;
-    string token_0;
-    string token_1;
-    string token_2;
-
-    string line;
-    
-    while (getline(myfile_3_grams_train, line)) { 
-        // split line into token and frequency
-        stringstream iss(line);
-        iss >> token_0 >> token_1 >> token_2;
-        if (token_0 == "" || token_1 == "" || token_2 == ""){
-            continue;
-        }
-        three_node_subgraphs_sorted_by_object_dict.insert({token_0, token_1, token_2});
-    }
-    
-
-    myfile_3_grams_train.close();
-    return three_node_subgraphs_sorted_by_object_dict;
-} 
-
-
 set<string> get_unique_tokens(const vector<string> &nodes, const map<string, string> &object_dict){
     set<string> unique_tokens;
     for (string node: nodes){
@@ -1233,43 +1270,4 @@ string get_content_from_db(string line, sqlite3* db){
     }
 
     return content;
-}
-
-
-
-vector<string> find_the_set_difference(const vector<string> &subgraph, const vector<string> &two_nodes){
-
-    unordered_map<string, int> count_map;
-    
-    // Count occurrences in subgraph
-    for (const auto &item : subgraph) {
-        count_map[item]++;
-    }
-
-    // Subtract counts for two_nodes
-    for (const auto &item : two_nodes) {
-        count_map[item]--;
-    }
-
-    vector<string> result;
-    for (const auto &pair : count_map) {
-        if (pair.second > 0) {
-            result.push_back(pair.first);
-        }
-    }
-    if (result.size() > 1) {
-        cout << "Result size: " << result.size() << endl;
-        cout << "Set 1: " << endl;
-        for (const auto &item : subgraph) {
-            cout << item << " ";
-        }
-        cout << endl;
-        cout << "Set 2: " << endl;
-        for (const auto &item : two_nodes) {
-            cout << item << " ";
-        }
-        cout << endl;
-    }
-
-    return result;
 }

@@ -91,20 +91,50 @@ int main(){
         Graph G_directed_test(nodes_test, edges_test);
         Graph G_undirected_test(nodes_test, undirected_edges_test);
 
+        cout << "Edges of the directed graph: \n";
+        for (auto edge: edges_test){
+            for (auto node: edge){
+                cout << node << " ";
+            }
+            cout << endl;
+        }
+
         // update object_dict with more keys, for each key in unique_tokens_train, add it to object_dict
         for (auto token: unique_tokens_train){
             object_dict_test[token] = token;
         }
 
         vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
+
+        // cout << "Three node subgraphs: \n";
+        // for(auto subgraph: three_node_subgraphs_test){
+        //     for(auto node: subgraph){
+        //         cout << node << " ";
+        //     }
+        //     cout << endl;
+        // } // works
         
         
         // for each subgraph, I am going to calculae the mrr score
         int rank = -1;
         for (auto subgraph: three_node_subgraphs_test){
-            cout << object_dict_test[subgraph[0]] << " " << object_dict_test[subgraph[1]] << " " << object_dict_test[subgraph[2]] << endl;
+            // cout << "Subgraph: \n";
+            // for (auto node: subgraph){
+            //     cout << node << " ";
+            // }
+            // cout << endl;
+
+            // vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph[0], subgraph[1], subgraph[2], G_directed_test);
+            // cout << "Adjacency matrix: \n";
+            // for (auto entry: adjacency_matrix){
+            //     cout << entry << " ";
+            // }
+            // cout << endl;
+            // True adjacency matrix is fine
+            //cout << object_dict_test[subgraph[0]] << " " << object_dict_test[subgraph[1]] << " " << object_dict_test[subgraph[2]] << endl;
             rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
             cout << "Rank for this subgraph adjacency matrix: " << rank << endl;
+            
         }
         
 
