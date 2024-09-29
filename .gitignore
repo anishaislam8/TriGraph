@@ -1,10 +1,7 @@
 __pycache__
 .idea
 .vscode
-src/__pycache__
-src/test_local.py
-src/probability_estimator.py
-src/merge_2_and_3_grams.py
+src/
 path_data
 sample_output
 src_c++/*.exe
