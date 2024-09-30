@@ -1137,6 +1137,7 @@ map<string, int> get_frequency_2_grams(const vector<vector<string> > &connection
 
     set<vector<string> > connections_set;
 
+    // If there is a double edge between two nodes, it will be filtered here
     for (auto connection: connections){
         sort(connection.begin(), connection.end(), [&object_dict](const string& a, const string& b) {
             return comparator(a, b, object_dict);

@@ -1,67 +1,6 @@
-
-# include <iostream>
-# include <vector>
-# include <string>
-# include <cassert>
-# include <algorithm>
-# include <map>
-# include <set>
-# include <utility>
-# include <cmath>
+#include "utils.h"
 using namespace std;
 
-vector<pair<string, float> > create_heap(const vector<pair<string, float> >& heap_to_insert){
-    
-    // maintains a max heap
-    auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
-        return left.second < right.second;
-    };
-
-    vector<pair<string, float> > heap;
-    make_heap(heap.begin(), heap.end(), cmp); 
-    int max_heap_size = 10;
-    
-    for (auto p: heap_to_insert){
-        bool found = false;
-        for (auto &token: heap){
-            if (token.first == p.first){
-                found = true;
-                if (token.second > p.second){
-                    token.second = p.second;
-                }
-                break;
-            }
-        }
-        if (found){
-            make_heap(heap.begin(), heap.end(), cmp);
-        }
-        else{
-            if (heap.size() < max_heap_size){
-                heap.push_back(p);
-
-                if (heap.size() == max_heap_size){
-                    make_heap(heap.begin(), heap.end(), cmp);
-                }
-            }
-            
-            else{
-                // this is okay as we are using negative probability, if the heap one is larger than the new one, 
-                // then replace it as smaller negative probability means bigger real probability
-                if (heap.front().second > p.second){ 
-                    pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
-                    heap.pop_back(); // actually remove that element from the container
-
-                    heap.push_back(p); // add the new element to the end of the container
-                    push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
-                }
-                
-            }
-        }
-        
-    }
-
-    return heap;
-}
 
 int main(){
 

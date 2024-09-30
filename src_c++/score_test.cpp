@@ -60,7 +60,7 @@ int main(){
 
     float score_1 = get_score(subgraph, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
 
-    cout << "Score for msg, r, tgl (3 gram exists in corpus): " << score_1 << endl;
+    cout << "Score_1: Score for msg, r, tgl (3 gram exists in corpus): " << score_1 << endl;
 
     // case 2
 
@@ -71,7 +71,7 @@ int main(){
 
     float score_2 = get_score(subgraph, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
 
-    cout << "Score for floatatom, msg, tgl (3 gram does not exist in corpus): " << score_2 << endl;
+    cout << "Score_2: Score for floatatom, msg, tgl (3 gram does not exist in corpus): " << score_2 << endl;
 
     // case 3
 
@@ -82,7 +82,7 @@ int main(){
 
     float score_3 = get_score(subgraph, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
 
-    cout << "Score for floatatom, unknown, tgl: " << score_3 << endl;
+    cout << "Score_3: Score for floatatom, unknown, tgl (1 unknown token): " << score_3 << endl;
 
 
 
@@ -94,7 +94,7 @@ int main(){
  
     float score_4 = get_score(subgraph, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
 
-    cout << "Score for unknown, unknown, tgl: " << score_4 << endl;
+    cout << "Score_4: Score for unknown, unknown, tgl (2 unknown tokens): " << score_4 << endl;
 
 
     // case 5
@@ -105,11 +105,11 @@ int main(){
 
     float score_5 = get_score(subgraph, object_dict, unique_tokens_train_map, frequency_1_gram, frequency_2_grams, frequency_3_grams, G, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams);
 
-    cout << "Score for unknown, unknown, unknown: " << score_5 << endl;
+    cout << "Score_5: Score for unknown, unknown, unknown (all unknown tokens): " << score_5 << endl;
 
     assert(score_1 > score_2 > score_3 > score_4 > score_5);
 
-    cout << "All tests passed" << endl;
+    cout << "All tests passed for score_1 > score_2 > score_3 > score_4 > score_5 " << endl;
 
 
     return 0;
