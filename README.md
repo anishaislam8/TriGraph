@@ -14,6 +14,8 @@ The methodology is as follows:
 
 ## How to run our code for predicting the nodes and edges of a PD graph
 
+The sample corpus for the following stages are provided in the *src_c++/vocabulary_frequencies* directory. You can replace it with your own corpus.
+
 ### Step 1: Parsing the PD file contents (Skip this step if you have the parsed content of a PD file or if you are using the PD database of parsed source files)
 
 1. To parse a PD file into an Abstract Syntax Tree, at first move to the directory *parsing_the_PD_file_contents*
