@@ -1,5 +1,5 @@
 # Probability Estimator for Visual Code
-We implement a probability estimator for Pure Data(PD) subgraphs in this project. Our goal is to output a probability value of a subgraph given a corpus of subgraphs extracted from the initial input parsed PD program. 
+We implement a code prediction model for Pure Data(PD) subgraphs in this project. Our goal is to predict the nodes and edges of a PD graph by utilizing the graph nature of the PD programs.
 
 ## Methodology
 The methodology is as follows:
@@ -8,30 +8,61 @@ The methodology is as follows:
 3. For each unique connection, we create adjacency matrices, calculate the frequencies of the unique connections, and save it in a dictionary called `frequency_2_grams`.
 4. Then, we find the three-node subgraphs from the input graph, create adjacency matrices, calculate the frequencies of the 3-node subgraphs, and store them in a dictionary called `frequency_3_grams`.
 5. Finally, we answer the following questions.
-    -  Given a collection of subgraphs along with their respective probabilities, what is the likelihood of a particular subgraph?
-    -  In the scenario of a subgraph featuring an empty node, what is the most probable node to occupy the *BLANK* position?
+    -  In the scenario of a PD graph featuring an empty node, how effectively can our model predict which node will fill the empty position?
+    - Given three nodes in a PD graph that could potentially be interconnected, how effectively can our model identify the most probable edges connecting these 3-node combinations?
 
 
-## Score functionality
+## How to run our code for predicting the nodes and edges of a PD graph
 
-This function calculates the score of a given subgraph considering the frequency of the 1-gram, 2-gram, and 3-gram. At first we create an adjacency matrix for the three nodes.
-After that, we are calculating the sha256 hash of the adjacency matrix and the word vector for these three nodes.
-This is the key that we are going to use to find the frequency of the 3-gram in the frequency_3_grams dictionary.
+### Step 1: Parsing the PD file contents (Skip this step if you have the parsed content of a PD file or if you are using the PD database of parsed source files)
 
-The algorithm is as follows:
-1. If the key is present in our corpus, the score is assigned as the probability of the 3-node subgraph. This probability is calculated as the frequency of the 3-node
-subgraph divided by the sum of the frequencies of all 3-node subgraphs.
-2. In cases where the key is absent from our corpus, we generate keys for the 2-node subgraphs using the same procedure. For each 2-node subgraph in our input graph, if its key exists in the corpus, we multiply the final
-probability score by the probability of the 2-node subgraph. The probability of a 2-node subgraph is calculated as the frequency of the current 2-node subgraph divided by the sum of the frequencies of all 2-node subgraphs in our corpus.
-3. If the 2-node subgraphs are not present in our corpus, we adjust the score by the probability of the nodes within the subgraph. The probability of a 1-node subgraph is determined by the frequency of that node divided by the
-sum of the frequencies of all unique nodes. Additionally, if the node is not present in our corpus, the score is multiplied by a very small value, such as 0.5 × (1/sum of the frequencies of all unique nodes).
-4. For each missed 3-node and 2-node subgraph, the score is multiplied by a small discount factor to indicate that these subgraphs are unseen in our corpus, thus their probabilities should be lower compared to those observed in our corpus. We have used a discount factor of 0.05.
-5. The final score is returned as the probability of the given subgraph.
+1. To parse a PD file into an Abstract Syntax Tree, at first move to the directory *parsing_the_PD_file_contents*
+
+`cd parsing_the_PD_file_contents`
+
+2. Then, provide the location of your PD file as an argument of the parse.py file and run it using Python
+
+`python parse.py <location_of_PD_file>`
+
+3. The parsed output will be saved in the *example_PD_file_and_parsed_output* directory as a file named *example.json*
 
 
-## Predict functionality
-To predict the next token, we follow the same methodology mentioned above. However, we find the next token by iterating through our entire vocabulary and finding the token that maximizes the score of the subgraph.
+### Step 2: Predict the nodes and edges of a PD graph
+
+1. To predict the nodes and edges of the PD graph, at first move to the *src_c++* directory.
+
+`cd src_c++`
+
+2. At first parse the file using the procedure mentioned in Step 1 (or skip that step if you already have a parsed file). 
+
+3. To predict the nodes:
+    - Update line 41 of the *node_predictor_local.cpp* file to provide the parsed file path.  
+
+    - Then run the file using the following commands:
+
+        - `g++ -O3 -fconcepts -o node.exe node_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
+        - `./node.exe`
+
+    - Our node predictor model will replace the nodes in your PD file with a *BLANK*. For each node, based on its context, the model will predict the most likely node to fill that position. The output will include the rank of the actual node within the prediction heap and the contents of the heap after the prediction phase. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely node to fill the *BLANK* position.
+
+    - A sample output:
+    ![Sample Output](./src_c++/figures/sample_output.JPG)
+    Fig: Sample Output of Our Node Prediction Model
+
+4. To predict the edges:
+    - Update line 39 of the *edge_predictor_local.cpp* file to provide the parsed file path.  
+
+    - Then run the file using the following commands:
+
+        - `g++ -O3 -fconcepts -o edge.exe edge_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
+        - `./edge.exe`
+
+    - Our edge predictor model will take every three node subgraph of your PD graph, and predict the most probable edges between these three nodes. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely adjacency matrix representing the connections between the three nodes where the order of the nodes is shown in the output.
+
+    - A sample output:
+    ![Sample Output](./src_c++/figures/sample_output_edges.JPG)
+    Fig: Sample Output of Our Node Prediction Model
 
 
-## Limitations:
-1. The current code only works on three-node subgraphs.
+
+

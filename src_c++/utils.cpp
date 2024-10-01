@@ -433,12 +433,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
     for (auto subgraph: three_node_subgraphs_containing_this_node){
 
         vector<vector<string> > subgraph_edges;
-        cout << "Subgraph: ";
 
-        for (auto item: subgraph){
-            cout << item << " ";
-        }
-        cout << endl;
         // this is okay, if edge is (0,0) and nodes set is (0,1,2) -> add this edge
         // double edges are captured here
         for (const auto& edge : edges_of_original_graph) {
@@ -447,10 +442,6 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
             }
         } // works
 
-        cout << "Subgraph edges: \n";
-        for (auto edge: subgraph_edges){
-            cout << edge[0] << " " << edge[1] << endl;
-        }
         // create a list of vocabulary to iterate through for this subgraph
         unordered_set<string> node_to_add_list_int = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, two_grams_to_connections, object_dict, unique_tokens_train_map);
 
@@ -504,6 +495,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
             // this is okay as we are using negative probability, if the heap one is larger than the new one, 
             // then replace it as smaller negative probability means bigger real probability
             if (heap.front().second > p.second){ 
+                //cout << "Heap after insertion in the replacement scenario: replacing " << heap.front().first << ":" << heap.front().second << " with " << p.first << " : " << p.second << endl ;
                 //cout << "I am replacing " << heap.front().first << " " << heap.front().second << " with " << p.first << " " << p.second <<" since p has smaller negative probability (thus higher positive probability)" <<endl;
                 pop_heap(heap.begin(), heap.end(), cmp); //  to move the top element of the heap to the end of the container
                 heap.pop_back(); // actually remove that element from the container
@@ -511,11 +503,6 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
                 heap.push_back(p); // add the new element to the end of the container
                 push_heap(heap.begin(), heap.end(), cmp); // rearranges elements to make sure heap property is maintained
 
-                // cout << "Heap after insertion in the replacement scenario: \n";
-                // for (auto token: heap){
-                //     cout << token.first << " " << token.second << endl;
-                // }
-                // cout  << endl;
             }
             
         }
@@ -523,17 +510,11 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
     }
 
     make_heap(heap.begin(), heap.end(), cmp);
-    // cout << "Heap after done min or max: \n";
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
-    // cout << endl;
-    
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    // cout << "Heap after sorting: \n";
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    cout << "Heap after sorting: \n";
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
 
     // cout << "True token: " << true_token << endl;
     // find the index of the true token in the heap first items
@@ -714,7 +695,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
         return comparator(a, b, object_dict);
     });
     
-    //cout << "sorted subgraph nodes: \n" << object_dict.at(subgraph_nodes[0]) << " " << object_dict.at(subgraph_nodes[1]) << " " << object_dict.at(subgraph_nodes[2]) << endl;
+    cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
 
     // I am assuming between node0 and node1 there is one directed edge from node0 to node1
     // as in adjacency matrix, the entry between node0 and node1 will be just 1, in reality, there could be multiple
@@ -741,7 +722,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     if(it_0 != unique_tokens_train_map.end() && it_1 != unique_tokens_train_map.end() && it_2 != unique_tokens_train_map.end()){
         
         string key = to_string(it_0->second) + "," + to_string(it_1->second) + "," + to_string(it_2->second);
-        cout << "Key: " << key << endl;
+        //cout << "Key: " << key << endl;
         auto it_3_gram = frequency_3_grams_map.find(key);
 
         if (it_3_gram != frequency_3_grams_map.end()){
@@ -867,18 +848,18 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     //     cout << token.first << " " << token.second << endl;
     // }
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    cout << "sorted: \n";
+    //cout << "sorted: \n";
     
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
-    }
+    // for (auto token: heap){
+    //     cout << token.first << " " << token.second << endl;
+    // }
     // // print heap
-    /*
+    
     cout << "Heap: " << endl;
     for (auto token: heap){
         cout << token.first << " " << token.second << endl;
     }
-    */
+    
     cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // find the index of the true token in the heap first items
@@ -914,7 +895,7 @@ int predict_edges_baseline(const vector<string>& subgraph, const map<string, str
         return comparator(a, b, object_dict);
     });
     
-
+    cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
     vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
 
     string true_adjacency_matrix = "";
@@ -955,12 +936,12 @@ int predict_edges_baseline(const vector<string>& subgraph, const map<string, str
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
 
     // // print heap
-    // cout << "Heap: " << endl;
-    // for (auto token: heap){
-    //     cout << token.first << " " << token.second << endl;
-    // }
+    cout << "Heap: " << endl;
+    for (auto token: heap){
+        cout << token.first << " " << token.second << endl;
+    }
 
-    // cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // find the index of the true token in the heap first items
     int index = -1;

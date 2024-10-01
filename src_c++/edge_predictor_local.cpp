@@ -6,7 +6,6 @@ int main(){
     map<string, int> frequency_2_grams = load_frequency_2_grams();
     map<string, int> frequency_3_grams = load_frequency_3_grams();
     vector<string> unique_tokens_train = load_unique_tokens();
-    set<vector<string> > three_node_subgraphs_sorted_by_object_dict = get_three_node_subgraphs_sorted_by_object_dict();
 
     // sum of all values of frequency_1_gram
     int sum_frequency_1_gram = 0;
@@ -37,7 +36,7 @@ int main(){
     // testing
 
     ifstream myfile_test;
-    myfile_test.open("../sample_jsons/example.json");
+    myfile_test.open("../sample_jsons/example_basic.json");
     string content_test( (istreambuf_iterator<char>(myfile_test) ),
                        (istreambuf_iterator<char>()    ) );
    
@@ -91,14 +90,6 @@ int main(){
         Graph G_directed_test(nodes_test, edges_test);
         Graph G_undirected_test(nodes_test, undirected_edges_test);
 
-        cout << "Edges of the directed graph: \n";
-        for (auto edge: edges_test){
-            for (auto node: edge){
-                cout << node << " ";
-            }
-            cout << endl;
-        }
-
         // update object_dict with more keys, for each key in unique_tokens_train, add it to object_dict
         for (auto token: unique_tokens_train){
             object_dict_test[token] = token;
@@ -118,22 +109,12 @@ int main(){
         // for each subgraph, I am going to calculae the mrr score
         int rank = -1;
         for (auto subgraph: three_node_subgraphs_test){
-            // cout << "Subgraph: \n";
-            // for (auto node: subgraph){
-            //     cout << node << " ";
-            // }
-            // cout << endl;
+            cout << "Subgraph: " << subgraph[0] << ", " << subgraph[1] << ", " << subgraph[2] << endl;
+            cout << "Object type of these nodes: " << object_dict_test.at(subgraph[0]) << ", " << object_dict_test.at(subgraph[1]) << ", " << object_dict_test.at(subgraph[2]) << endl;
 
-            // vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph[0], subgraph[1], subgraph[2], G_directed_test);
-            // cout << "Adjacency matrix: \n";
-            // for (auto entry: adjacency_matrix){
-            //     cout << entry << " ";
-            // }
-            // cout << endl;
-            // True adjacency matrix is fine
-            //cout << object_dict_test[subgraph[0]] << " " << object_dict_test[subgraph[1]] << " " << object_dict_test[subgraph[2]] << endl;
             rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
             cout << "Rank for this subgraph adjacency matrix: " << rank << endl;
+            cout << endl;
             
         }
         
