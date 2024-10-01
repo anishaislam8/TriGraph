@@ -18,11 +18,11 @@ The methodology is as follows:
 
 1. To parse a PD file into an Abstract Syntax Tree, at first move to the directory *parsing_the_PD_file_contents*
 
-`cd parsing_the_PD_file_contents`
+    - `cd parsing_the_PD_file_contents`
 
-2. Then, provide the location of your PD file as an argument of the parse.py file and run it using Python
+2. Then, provide the location of your PD file as an argument of the *parse.py* file and run it using Python
 
-`python parse.py <location_of_PD_file>`
+    - `python parse.py <location_of_PD_file>`
 
 3. The parsed output will be saved in the *example_PD_file_and_parsed_output* directory as a file named *example.json*
 
@@ -31,7 +31,7 @@ The methodology is as follows:
 
 1. To predict the nodes and edges of the PD graph, at first move to the *src_c++* directory.
 
-`cd src_c++`
+    - `cd src_c++`
 
 2. At first parse the file using the procedure mentioned in Step 1 (or skip that step if you already have a parsed file). 
 
