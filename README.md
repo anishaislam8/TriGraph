@@ -43,11 +43,9 @@ The methodology is as follows:
         - `g++ -O3 -fconcepts -o node.exe node_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
         - `./node.exe`
 
-    - Our node predictor model will replace the nodes in your PD file with a *BLANK*. For each node, based on its context, the model will predict the most likely node to fill that position. The output will include the rank of the actual node within the prediction heap and the contents of the heap after the prediction phase. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely node to fill the *BLANK* position.
+    - Our node predictor model will replace the nodes in your PD file with a *BLANK*. For each node, based on its context, the model will predict the most likely node to fill that position. The output will include the rank of the actual node within the prediction heap and the contents of the heap after the prediction phase. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely node to fill the *BLANK* position. A sample format of output is shown below:
 
-    - A sample output:
     ![Sample Output](./src_c++/figures/sample_output.JPG)
-    Fig: Sample Output of Our Node Prediction Model
 
 4. To predict the edges:
     - Update line 39 of the *edge_predictor_local.cpp* file to provide the parsed file path.  
@@ -57,13 +55,9 @@ The methodology is as follows:
         - `g++ -O3 -fconcepts -o edge.exe edge_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
         - `./edge.exe`
 
-    - Our edge predictor model will take every three node subgraph of your PD graph, and predict the most probable edges between these three nodes. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely adjacency matrix representing the connections between the three nodes where the order of the nodes is shown in the output.
-
-    - A sample output:
+    - Our edge predictor model will take every three node subgraph of your PD graph, and predict the most probable edges between these three nodes. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely adjacency matrix representing the connections between the three nodes where the order of the nodes is shown in the output. A sample format of output is shown below:
     
     ![Sample Output](./src_c++/figures/sample_output_edges.JPG)
-    
-    Fig: Sample Output of Our Node Prediction Model
 
 
 
