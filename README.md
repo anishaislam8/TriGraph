@@ -60,7 +60,9 @@ The methodology is as follows:
     - Our edge predictor model will take every three node subgraph of your PD graph, and predict the most probable edges between these three nodes. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely adjacency matrix representing the connections between the three nodes where the order of the nodes is shown in the output.
 
     - A sample output:
+    
     ![Sample Output](./src_c++/figures/sample_output_edges.JPG)
+    
     Fig: Sample Output of Our Node Prediction Model
 
 
