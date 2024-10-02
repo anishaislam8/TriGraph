@@ -12,6 +12,58 @@ The methodology is as follows:
     - Given three nodes in a PD graph that could potentially be interconnected, how effectively can our model identify the most probable edges connecting these 3-node combinations?
 
 
+
+## How to create the corpus
+
+At first, create a directory called *vocabulary_frequencies* inside the *src_c++* directory to store information about all 1-node, 2-node, and 3-node subgraphs.
+- `cd src_c++`
+- `mkdir vocabulary_frequencies`
+
+### Step 1: Creating the unique token corpus with their frequencies
+
+1. To create the corpus of unique tokens and their frequencies, go to *src_c++/create_corpus* directory.
+    - `cd src_c++/create_corpus`
+
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *1_extract_unique_tokens_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+
+3. Then run the file using the following commands:
+- `g++ -O3 -fconcepts -o 1_gram.exe 1_extract_unique_tokens_db.cpp utils.cpp graph.cpp -lsqlite3`
+- `./1_gram.exe`
+
+The unique tokens and their frquencies will be stored in *unique_tokens_train.txt* and *frequency_1_gram_train.txt* files inside the *vocabulary_frequencies* directory.
+
+### Step 2: Creating the corpus of 2-node subgraphs and their frequencies
+1. To create the corpus of 2-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
+    - `cd src_c++/create_corpus`
+
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *2_extract_2_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+
+3. Then run the file using the following commands:
+- `g++ -O3 -fconcepts -o 2_grams.exe 2_extract_2_gram_frequencies_db.cpp utils.cpp graph.cpp -lsqlite3`
+- `./2_grams.exe`
+
+The 2-node subgraphs and their frquencies will be stored in *frequency_2_grams_train.txt* file inside the *vocabulary_frequencies* directory. Please note that the format of *frequency_2_grams_train.txt* includes the indices of the 2-gram nodes in the unique tokens corpus, which is sorted lexicographically when loaded. It also contains the adjacency matrix between the nodes and the frequency of how often these two nodes and this adjacency matrix appear in the training data.
+
+### Step 3: Creating the corpus of 3-node subgraphs and their frequencies
+
+1. To create the corpus of 3-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
+    - `cd src_c++/create_corpus`
+
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *3_extract_3_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+
+3. Then run the file using the following commands:
+- `g++ -O3 -fconcepts -o 3_grams.exe 3_extract_3_gram_frequencies_db.cpp utils.cpp graph.cpp -lsqlite3`
+- `./3_grams.exe`
+
+The 3-node subgraphs and their frequencies will be stored in the *frequency_3_grams_train_all.txt* file, located in the *vocabulary_frequencies* directory. To merge duplicates and sum the occurrences of each unique 3-node subgraph, run the *merge.py* script in the *create_corpus* directory:
+- `python3 merge.py`
+
+This command will generate a new file called *frequency_3_grams_train.txt* in the *vocabulary_frequencies* directory, containing the final corpus of 3-node subgraphs along with their frequencies after the merging process.
+
+Please note that the format of *frequency_3_grams_train.txt* includes the indices of the 3-gram nodes in the unique tokens corpus, which is sorted lexicographically when loaded. It also contains the adjacency matrix between the nodes and the frequency of how often these three nodes and this adjacency matrix appear in the training data.
+
+
+
 ## How to run our code for predicting the nodes and edges of a PD graph
 
 The sample corpus for the following stages are provided in the *src_c++/vocabulary_frequencies* directory. You can replace it with your own corpus.

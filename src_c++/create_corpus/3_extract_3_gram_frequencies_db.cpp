@@ -2,9 +2,9 @@
 
 int main(){
     ifstream myfile;
-    myfile.open("/media/baguette/aislam4/paths/train_test_split/parallel/train_hashes_1.txt");
+    myfile.open("train_hashes.txt");
     sqlite3* db;
-    const char* dbPath = "/media/crouton/aislam4/database.db";
+    const char* dbPath = "database.db";
     // Open the database
     int rc = sqlite3_open(dbPath, &db);
     if (rc != SQLITE_OK) {
@@ -13,7 +13,7 @@ int main(){
     }
 
     ofstream myfile_frequency_3_grams_train;
-    myfile_frequency_3_grams_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_3_grams_train_1.txt", ios::app);
+    myfile_frequency_3_grams_train.open("vocabulary_frequencies/frequency_3_grams_train_all.txt", ios::app);
 
     vector<string> unique_tokens_train = load_unique_tokens();
 

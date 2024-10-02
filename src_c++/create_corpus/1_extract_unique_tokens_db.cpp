@@ -2,9 +2,9 @@
 
 int main(){
     ifstream myfile;
-    myfile.open("/media/baguette/aislam4/paths/train_test_split/train_hashes.txt");
+    myfile.open("train_hashes.txt");
     sqlite3* db;
-    const char* dbPath = "/media/crouton/aislam4/database.db";
+    const char* dbPath = "database.db";
     // Open the database
     int rc = sqlite3_open(dbPath, &db);
     if (rc != SQLITE_OK) {
@@ -97,7 +97,7 @@ int main(){
 
     // save unique_tokens_train to a file
     ofstream myfile_unique_tokens_train;
-    myfile_unique_tokens_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/unique_tokens_train.txt");
+    myfile_unique_tokens_train.open("vocabulary_frequencies/unique_tokens_train.txt");
     for (auto token: unique_tokens_train){
         myfile_unique_tokens_train << token << endl;
     }
@@ -106,7 +106,7 @@ int main(){
 
     // save frequency_1_gram_train to a file
     ofstream myfile_frequency_1_gram_train;
-    myfile_frequency_1_gram_train.open("/media/baguette/aislam4/paths/models/Probability-Estimator-For-Visual-Code/src_c++/vocabulary_frequencies/frequency_1_gram_train.txt");
+    myfile_frequency_1_gram_train.open("vocabulary_frequencies/frequency_1_gram_train.txt");
     for (auto token: frequency_1_gram_train){
         myfile_frequency_1_gram_train << token.first << " " << token.second << endl;
     }
