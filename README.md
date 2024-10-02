@@ -22,7 +22,7 @@ At first, create a directory called *vocabulary_frequencies* inside the *src_c++
 ### Step 1: Creating the unique token corpus with their frequencies
 
 1. To create the corpus of unique tokens and their frequencies, go to *src_c++/create_corpus* directory.
-    - `cd src_c++/create_corpus`
+- `cd src_c++/create_corpus`
 
 2. Next, update the training hash file and database name and location on lines 5 and 7 of *1_extract_unique_tokens_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
 
@@ -34,7 +34,7 @@ The unique tokens and their frquencies will be stored in *unique_tokens_train.tx
 
 ### Step 2: Creating the corpus of 2-node subgraphs and their frequencies
 1. To create the corpus of 2-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
-    - `cd src_c++/create_corpus`
+- `cd src_c++/create_corpus`
 
 2. Next, update the training hash file and database name and location on lines 5 and 7 of *2_extract_2_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
 
@@ -47,7 +47,7 @@ The 2-node subgraphs and their frquencies will be stored in *frequency_2_grams_t
 ### Step 3: Creating the corpus of 3-node subgraphs and their frequencies
 
 1. To create the corpus of 3-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
-    - `cd src_c++/create_corpus`
+- `cd src_c++/create_corpus`
 
 2. Next, update the training hash file and database name and location on lines 5 and 7 of *3_extract_3_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
 
@@ -72,11 +72,11 @@ The sample corpus for the following stages are provided in the *src_c++/vocabula
 
 1. To parse a PD file into an Abstract Syntax Tree, at first move to the directory *parsing_the_PD_file_contents*
 
-    - `cd parsing_the_PD_file_contents`
+- `cd parsing_the_PD_file_contents`
 
 2. Then, provide the location of your PD file as an argument of the *parse.py* file and run it using Python
 
-    - `python parse.py <location_of_PD_file>`
+- `python parse.py <location_of_PD_file>`
 
 3. The parsed output will be saved in the *example_PD_file_and_parsed_output* directory as a file named *example.json*
 
@@ -85,7 +85,7 @@ The sample corpus for the following stages are provided in the *src_c++/vocabula
 
 1. To predict the nodes and edges of the PD graph, at first move to the *src_c++* directory.
 
-    - `cd src_c++`
+- `cd src_c++`
 
 2. At first parse the file using the procedure mentioned in Step 1 (or skip that step if you already have a parsed file). 
 
