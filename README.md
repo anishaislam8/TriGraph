@@ -24,7 +24,7 @@ At first, create a directory called *vocabulary_frequencies* inside the *src_c++
 1. To create the corpus of unique tokens and their frequencies, go to *src_c++/create_corpus* directory.
 - `cd src_c++/create_corpus`
 
-2. Next, update the training hash file and database name and location on lines 5 and 7 of *1_extract_unique_tokens_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *1_extract_unique_tokens_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while the *database.db* file stores the contents of the parsed PD file.
 
 3. Then run the file using the following commands:
 - `g++ -O3 -fconcepts -o 1_gram.exe 1_extract_unique_tokens_db.cpp utils.cpp graph.cpp -lsqlite3`
@@ -36,7 +36,7 @@ The unique tokens and their frquencies will be stored in *unique_tokens_train.tx
 1. To create the corpus of 2-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
 - `cd src_c++/create_corpus`
 
-2. Next, update the training hash file and database name and location on lines 5 and 7 of *2_extract_2_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *2_extract_2_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while the *database.db* file stores the contents of the parsed PD file.
 
 3. Then run the file using the following commands:
 - `g++ -O3 -fconcepts -o 2_grams.exe 2_extract_2_gram_frequencies_db.cpp utils.cpp graph.cpp -lsqlite3`
@@ -49,7 +49,7 @@ The 2-node subgraphs and their frquencies will be stored in *frequency_2_grams_t
 1. To create the corpus of 3-node subgraphs and their frequencies, go to *src_c++/create_corpus* directory.
 - `cd src_c++/create_corpus`
 
-2. Next, update the training hash file and database name and location on lines 5 and 7 of *3_extract_3_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while database.db stores the contents of the parsed PD file.
+2. Next, update the training hash file and database name and location on lines 5 and 7 of *3_extract_3_gram_frquencies_db.cpp*. Please note that the training hash file contains the SHA-256 hash ID of the parsed PD files in the training set, while the *database.db* file stores the contents of the parsed PD file.
 
 3. Then run the file using the following commands:
 - `g++ -O3 -fconcepts -o 3_grams.exe 3_extract_3_gram_frequencies_db.cpp utils.cpp graph.cpp -lsqlite3`
