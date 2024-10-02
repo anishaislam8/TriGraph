@@ -11,6 +11,10 @@ The methodology is as follows:
     -  In the scenario of a PD graph featuring an empty node, how effectively can our model predict which node will fill the empty position?
     - Given three nodes in a PD graph that could potentially be interconnected, how effectively can our model identify the most probable edges connecting these 3-node combinations?
 
+## PD database
+The PD database used in this project can be downloaded from the following links:
+- https://archive.org/details/Opening_the_Valve_on_Pure_Data
+- https://doi.org/10.5281/zenodo.10576757
 
 
 ## How to create the corpus
@@ -66,7 +70,7 @@ Please note that the format of *frequency_3_grams_train.txt* includes the indice
 
 ## How to run our code for predicting the nodes and edges of a PD graph
 
-The sample corpus for the following stages are provided in the *src_c++/vocabulary_frequencies* directory. You can replace it with your own corpus.
+The sample corpus for the subsequent stages is provided in the *src_c++/vocabulary_frequencies* directory, using the PD database mentioned above. You can replace it with your own corpus if needed.
 
 ### Step 1: Parsing the PD file contents (Skip this step if you have the parsed content of a PD file or if you are using the PD database of parsed source files)
 
