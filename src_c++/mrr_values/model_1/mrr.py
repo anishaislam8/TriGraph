@@ -43,19 +43,19 @@
 
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('node_mrr_v2.txt', 'r') as f:
+with open('kenlm_mrr_model1.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))
 
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
-plt.xlabel('MRR')
-plt.ylabel('Frequency of Test Graphs')
-plt.title('Histogram of Node Prediction MRR for Test Graphs Using Graph Model')
-plt.show()
+# plt.hist(mrr_values, color="lightgreen", ec = "black", bins=20)
+# plt.xlabel('MRR')
+# plt.ylabel('Frequency of Test Graphs')
+# plt.title('Histogram of Node Prediction MRR for Test Graphs Using Graph Model')
+# plt.show()
 
 
 highest_mrr = max(mrr_values)
