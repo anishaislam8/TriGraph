@@ -52,7 +52,7 @@ The 2-node subgraphs and their frquencies will be stored in *frequency_2_grams_t
 
 ### Step 3: Creating the corpus of 3-node subgraphs and their frequencies
 
-1. To create the corpus of 3-node subgraphs and their frequencies, go to *src_c++s* directory.
+1. To create the corpus of 3-node subgraphs and their frequencies, go to *src_c++* directory.
 - `cd src_c++`
 
 2. Then run the file using the following commands:
@@ -102,7 +102,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/vocabula
         - `g++ -O3 -fconcepts -o node.exe 4_node_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
         - `./node.exe ../sample_jsons/example_basic.json`
 
-    - Please note that, `../sample_jsons/example_basic.json` is an example parsed json file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./node.exe <parsed_pd_file_location>`.
+    - Please note that, `../sample_jsons/example_basic.json` is an example parsed PD file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./node.exe <parsed_pd_file_location>`.
     
     - If you want to do bulk prediction, you can run the following two commands:
         - `g++ -O3 -fconcepts -o node.exe 4_node_predictor_db.cpp utils.cpp graph.cpp -lsqlite3`
@@ -119,7 +119,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/vocabula
 
         - `g++ -O3 -fconcepts -o edge.exe 4_edge_predictor_local.cpp utils.cpp graph.cpp -lsqlite3`
         - `./edge.exe ../sample_jsons/example_basic.json`
-    - Please note that, `../sample_jsons/example_basic.json` is an example parsed json file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./edge.exe <parsed_pd_file_location>`.
+    - Please note that, `../sample_jsons/example_basic.json` is an example parsed PD file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./edge.exe <parsed_pd_file_location>`.
     
     - If you want to do bulk prediction, you can run the following two commands:
         - `g++ -O3 -fconcepts -o edge.exe 4_edge_predictor_db.cpp utils.cpp graph.cpp -lsqlite3`
