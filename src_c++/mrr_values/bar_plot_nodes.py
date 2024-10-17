@@ -45,11 +45,11 @@ with open('model_1/kenlm_mrr_model1.txt', 'r') as f:
         model_1_mrr.append(float(line.strip().split(" ")[1]))
 
 
-# model_2_mrr = []
-# with open('model_2/kenlm_mrr_model2.txt', 'r') as f:
-#     lines = f.readlines()
-#     for line in lines:
-#         model_2_mrr.append(float(line.strip().split(" ")[1]))
+model_2_mrr = []
+with open('model_2/kenlm_mrr_model2.txt', 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        model_2_mrr.append(float(line.strip().split(" ")[1]))
 
 
 model_3_mrr = []
@@ -75,13 +75,13 @@ with open('model_5/kenlm_mrr_model5.txt', 'r') as f:
 
 mrr_values = []
 mrr_values.extend(model_1_mrr)
-# mrr_values.extend(model_2_mrr)
+mrr_values.extend(model_2_mrr)
 mrr_values.extend(model_3_mrr)
 mrr_values.extend(model_4_mrr)
 mrr_values.extend(model_5_mrr)
 
-# model_names = ['Model 1']*len(model_1_mrr) + ['Model 2']*len(model_2_mrr) + ['Model 3']*len(model_3_mrr) + ['Model 4']*len(model_4_mrr) + ['Model 5']*len(model_5_mrr)
-model_names = ['Model 1']*len(model_1_mrr) + ['Model 3']*len(model_3_mrr) + ['Model 4']*len(model_4_mrr) + ['Model 5']*len(model_5_mrr)
+model_names = ['Model 1']*len(model_1_mrr) + ['Model 2']*len(model_2_mrr) + ['Model 3']*len(model_3_mrr) + ['Model 4']*len(model_4_mrr) + ['Model 5']*len(model_5_mrr)
+#model_names = ['Model 1']*len(model_1_mrr) + ['Model 3']*len(model_3_mrr) + ['Model 4']*len(model_4_mrr) + ['Model 5']*len(model_5_mrr)
 
 df = pd.DataFrame({'MRR': mrr_values, 'Model Name': model_names})
 
