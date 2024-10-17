@@ -131,7 +131,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/vocabula
     
     ![Sample Output](./src_c++/figures/sample_output_edges.JPG)
 
-    - Alternatively, you can run the baseline version of our edge prediction model by running the *edge_predictor_baseline_local.cpp* file (update line 26 to provide the parsed file path) following the same procedures mentioned above.
+    - Alternatively, you can run the baseline version of our edge prediction model by running the *4_edge_predictor_baseline_local.cpp* and *4_edge_predictor_baseline_db.cpp* files following the same procedures mentioned above.
 
 
 
