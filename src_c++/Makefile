@@ -16,12 +16,27 @@ corpus_exe: 1_gram.exe 2_grams.exe 3_grams.exe
 node.exe: 4_node_predictor_local.cpp utils.cpp graph.cpp
 	g++ -O3 -fconcepts -o node.exe 4_node_predictor_local.cpp utils.cpp graph.cpp -lsqlite3
 
+
+bulk_node.exe: 4_node_predictor_db.cpp utils.cpp graph.cpp
+	g++ -O3 -fconcepts -o bulk_node.exe 4_node_predictor_db.cpp utils.cpp graph.cpp -lsqlite3
+
 node_example: node.exe
 	./node.exe ../sample_jsons/example_basic.json
 
-bulk_node_example: node.exe
-	./node.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db
+bulk_node_example: bulk_node.exe
+	./bulk_node.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db
 
+edge.exe: 4_edge_predictor_local.cpp utils.cpp graph.cpp
+	g++ -O3 -fconcepts -o edge.exe 4_edge_predictor_local.cpp utils.cpp graph.cpp -lsqlite3
+
+bulk_edge.exe: 4_edge_predictor_db.cpp utils.cpp graph.cpp 
+	g++ -O3 -fconcepts -o bulk_edge.exe 4_edge_predictor_db.cpp utils.cpp graph.cpp -lsqlite3
+
+edge_example: edge.exe
+	./edge.exe ../sample_jsons/example_basic.json
+
+bulk_edge_example: bulk_edge.exe
+	./bulk_edge.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db
 
 UT=vocabulary_frequencies/unique_tokens_train.txt
 
