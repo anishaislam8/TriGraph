@@ -56,3 +56,17 @@ vocabulary_frequencies/frequency_3_grams_train.txt: 3_grams.exe ./train_test_has
 	./3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db
 
 trains: vocabulary_frequencies/frequency_1_gram_train.txt vocabulary_frequencies/frequency_2_grams_train.txt vocabulary_frequencies/frequency_3_grams_train.txt
+
+
+test_corpus.exe: test_corpus_creation.cpp utils.cpp graph.cpp 
+	g++ -O3 -fconcepts -o test_corpus.exe test_corpus_creation.cpp utils.cpp graph.cpp -lsqlite3
+test_score.exe: test_score.cpp utils.cpp graph.cpp 
+	g++ -O3 -fconcepts -o test_score.exe test_score.cpp utils.cpp graph.cpp -lsqlite3
+test_utils.exe: test_utils.cpp utils.cpp graph.cpp 
+	g++ -O3 -fconcepts -o test_utils.exe test_utils.cpp utils.cpp graph.cpp -lsqlite3
+test_heap.exe: test_heap.cpp utils.cpp graph.cpp 
+	g++ -O3 -fconcepts -o test_heap.exe test_heap.cpp utils.cpp graph.cpp -lsqlite3
+
+tests: test.sh
+	bash test.sh
+
