@@ -1,3 +1,7 @@
+.PHONY: dummy corpus_exe exe
+
+exe: corpus_exe node.exe
+
 corpus_exe: 1_gram.exe 2_grams.exe 3_grams.exe
 
 1_gram.exe: 1_extract_unique_tokens_db.cpp utils.cpp graph.cpp 
@@ -9,6 +13,16 @@ corpus_exe: 1_gram.exe 2_grams.exe 3_grams.exe
 3_grams.exe:
 	g++ -O3 -fconcepts -o 3_grams.exe 3_extract_3_gram_frequencies_db.cpp utils.cpp graph.cpp -lsqlite3
 
+node.exe: 4_node_predictor_local.cpp utils.cpp graph.cpp
+	g++ -O3 -fconcepts -o node.exe 4_node_predictor_local.cpp utils.cpp graph.cpp -lsqlite3
+
+node_example: node.exe
+	./node.exe ../sample_jsons/example_basic.json
+
+bulk_node_example: node.exe
+	./node.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db
+
+
 UT=vocabulary_frequencies/unique_tokens_train.txt
 
 vocabulary_frequencies/frequency_1_gram_train.txt: 1_gram.exe ./train_test_hashes/model_1/train_hashes.txt database.db
@@ -18,7 +32,6 @@ vocabulary_frequencies/frequency_1_gram_train.txt: 1_gram.exe ./train_test_hashe
 
 $(UT): dummy
 
-.PHONY: dummy
 # we're saying that dummy needs this file so it'll build it implicitly
 dummy: vocabulary_frequencies/frequency_1_gram_train.txt
 
