@@ -24,7 +24,6 @@ corpus_exe: 1_gram.exe 2_grams.exe 3_grams.exe
 node.exe: 4_node_predictor_local.cpp utils.cpp graph.cpp
 	$(COMPILE) -o node.exe 4_node_predictor_local.cpp utils.cpp graph.cpp $(LDFLAGS)
 
-
 bulk_node.exe: 4_node_predictor_db.cpp utils.cpp graph.cpp
 	$(COMPILE) -o bulk_node.exe 4_node_predictor_db.cpp utils.cpp graph.cpp $(LDFLAGS)
 
@@ -62,6 +61,8 @@ vocabulary_frequencies/frequency_2_grams_train.txt: 2_grams.exe ./train_test_has
 	./2_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db
 vocabulary_frequencies/frequency_3_grams_train.txt: 3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db $(UT)
 	./3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db
+	python3 merge.py
+	cat frequency_3_grams_train.txt | cut -d "," -f 1-3 | sort -u > observed_3_grams_train.txt
 
 trains: vocabulary_frequencies/frequency_1_gram_train.txt vocabulary_frequencies/frequency_2_grams_train.txt vocabulary_frequencies/frequency_3_grams_train.txt
 

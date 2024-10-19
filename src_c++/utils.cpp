@@ -670,7 +670,7 @@ pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const a
     }
 
     string adj_mat = ind_0 + ind_1 + ind_2 + ind_3 + ind_4 + ind_5 + ind_6 + ind_7 + ind_8;
-    float negative_probability_score = -1 * log( (two_gram_0_1.second * two_gram_1_2.second * two_gram_0_2.second)/(sum_frequency_2_grams * sum_frequency_2_grams * sum_frequency_2_grams * 1.0) ); // biggest is smallest, following Liveguess MITLM
+    float negative_probability_score = -1 * log( ((two_gram_0_1.second * 1.0)/(sum_frequency_2_grams * 1.0)) * ((two_gram_1_2.second * 1.0)/(sum_frequency_2_grams * 1.0)) * ((two_gram_0_2.second * 1.0)/(sum_frequency_2_grams * 1.0))  ); // biggest is smallest, following Liveguess MITLM
     pair<string, float> p(adj_mat, negative_probability_score);
 
     return p;
