@@ -150,7 +150,7 @@ int main(int argc, char* argv[]){
                     }
                 }
 
-                rank = predict(three_node_subgraphs_containing_this_node, two_grams_to_connections, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, unique_tokens_train, G_directed_test);
+                rank = predict(three_node_subgraphs_containing_this_node, two_grams_to_connections, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, unique_tokens_train, G_directed_test,1);
                 //cout << "Rank for this node: "  << node << " " << rank << endl; 
                 myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
                 

@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
         for (auto subgraph: three_node_subgraphs_test){
             cout << "Subgraph: " << subgraph[0] << ", " << subgraph[1] << ", " << subgraph[2] << endl;
             cout << "Object type of these nodes: " << object_dict_test.at(subgraph[0]) << ", " << object_dict_test.at(subgraph[1]) << ", " << object_dict_test.at(subgraph[2]) << endl;
-            rank = predict_edges_baseline(subgraph, object_dict_test, frequency_3_grams_map, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
+            rank = predict_edges_baseline(subgraph, object_dict_test, frequency_3_grams_map, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test, 0);
             cout << "Rank for this subgraph adjacency matrix: " << rank << endl;
             cout << endl;
         }

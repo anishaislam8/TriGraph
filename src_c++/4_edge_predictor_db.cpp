@@ -136,7 +136,7 @@ int main(int argc, char* argv[]){
             vector<vector<string> > three_node_subgraphs_test = get_three_node_subgraphs(nodes_test, G_undirected_test);
 
             for (auto subgraph: three_node_subgraphs_test){
-                rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test);
+                rank = predict_edges(subgraph, object_dict_test, frequency_2_grams_map, frequency_3_grams_map, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, G_directed_test,1);
                 myfile_output << object_dict_test.at(subgraph[0]) <<  " " <<  object_dict_test.at(subgraph[1]) <<  " " <<  object_dict_test.at(subgraph[2]) <<  " " << rank << endl;
             }
             

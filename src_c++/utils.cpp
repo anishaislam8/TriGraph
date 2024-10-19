@@ -413,7 +413,7 @@ unordered_set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &
     return node_to_add_list;
 }
 
-int predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const map<string, unordered_set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string>& unique_tokens_train, Graph G_directed_test){
+int predict(const vector<vector <string> > &three_node_subgraphs_containing_this_node, const map<string, unordered_set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, const string &node_to_remove, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int> &unique_tokens_train_map, const vector<string>& unique_tokens_train, Graph G_directed_test, int bulk){
 
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
@@ -511,9 +511,12 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
 
     make_heap(heap.begin(), heap.end(), cmp);
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
-    cout << "Heap after sorting: \n";
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
+    
+    if (bulk == 0){
+        cout << "Heap after sorting: \n";
+        for (auto token: heap){
+            cout << token.first << " " << token.second << endl;
+        }
     }
 
     // cout << "True token: " << true_token << endl;
@@ -676,7 +679,7 @@ pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const a
     return p;
 }
 
-int predict_edges(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_2_grams_map, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
+int predict_edges(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_2_grams_map, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_2_grams, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test, int bulk){
     
    
     vector<pair<string, float> > heap;
@@ -694,8 +697,10 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     sort(subgraph_nodes.begin(), subgraph_nodes.end(), [&object_dict](const string& a, const string& b) {
         return comparator(a, b, object_dict);
     });
-    
-    cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
+
+    if (bulk == 0){
+        cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
+    }
 
     // I am assuming between node0 and node1 there is one directed edge from node0 to node1
     // as in adjacency matrix, the entry between node0 and node1 will be just 1, in reality, there could be multiple
@@ -855,12 +860,15 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
     // }
     // // print heap
     
-    cout << "Heap: " << endl;
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
+    if (bulk == 0){
+        cout << "Heap: " << endl;
+        for (auto token: heap){
+            cout << token.first << " " << token.second << endl;
+        }
+        
+        cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
     }
     
-    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
 
     // find the index of the true token in the heap first items
     int index = -1;
@@ -876,7 +884,7 @@ int predict_edges(const vector<string>& subgraph, const map<string, string>& obj
 }
 
 
-int predict_edges_baseline(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test){
+int predict_edges_baseline(const vector<string>& subgraph, const map<string, string>& object_dict, const map<string, vector<pair<string, float> > >& frequency_3_grams_map, const int sum_frequency_3_grams, const map<string, int>& unique_tokens_train_map, Graph G_directed_test, int bulk){
     
    
     vector<pair<string, float> > heap;
@@ -895,7 +903,9 @@ int predict_edges_baseline(const vector<string>& subgraph, const map<string, str
         return comparator(a, b, object_dict);
     });
     
-    cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
+    if (bulk == 0){
+        cout << "Sorted subgraph nodes by their types: 1. " << subgraph_nodes[0] << ", 2. " << subgraph_nodes[1] << ", 3. " << subgraph_nodes[2] << endl;
+    }
     vector<int> adjacency_matrix = create_three_node_adjacency_matrix(subgraph_nodes[0], subgraph_nodes[1], subgraph_nodes[2], G_directed_test);
 
     string true_adjacency_matrix = "";
@@ -936,12 +946,14 @@ int predict_edges_baseline(const vector<string>& subgraph, const map<string, str
     sort_heap(heap.begin(), heap.end(), cmp); // sorts the elements in ascending order, that means highest real probability will be at the first
 
     // // print heap
-    cout << "Heap: " << endl;
-    for (auto token: heap){
-        cout << token.first << " " << token.second << endl;
-    }
+    if (bulk == 0){
+        cout << "Heap: " << endl;
+        for (auto token: heap){
+            cout << token.first << " " << token.second << endl;
+        }
 
-    cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+        cout << "True adjacency matrix: " << true_adjacency_matrix << endl;
+    }
 
     // find the index of the true token in the heap first items
     int index = -1;
