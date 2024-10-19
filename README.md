@@ -68,7 +68,13 @@ This command will generate a new file called *frequency_3_grams_train.txt* in th
 
 Please note that the format of *frequency_3_grams_train.txt* includes the indices of the 3-gram nodes in the unique tokens corpus, which is sorted lexicographically when loaded. It also contains the adjacency matrix between the nodes and the frequency of how often these three nodes and this adjacency matrix appear in the training data.
 
+### Step 4: Get observed three grams
 
+To extract the observed 3-grams from the data, ignoring the adjacency matrix, use the following commands:
+- `cd vocabulary_frequencies`
+- `cat frequency_3_grams_train.txt | cut -d "," -f 1-3 | sort -u  > observed_3_grams_train.txt`
+
+This will output the unique 3-gram combinations found in the corpus and save them in the `observed_3_grams_train.txt` file.
 
 ## How to run our code for predicting the nodes and edges of a PD graph
 
