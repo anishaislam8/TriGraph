@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
     int rank;
 
     ofstream exception_file;
-    exception_file.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/edge_exception_baseline.txt", ios::app);
+    exception_file.open("edge_exception_baseline.txt", ios::app);
 
     while(!myfile_test.eof()){
         string line;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]){
         
         // write to a file line.txt
         ofstream myfile_output;
-        myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/edge_rank_baseline/" + line + ".txt", ios::app);
+        myfile_output.open("edge_rank_baseline/" + line + ".txt", ios::app);
 
 
         try{

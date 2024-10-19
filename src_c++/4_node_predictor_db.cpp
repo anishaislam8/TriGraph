@@ -50,8 +50,8 @@ int main(int argc, char* argv[]){
     int processing = 0;
     int rank;
 
-    // ofstream exception_file;
-    // exception_file.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/exception_1.txt", ios::app);
+    ofstream exception_file;
+    exception_file.open("exception.txt", ios::app);
 
     while(!myfile_test.eof()){
         string line;
@@ -80,8 +80,8 @@ int main(int argc, char* argv[]){
 
         
         // write to a file line.txt
-        // ofstream myfile_output;
-        // myfile_output.open("/media/crouton/aislam4/Probability-Estimator-For-Visual-Code/src_c++/node_rank/" + line + ".txt", ios::app);
+        ofstream myfile_output;
+        myfile_output.open("node_rank/" + line + ".txt", ios::app);
 
 
         try{
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]){
             // if I have no sources or destinations, then I have no connections
 
             if (sources_test.size() == 0 || destinations_test.size() == 0){
-                //exception_file << line << ": 0 connections" << endl;
+                exception_file << line << ": 0 connections" << endl;
                 continue;
             }
 
@@ -151,8 +151,8 @@ int main(int argc, char* argv[]){
                 }
 
                 rank = predict(three_node_subgraphs_containing_this_node, two_grams_to_connections, object_dict_test, frequency_1_gram, frequency_2_grams, frequency_3_grams, node, sum_frequency_1_gram, sum_frequency_2_grams, sum_frequency_3_grams, unique_tokens_train_map, unique_tokens_train, G_directed_test);
-                cout << "Rank for this node: "  << node << " " << rank << endl; 
-                //myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
+                //cout << "Rank for this node: "  << node << " " << rank << endl; 
+                myfile_output << node << " " << three_node_subgraphs_containing_this_node.size() << " " << object_dict_test.at(node) <<  " " << rank << endl;
                 
             }
 
@@ -161,14 +161,14 @@ int main(int argc, char* argv[]){
 
         }
         catch(const exception& e){
-            //exception_file << line << ": Exception: " << e.what() << endl;
+            exception_file << line << ": Exception: " << e.what() << endl;
         }
 
-       // myfile_output.close();
+        myfile_output.close();
     }
 
     myfile_test.close();
-    //exception_file.close();
+    exception_file.close();
     sqlite3_close(db);
     
     return 0;
