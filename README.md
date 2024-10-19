@@ -78,7 +78,7 @@ This will output the unique 3-gram combinations found in the corpus and save the
 
 ## How to run our code for predicting the nodes and edges of a PD graph
 
-The sample corpus for the subsequent stages is provided in the *src_c++/vocabulary_frequencies* directory, using the PD database mentioned above. You can replace it with your own corpus if needed.
+The sample corpus for the subsequent stages is provided in the *src_c++/sample_corpus* directory, using the PD database mentioned above. If you want to use the sample corpus, copy all the files of the `sample_corpus` directory to the `vocabulary_frequencies` directory before running the following commands. You can replace it with your own corpus if needed.
 
 ### Step 1: Parsing the PD file contents (Skip this step if you have the parsed content of a PD file or if you are using the PD database of parsed source files)
 
