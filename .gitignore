@@ -26,3 +26,4 @@ prediction model images
 src_c++/check_edge_logic
 runtime/
 vocabulary_frequencies/
+generate_resource_graph
