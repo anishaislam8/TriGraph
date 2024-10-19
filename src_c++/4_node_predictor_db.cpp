@@ -67,8 +67,8 @@ int main(int argc, char* argv[]){
             continue;
         }
 
-        // cout << "Processing: " << processing << endl;
-        // processing += 1;
+        cout << "Processing: " << processing << endl;
+        processing += 1;
 
         json data_test = json::parse(content);
 
