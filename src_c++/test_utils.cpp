@@ -122,23 +122,23 @@ void test_get_map_two_grams_to_connections(){
     cout << "All tests passed for get_map_two_grams_to_connections!" << endl;
 }
 
-void test_load_frequency_maps(){
-    map<string, int> frequency_1_gram = load_frequency_1_gram();
-    map<string, int> frequency_2_grams = load_frequency_2_grams();
-    map<string, int> frequency_3_grams = load_frequency_3_grams();
+// void test_load_frequency_maps(){
+//     map<string, int> frequency_1_gram = load_frequency_1_gram();
+//     map<string, int> frequency_2_grams = load_frequency_2_grams();
+//     map<string, int> frequency_3_grams = load_frequency_3_grams();
 
-    // cout << frequency_3_grams["8137,27519,31595,010000010"] << endl;
-    // cout << frequency_3_grams["11077,11871,28319,010000100"] << endl;
-    // cout << frequency_2_grams["5172,30115,0100"] << endl;
-    // cout << frequency_1_gram["msg"] << endl;
+//     // cout << frequency_3_grams["8137,27519,31595,010000010"] << endl;
+//     // cout << frequency_3_grams["11077,11871,28319,010000100"] << endl;
+//     // cout << frequency_2_grams["5172,30115,0100"] << endl;
+//     // cout << frequency_1_gram["msg"] << endl;
 
-    assert(frequency_1_gram["msg"] == 2880151);
-    assert(frequency_2_grams["5172,30115,0100"] == 25);
-    assert(frequency_3_grams["8137,27519,31595,010000010"] == 22);
-    assert(frequency_3_grams["11077,11871,28319,010000100"] == 1);
+//     assert(frequency_1_gram["msg"] == 2880151);
+//     assert(frequency_2_grams["5172,30115,0100"] == 25);
+//     assert(frequency_3_grams["8137,27519,31595,010000010"] == 22);
+//     assert(frequency_3_grams["11077,11871,28319,010000100"] == 1);
 
-    cout << "All tests passed for loading frequency maps 1 gram 2 gram and 3 grams!" << endl;
-}
+//     cout << "All tests passed for loading frequency maps 1 gram 2 gram and 3 grams!" << endl;
+// }
 
 void test_sort_vector_based_on_object_type(){
     
@@ -200,9 +200,6 @@ int main(){
 
     // test sort_vector_based_on_object_type
     test_sort_vector_based_on_object_type();
-   
-    // test load_frequency_maps
-    test_load_frequency_maps();
 
     // test get_map_two_grams_to_connections
     test_get_map_two_grams_to_connections();

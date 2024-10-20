@@ -3,7 +3,7 @@
 
 int main(){
     ifstream myfile;
-    myfile.open("../sample_jsons/example.json");
+    myfile.open("../sample_jsons/example_basic.json");
     string content( (istreambuf_iterator<char>(myfile) ),
                        (istreambuf_iterator<char>()    ) );
    
