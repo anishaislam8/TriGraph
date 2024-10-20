@@ -1,5 +1,0 @@
-graph_main_model_5=read.delim(header = FALSE, file = "D:\\Masters\\Thesis\\models\\my_model\\src_c++\\r_tests\\model_5\\edge_main_values_sorted.txt")
-graph_baseline_model_5=read.delim(header = FALSE, file = "D:\\Masters\\Thesis\\models\\my_model\\src_c++\\r_tests\\model_5\\edge_baseline_values_sorted.txt")
-graph_main_model_5$V1 <- as.numeric(as.character(graph_main_model_5$V1))
-graph_baseline_model_5$V1 <- as.numeric(as.character(graph_baseline_model_5$V1))
-wilcox.test(graph_main_model_5$V1, graph_baseline_model_5$V1)

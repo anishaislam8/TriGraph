@@ -54,7 +54,7 @@ with open('model_5/edge_mrr_baseline.txt', 'r') as f:
 
 
 model_1_mrr_main = []
-with open('model_1/edge_mrr_completed.txt', 'r') as f:
+with open('model_1/edge_mrr.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         model_1_mrr_main.append(float(line.strip().split(" ")[1]))

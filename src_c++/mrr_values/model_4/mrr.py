@@ -43,7 +43,7 @@
 
 # read the edge_mrr_complete.txt file
 mrr_values = []
-with open('kenlm_mrr_model4.txt', 'r') as f:
+with open('edge_mrr.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         mrr_values.append(float(line.strip().split(" ")[1]))

@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 
 model_1_mrr = []
-with open('model_1/edge_mrr_completed.txt', 'r') as f:
+with open('model_1/edge_mrr.txt', 'r') as f:
     lines = f.readlines()
     for line in lines:
         model_1_mrr.append(float(line.strip().split(" ")[1]))
