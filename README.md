@@ -38,12 +38,15 @@ To create the corpus and run the prediction models from scratch using the provid
     - `make predicts`
 - For bulk predictions:
     - `make bulk_predicts`
+- For testing our code:
+    - `make tests`
 
 Detailed explanation: 
 1. First, change to the `src_c++` directory and run the `make` command to generate all the `.exe` files.
 2. To create the corpus, execute `make trains`, which uses the `train_hashes.txt` file from the `train_test_hashes/model_1` directory. You can modify the Makefile to use your preferred train-test split. The resulting corpus will be saved in the `vocabulary_frequencies` directory.
 3. To test the prediction model on a sample parsed PD file, use the `make predicts` command.
 4. For bulk predictions using all the test hashes from model_1, run `make bulk_predicts`. The resulting node and edge rank outputs will be saved in the `node_rank`, `edge_rank`, and `edge_rank_baseline` directories. For each test hash, an output file named `<test_hash>.txt` will be created in the corresponding directory. This file will contain predictions for each node (or for each 3-node subgraph in the case of edge predictions). Each line represents a prediction, with the final item on the line indicating the rank.
+5. Additionally, you can also run the provided tests for heap, score, corpus creation, and utility functions by executing `make tests`.
 
 ## Method 2: 2.1 How to create the corpus
 
@@ -172,6 +175,17 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
 
 ## Testing our code
 
-We have included sample tests for various methods used in our code, such as the heap functionality, score calculation, corpus creation logic, and some utility methods from the utils.cpp file. To run the tests, navigate to the src_c++ directory and execute the test.sh script.
+We have included sample tests for various methods used in our code, such as the heap functionality, score calculation, corpus creation logic, and some utility methods from the utils.cpp file. To run the tests, navigate to the `src_c++` directory and execute the following commands.
 - `cd src_c++`
-- `./test.sh`
+- For running the corpus creation tests:
+    - `g++ -O3 -fconcepts -o test_corpus.exe test_corpus_creation.cpp utils.cpp graph.cpp -lsqlite3`
+    - `./test_corpus.exe`
+- For running the score tests: 
+    - `g++ -O3 -fconcepts -o test_score.exe test_score.cpp utils.cpp graph.cpp -lsqlite3`
+    - `./test_score.exe`
+- For running the utils functionality tests:
+    - `g++ -O3 -fconcepts -o test_utils.exe test_utils.cpp utils.cpp graph.cpp -lsqlite3`
+    - `./test_utils.exe`
+- For running the heap tests: 
+    - `g++ -O3 -fconcepts -o test_heap.exe test_heap.cpp utils.cpp graph.cpp -lsqlite3`
+    - `./test_heap.exe`
