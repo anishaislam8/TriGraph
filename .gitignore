@@ -27,3 +27,6 @@ src_c++/check_edge_logic
 runtime/
 vocabulary_frequencies/
 generate_resource_graph
+src_c++/mrr_values
+src_c++/r_tests
+src_c++/figures
