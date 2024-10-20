@@ -21,8 +21,8 @@ For the code prediction model, please keep the *database.db* file inside the src
 ## How to create the corpus and run the prediction model
 
 There are two ways of creating the corpus and running the prediction model.
-- Using the provided Makefile
-- Running everything from scratch manually
+- Method 1: Using the provided Makefile
+- Method 2: Running everything from scratch manually
 
 ## Method 1: Using the provided Makefile
 To create the corpus and run the prediction models from scratch using the provided Makefile, follow these steps:
