@@ -41,7 +41,7 @@ To create the corpus and run the prediction models from scratch using the provid
 
 Detailed explanation: 
 1. First, change to the `src_c++` directory and run the `make` command to generate all the `.exe` files.
-2. To create the corpus, execute `make trains`, which uses the `train_hashes.txt` file from the `train_test_hashes` directory. You can modify the Makefile to use your preferred train-test split. The resulting corpus will be saved in the `vocabulary_frequencies` directory.
+2. To create the corpus, execute `make trains`, which uses the `train_hashes.txt` file from the `train_test_hashes/model_1` directory. You can modify the Makefile to use your preferred train-test split. The resulting corpus will be saved in the `vocabulary_frequencies` directory.
 3. To test the prediction model on a sample parsed PD file, use the `make predicts` command.
 4. For bulk predictions using all the test hashes from model_1, run `make bulk_predicts`. The resulting node and edge rank outputs will be saved in the `node_rank`, `edge_rank`, and `edge_rank_baseline` directories. For each test hash, an output file named `<test_hash>.txt` will be created in the corresponding directory. This file will contain predictions for each node (or for each 3-node subgraph in the case of edge predictions). Each line represents a prediction, with the final item on the line indicating the rank.
 
