@@ -18,8 +18,34 @@ The PD database used in this project can be downloaded from the following links:
 
 For the code prediction model, please keep the *database.db* file inside the src_c++ directory.
 
+## How to create the corpus and run the prediction model
 
-## How to create the corpus
+There are two ways of creating the corpus and running the prediction model.
+- Using the provided Makefile
+- Running everything from scratch manually
+
+## Method 1: Using the provided Makefile
+To create the corpus and run the prediction models from scratch using the provided Makefile, follow these steps:
+- Navigate to the `src_c++` directory:
+    - `cd src_c++`
+- Create the directory for saving the corpus:
+    - `mkdir vocabulary_frequencies`
+- Run the Makefile to generate the necessary executables:
+    - `make`
+- Train the models to create the corpus:
+    - `make trains`
+- Run the prediction models on a sample parsed PD file:
+    - `make predicts`
+- For bulk predictions:
+    - `make bulk_predicts`
+
+Detailed explanation: 
+1. First, change to the `src_c++` directory and run the `make` command to generate all the `.exe` files.
+2. To create the corpus, execute `make trains`, which uses the `train_hashes.txt` file from the `train_test_hashes` directory. You can modify the Makefile to use your preferred train-test split. The resulting corpus will be saved in the `vocabulary_frequencies` directory.
+3. To test the prediction model on a sample parsed PD file, use the `make predicts` command.
+4. For bulk predictions using all the test hashes from model_1, run `make bulk_predicts`. The resulting node and edge rank outputs will be saved in the `node_rank`, `edge_rank`, and `edge_rank_baseline` directories. For each test hash, an output file named `<test_hash>.txt` will be created in the corresponding directory. This file will contain predictions for each node (or for each 3-node subgraph in the case of edge predictions). Each line represents a prediction, with the final item on the line indicating the rank.
+
+## Method 2: 2.1 How to create the corpus
 
 At first, create a directory called *vocabulary_frequencies* inside the *src_c++* directory to store information about all 1-node, 2-node, and 3-node subgraphs.
 - `cd src_c++`
@@ -76,7 +102,7 @@ To extract the observed 3-grams from the data, ignoring the adjacency matrix, us
 
 This will output the unique 3-gram combinations found in the corpus and save them in the `observed_3_grams_train.txt` file.
 
-## How to run our code for predicting the nodes and edges of a PD graph
+## Method 2: 2.2 How to run our code for predicting the nodes and edges of a PD graph
 
 The sample corpus for the subsequent stages is provided in the *src_c++/sample_corpus* directory, using the PD database mentioned above. If you want to use the sample corpus, copy all the files of the `sample_corpus` directory to the `vocabulary_frequencies` directory before running the following commands. You can replace it with your own corpus if needed.
 
@@ -110,7 +136,8 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
 
     - Please note that, `../sample_jsons/example_basic.json` is an example parsed PD file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./node.exe <parsed_pd_file_location>`.
     
-    - If you want to do bulk prediction, you can run the following two commands:
+    - If you want to do bulk prediction, you can run the following commands:
+        - `mkdir node_rank`
         - `g++ -O3 -fconcepts -o node.exe 4_node_predictor_db.cpp utils.cpp graph.cpp -lsqlite3`
         - `./node.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db`
     
@@ -127,7 +154,8 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
         - `./edge.exe ../sample_jsons/example_basic.json`
     - Please note that, `../sample_jsons/example_basic.json` is an example parsed PD file provided in this repository. You can put the location of your parsed PD file in this place. Thus, the second command essentially looks like this: `./edge.exe <parsed_pd_file_location>`.
     
-    - If you want to do bulk prediction, you can run the following two commands:
+    - If you want to do bulk prediction, you can run the following commands:
+        - `mkdir edge_rank`
         - `g++ -O3 -fconcepts -o edge.exe 4_edge_predictor_db.cpp utils.cpp graph.cpp -lsqlite3`
         - `./edge.exe ./train_test_hashes/model_1/test_hashes_filtered.txt database.db`
     
