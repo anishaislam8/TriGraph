@@ -145,7 +145,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
     
     - Our node predictor model will replace the nodes in your PD file with a *BLANK*. For each node, based on its context, the model will predict the most likely node to fill that position. The output will include the rank of the actual node within the prediction heap and the contents of the heap after the prediction phase. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely node to fill the *BLANK* position. A sample format of output is shown below:
 
-    ![Sample Output](./src_c++/readme_images/sample_output.JPG)
+    ![Sample Output](readme_images/sample_output.JPG)
 
 4. To predict the edges:
     - Run the file using the following commands:
@@ -163,7 +163,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
 
     - Our edge predictor model will take every three node subgraph of your PD graph, and predict the most probable edges between these three nodes. Note that the heap contains the negative log probability scores of the tokens, meaning the highest real probability corresponds to the lowest negative log probability. As a result, the heap is sorted in ascending order, with the topmost entry being the most likely adjacency matrix representing the connections between the three nodes. The digits in the adjacency matrix follow this sequence: 00, 01, 02, 10, 11, 12, 20, 21, 22. For instance, 01 indicates whether there is a directed edge from node 0 to node 1. Therefore, an adjacency matrix like 001000010 means there is an edge from node 0 to node 2 and an edge from node 2 to node 1. The nodes are ordered based on their object type. A sample format of output is shown below:
     
-    ![Sample Output](./src_c++/readme_images/sample_output_edges.JPG)
+    ![Sample Output](readme_images/sample_output_edges.JPG)
 
     - Alternatively, you can run the baseline version of our edge prediction model by running the *4_edge_predictor_baseline_local.cpp* and *4_edge_predictor_baseline_db.cpp* files following the same procedures mentioned above.
 
