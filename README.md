@@ -8,7 +8,7 @@ The methodology is as follows:
 3. For each unique connection, we create adjacency matrices, calculate the frequencies of the unique connections, and save it in a dictionary called `frequency_2_grams`.
 4. Then, we find the three-node subgraphs from the input graph, create adjacency matrices, calculate the frequencies of the 3-node subgraphs, and store them in a dictionary called `frequency_3_grams`.
 5. Finally, we answer the following questions.
-    -  In the scenario of a PD graph featuring an empty node, how effectively can our model predict which node will fill the empty position?
+    -  In the scenario of a PD graph featuring an unknown node, how effectively can our model predict which node will fill the empty position?
     - Given three nodes in a PD graph that could potentially be interconnected, how effectively can our model identify the most probable edges connecting these 3-node combinations?
 
 ## PD database
