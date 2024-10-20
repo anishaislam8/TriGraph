@@ -173,7 +173,7 @@ The sample corpus for the subsequent stages is provided in the *src_c++/sample_c
 
 
 
-## Testing our code
+## Method 2: 2.3 Testing our code
 
 We have included sample tests for various methods used in our code, such as the heap functionality, score calculation, corpus creation logic, and some utility methods from the utils.cpp file. To run the tests, navigate to the `src_c++` directory and execute the following commands.
 - `cd src_c++`
