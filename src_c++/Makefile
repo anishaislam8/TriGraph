@@ -68,15 +68,12 @@ dummy: vocabulary_frequencies/frequency_1_gram_train.txt
 
 vocabulary_frequencies/frequency_2_grams_train.txt: 2_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db $(UT)
 	./2_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db
-
-vocabulary_frequencies/frequency_3_grams_train.txt: 3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db $(UT)
+vocabulary_frequencies/frequency_3_grams_train_all.txt: 3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db $(UT)
 	./3_grams.exe ./train_test_hashes/model_1/train_hashes.txt database.db
-merge: merge.py vocabulary_frequencies/frequency_3_grams_train_all.txt
+vocabulary_frequencies/frequency_3_grams_train.txt: merge.py vocabulary_frequencies/frequency_3_grams_train_all.txt
 	python3 merge.py
 observed_3_grams: vocabulary_frequencies/frequency_3_grams_train.txt
 	cat vocabulary_frequencies/frequency_3_grams_train.txt | cut -d "," -f 1-3 | sort -u > vocabulary_frequencies/observed_3_grams_train.txt
-
-vocabulary_frequencies/frequency_3_grams_train_all.txt: vocabulary_frequencies/frequency_3_grams_train.txt
 
 test_corpus.exe: test_corpus_creation.cpp utils.cpp graph.cpp 
 	$(COMPILE) -o test_corpus.exe test_corpus_creation.cpp utils.cpp graph.cpp $(LDFLAGS)
@@ -94,7 +91,7 @@ run_tests: test_corpus.exe test_score.exe test_utils.exe test_heap.exe
 	./test_utils.exe
 	./test_heap.exe
 
-trains: vocabulary_frequencies/frequency_1_gram_train.txt vocabulary_frequencies/frequency_2_grams_train.txt vocabulary_frequencies/frequency_3_grams_train.txt merge observed_3_grams
+trains: vocabulary_frequencies/frequency_1_gram_train.txt vocabulary_frequencies/frequency_2_grams_train.txt vocabulary_frequencies/frequency_3_grams_train_all.txt vocabulary_frequencies/frequency_3_grams_train.txt observed_3_grams
 predicts: node_example edge_example
 bulk_predicts: bulk_node_example bulk_edge_example bulk_edge_baseline_example
 tests: run_tests

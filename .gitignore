@@ -30,3 +30,4 @@ generate_resource_graph
 src_c++/mrr_values
 src_c++/r_tests
 src_c++/figures
+src_c++/database.db
