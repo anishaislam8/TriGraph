@@ -1,4 +1,4 @@
-# Graph Based Probabilistic Model for Node and Edge Prediction in Pure Data
+# TriGraph: A Probabilistic Subgraph-Based Model for Visual Code Completion in Pure Data
 We implement a code prediction model for Pure Data(PD) subgraphs in this project. Our goal is to predict the nodes and edges of a PD graph by utilizing the graph nature of the PD programs.
 
 ## Methodology
