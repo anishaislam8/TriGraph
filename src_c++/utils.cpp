@@ -75,7 +75,7 @@ vector<int> create_two_node_adjacency_matrix(const string &node_0, const string 
 }
 
 
-vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Graph G){
+vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Graph G){//tested
     
     set<vector<string> > three_node_subgraphs_set;
     
@@ -103,7 +103,7 @@ vector<vector<string> > get_three_node_subgraphs(const vector<string> &nodes, Gr
     return three_node_subgraphs;
 }
 
-vector<int> create_three_node_adjacency_matrix(const string &node_0, const string &node_1, const string &node_2, Graph G){
+vector<int> create_three_node_adjacency_matrix(const string &node_0, const string &node_1, const string &node_2, Graph G){//tested
 
 
     vector<int> adjacency_matrix_3_gram(9, 0);
@@ -190,7 +190,7 @@ bool comparator(const string& a, const string& b, const map<string, string>& y) 
 }
 
 
-map<string, unordered_set<string> > get_map_two_grams_to_connections(){
+map<string, unordered_set<string> > get_map_two_grams_to_connections(){//tested
 
     map<string, unordered_set<string> > two_grams_to_connections;
     vector<string> observed_three_grams = load_observed_three_grams();
@@ -238,7 +238,7 @@ map<string, unordered_set<string> > get_map_two_grams_to_connections(){
 
 }
 
-float get_score(const vector<string> &subgraph_nodes, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){
+float get_score(const vector<string> &subgraph_nodes, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map, const map<string, int> &frequency_1_gram, const map<string, int> &frequency_2_grams, const map<string, int> &frequency_3_grams, Graph G, const int sum_frequency_1_gram, const int sum_frequency_2_grams, const int sum_frequency_3_grams){//tested
     float score;
     float discount_factor = 0.05;
 
@@ -375,7 +375,7 @@ float score_of_a_subgraph_with_a_word_from_vocab(const string &node_to_add, cons
 
 }
 
-unordered_set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, const string &node_to_remove, const map<string, unordered_set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map){
+unordered_set<string> get_node_to_add_list_for_a_subgraph(const vector<string> &subgraph, const string &node_to_remove, const map<string, unordered_set<string> >& two_grams_to_connections, const map<string, string> &object_dict, const map<string, int> &unique_tokens_train_map){//tested
     // create node to add list for this subgraph
 
     vector<string> two_nodes;
@@ -534,7 +534,7 @@ int predict(const vector<vector <string> > &three_node_subgraphs_containing_this
 }
 
 
-vector<pair<string, float> > create_heap(const vector<pair<string, float> >& heap_to_insert){
+vector<pair<string, float> > create_heap(const vector<pair<string, float> >& heap_to_insert){//tested
     
     auto cmp = [](const pair<string, float>& left, const pair<string, float>& right) {
         return left.second < right.second;
@@ -615,7 +615,7 @@ map<string, vector<pair<string, float> > > get_frequency_2_gram_map(const map<st
     return frequency_2_grams_map;
 }
 
-map<string, vector<pair<string, float> > > get_frequency_3_gram_map(const map<string, int>& frequency_3_grams, const int sum_frequency_3_grams){
+map<string, vector<pair<string, float> > > get_frequency_3_gram_map(const map<string, int>& frequency_3_grams, const int sum_frequency_3_grams){//tested
      // create a map from frequency_2_gram where key is the first two tokens of current key separated by delimeters and value is a vector of map of <string, int> where string is the third token of the current key
     map<string, vector<pair<string, float> > > frequency_3_grams_map;
     for (auto three_gram: frequency_3_grams){
@@ -643,7 +643,7 @@ map<string, vector<pair<string, float> > > get_frequency_3_gram_map(const map<st
     return frequency_3_grams_map;
 }
 
-pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const auto& two_gram_1_2, const auto& two_gram_0_2, const int sum_frequency_2_grams){
+pair<string, float> get_two_gram_pair_for_heap(const auto& two_gram_0_1, const auto& two_gram_1_2, const auto& two_gram_0_2, const int sum_frequency_2_grams){//tested
     string ind_0, ind_1, ind_2, ind_3, ind_4, ind_5, ind_6, ind_7, ind_8;
     ind_0 = two_gram_0_1.first[0];
     ind_1 = two_gram_0_1.first[1];
@@ -1087,7 +1087,7 @@ map<string, int> load_frequency_3_grams(){
 }
 
 
-set<string> get_unique_tokens(const vector<string> &nodes, const map<string, string> &object_dict){
+set<string> get_unique_tokens(const vector<string> &nodes, const map<string, string> &object_dict){//tested
     set<string> unique_tokens;
     for (string node: nodes){
         unique_tokens.insert(object_dict.at(node));
@@ -1110,7 +1110,7 @@ string get_key(const vector<int>& nodes_indices, const vector<int>& adjacency_ma
 }
 
 
-map<string, int> get_frequency_1_gram(const set<string> &unique_tokens, const map<string, string> &object_dict, const vector<string> &nodes){
+map<string, int> get_frequency_1_gram(const set<string> &unique_tokens, const map<string, string> &object_dict, const vector<string> &nodes){//tested
     map<string, int> frequency_1_gram;
     for (string token: unique_tokens){
         frequency_1_gram[token] = 0;
@@ -1124,7 +1124,7 @@ map<string, int> get_frequency_1_gram(const set<string> &unique_tokens, const ma
 }
 
 
-map<string, int> get_frequency_2_grams(const vector<vector<string> > &connections, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
+map<string, int> get_frequency_2_grams(const vector<vector<string> > &connections, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){//tested
 
     map<string, int> frequncy_2_grams;
 
@@ -1169,7 +1169,7 @@ map<string, int> get_frequency_2_grams(const vector<vector<string> > &connection
 
 
 
-map<string, int> get_frequency_3_grams(const vector<vector<string> >& three_node_subgraphs, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){
+map<string, int> get_frequency_3_grams(const vector<vector<string> >& three_node_subgraphs, const map<string, string> &object_dict, const vector<string> &unique_tokens_train, Graph G){//tested
 
     map<string, int> frequncy_3_grams;
 

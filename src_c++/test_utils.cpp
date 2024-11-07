@@ -192,6 +192,52 @@ void test_get_three_node_subgraphs(){
     cout << "All tests passed for get_three_node_subgraphs!" << endl;
 }
 
+void test_get_node_to_add_list_for_a_subgraph(){
+    
+    // fake subgraph
+    vector<string> subgraph = {"a", "b", "c"};
+
+    // fake node to remove
+    string node_to_remove = "b";
+
+    // fake object dict
+    map<string, string> object_dict;
+    object_dict["a"] = "msg";
+    object_dict["b"] = "floatatom";
+    object_dict["c"] = "tgl";
+    object_dict["d"] = "r";
+    object_dict["e"] = "send";
+    object_dict["f"] = "receive";
+    object_dict["g"] = "print";
+
+    // fake unique tokens train map
+    map<string, int> unique_tokens_train_map;
+    unique_tokens_train_map["floatatom"] = 0;
+    unique_tokens_train_map["msg"] = 1;
+    unique_tokens_train_map["tgl"] = 2;
+    unique_tokens_train_map["r"] = 3;
+    unique_tokens_train_map["send"] = 4;
+    unique_tokens_train_map["receive"] = 5;
+    unique_tokens_train_map["print"] = 6;
+
+
+    // fake two grams to connections map
+    map<string, unordered_set<string> > two_grams_to_connections;
+    two_grams_to_connections["0,1"] = {"2", "3"};
+    two_grams_to_connections["0,2"] = {"2", "4", "5"};
+    two_grams_to_connections["1,2"] = {"0", "6"};
+
+    unordered_set<string> node_to_add_list = get_node_to_add_list_for_a_subgraph(subgraph, node_to_remove, two_grams_to_connections, object_dict, unique_tokens_train_map);
+    
+    assert(node_to_add_list.size() == 2);
+    assert(node_to_add_list.find("0") != node_to_add_list.end());
+    assert(node_to_add_list.find("6") != node_to_add_list.end());
+
+    cout << "All tests passed for get_node_to_add_list_for_a_subgraph!" << endl;
+
+
+}
+
 int main(){
 
 
@@ -212,6 +258,9 @@ int main(){
     
     // test get_frequency_3_gram_map
     test_get_frequency_3_gram_map();
+
+    // test get_node_to_add_list_for_a_subgraph
+    test_get_node_to_add_list_for_a_subgraph();
 
     return 0;
 
