@@ -192,7 +192,7 @@ We have included sample tests for various methods used in our code, such as the 
 
 
 ## Cite Our Work
-If you use our code or data, please cite our work as follows:
+This work is part of our paper: "TriGraph: A Probabilistic Subgraph-Based Model for Visual Code Completion in Pure Data." If you use our code or data, please cite our work as follows:
 
 ```
 @inproceedings{islam2025trigraph,
