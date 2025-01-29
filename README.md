@@ -1,5 +1,5 @@
 # TriGraph: A Probabilistic Subgraph-Based Model for Visual Code Completion in Pure Data
-We implement a code prediction model for Pure Data(PD) subgraphs in this project. Our goal is to predict the nodes and edges of a PD graph by utilizing the graph nature of the PD programs.
+We implement a code prediction model for Pure Data (PD) subgraphs in this project. Our goal is to predict the nodes and edges of a PD graph by utilizing the graph nature of the PD programs.
 
 ## Methodology
 The methodology is as follows:
@@ -195,7 +195,7 @@ We have included sample tests for various methods used in our code, such as the 
 If you use our code or data, please cite our work as follows:
 
 ```
-@misc{islam2025trigraph,
+@inproceedings{islam2025trigraph,
   title={{TriGraph: A Probabilistic Subgraph-Based Model for Visual Code Completion in Pure Data}},
   author = {Islam, Anisha and Hindle, Abram},
   booktitle={2025 IEEE/ACM 22nd International Conference on Mining Software Repositories (MSR)},
