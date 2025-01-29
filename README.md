@@ -3,13 +3,13 @@ We implement a code prediction model for Pure Data(PD) subgraphs in this project
 
 ## Methodology
 The methodology is as follows:
-1. We build a graph from the list of connections in a parsed Pure Data file.
-2. After that, we extract the unique nodes (object_types such as "msg", "tgl" etc), count the frequency of each token, and save it in a dictionary called `frequency_1_gram`.
-3. For each unique connection, we create adjacency matrices, calculate the frequencies of the unique connections, and save it in a dictionary called `frequency_2_grams`.
-4. Then, we find the three-node subgraphs from the input graph, create adjacency matrices, calculate the frequencies of the 3-node subgraphs, and store them in a dictionary called `frequency_3_grams`.
-5. Finally, we answer the following questions.
-    -  In the scenario of a PD graph featuring an unknown node, how effectively can our model predict which node will fill the empty position?
-    - Given three nodes in a PD graph that could potentially be interconnected, how effectively can our model identify the most probable edges connecting these 3-node combinations?
+1. We sample the PD projects into 5 different training and testing sets, and extract parsed PD files for each dataset. 
+2. Subsequently, we construct graphs from the list of nodes and connections in the parsed PD files. 
+3. We next identify unique nodes and count their occurrences.
+4. Following this, we extract 2-node and 3-node subgraphs, compute their frequencies, and collect data on all three-node combinations observed in our corpus, regardless of the connections between the nodes.
+5. We address the following research questions:
+    - RQ1: In the scenario of a PD graph featuring an unknown node, how effectively can our TriGraph model predict which node will fill the unknown position?
+    - RQ2: Given three nodes in a PD graph that could potentially be interconnected, how effectively can our TriGraph model identify the most probable edges connecting these 3-node combinations?
 
 ## PD database
 The PD database used in this project can be downloaded from the following links:
@@ -189,3 +189,17 @@ We have included sample tests for various methods used in our code, such as the 
 - For running the heap tests: 
     - `g++ -O3 -fconcepts -o test_heap.exe test_heap.cpp utils.cpp graph.cpp -lsqlite3`
     - `./test_heap.exe`
+
+
+## Cite Our Work
+If you use our code or data, please cite our work as follows:
+
+```
+@misc{islam2025trigraph,
+  title={{TriGraph: A Probabilistic Subgraph-Based Model for Visual Code Completion in Pure Data}},
+  author = {Islam, Anisha and Hindle, Abram},
+  booktitle={2025 IEEE/ACM 22nd International Conference on Mining Software Repositories (MSR)},
+  year={2025},
+  organization={IEEE}
+}
+```
